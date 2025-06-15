@@ -1,0 +1,180 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
+
+    <OutputType>Exe</OutputType>
+    <RootNamespace>ShadersCamera</RootNamespace>
+    <UseMaui>true</UseMaui>
+    <SingleProject>true</SingleProject>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <WarningsAsErrors>$(WarningsAsErrors);XLS0501</WarningsAsErrors>
+
+    <UseNuget>false</UseNuget>
+
+    <ApplicationTitle>ShadersCamera</ApplicationTitle>
+    <ApplicationId>com.drawnui.shaderscam</ApplicationId>
+    <ApplicationIdGuid>340e07b0-ebc2-4fde-9ac9-074d5c3269b4</ApplicationIdGuid>
+
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <WindowsPackageType>MSIX</WindowsPackageType>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">
+      15.2
+    </SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+      21.0
+    </SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+      10.0.19041.0
+    </SupportedOSPlatformVersion>
+    <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.19041.0</TargetPlatformMinVersion>
+    <AssemblyName>$(MSBuildProjectName)</AssemblyName>
+  </PropertyGroup>
+
+  <Target Condition="'$(UseNuget)' != 'true'" Name="IssueCustomWarning" BeforeTargets="BeforeBuild">
+    <Warning Text="------ Building $(TargetFramework) with DrawnUi project reference ------" />
+  </Target>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net*-ios|AnyCPU'">
+    <CreatePackage>false</CreatePackage>
+    <CodesignKey>iPhone Developer</CodesignKey>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <!--<EnableLLVM>True</EnableLLVM>-->
+    <Optimize>True</Optimize>
+    <!--<RunAOTCompilation>True</RunAOTCompilation>
+    <PublishTrimmed>True</PublishTrimmed>
+    <MtouchUseLlvm>True</MtouchUseLlvm>-->
+    <AndroidEnableSGenConcurrent>True</AndroidEnableSGenConcurrent>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net*-android|AnyCPU'">
+    <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net*-android|AnyCPU'">
+    <AndroidEnableMultiDex>True</AndroidEnableMultiDex>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(TargetFramework.Contains('ios')) == true">
+    <ProvisioningType>manual</ProvisioningType>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+
+    <None Remove="Resources\Images\" />
+
+    <None Remove="Resources\Raw\dotnet_bot.png" />
+
+    <None Remove="Resources\Raw\Images\8.jpg" />
+
+    <None Remove="Resources\Raw\Lottie\cross.json" />
+
+    <None Remove="Resources\Raw\Lottie\Loader.json" />
+
+    <None Remove="Resources\Raw\Lottie\robot.json" />
+
+    <None Remove="Resources\Raw\Shaders\invert.sksl" />
+
+    <None Remove="Resources\Raw\Shaders\transdoorway.sksl" />
+
+    <None Remove="Resources\Raw\Shaders\transfade.sksl" />
+
+    <!-- App Icon -->
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+
+    <!-- Splash Screen -->
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+
+    <!-- Images -->
+    <!--<MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />-->
+
+    <!-- Custom Fonts -->
+    <MauiFont Include="Resources\Fonts\*" />
+
+    <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
+    <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Remove="Models\**" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+  </ItemGroup>
+
+  <!--for development-->
+  <ItemGroup Condition="'$(UseNuget)' != 'true'">
+    <ProjectReference Include="..\..\..\DrawnUi.Maui\src\Maui\Addons\DrawnUi.Maui.Camera\DrawnUi.Maui.Camera.csproj" />
+    <ProjectReference Include="..\..\..\DrawnUi.Maui\src\Maui\DrawnUi\DrawnUi.Maui.csproj" />
+  </ItemGroup>
+
+  <!--production-->
+  <ItemGroup Condition="'$(UseNuget)' == 'true'">
+    <PackageReference Include="DrawnUi.Maui.Camera" Version="1.5.5.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+
+    <EmbeddedResource Update="Resources\Strings\ResStrings.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>ResStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <MauiAsset Update="Resources\Raw\Lottie\cross.json">
+      <LogicalName>%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+    </MauiAsset>
+    <MauiAsset Update="Resources\Raw\Lottie\Loader.json">
+      <LogicalName>%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+    </MauiAsset>
+    <MauiAsset Update="Resources\Raw\Lottie\robot.json">
+      <LogicalName>%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+    </MauiAsset>
+    <MauiAsset Update="Resources\Raw\Shaders\Camera\invert.sksl">
+      <LogicalName>%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+    </MauiAsset>
+    <MauiAsset Update="Resources\Raw\Shaders\transfade.sksl">
+      <LogicalName>%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+    </MauiAsset>
+    <MauiAsset Update="Resources\Raw\Shaders\transdoorway.sksl">
+      <LogicalName>%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+    </MauiAsset>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="Resources\Raw\Json\" />
+    <Folder Include="Resources\Raw\Lottie\" />
+    <Folder Include="Resources\Raw\Svg\" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Resources\Strings\ResStrings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ResStrings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+
+</Project>

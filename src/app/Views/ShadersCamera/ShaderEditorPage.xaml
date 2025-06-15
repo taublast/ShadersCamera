@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ShadersCamera.Views.ShadersCamera.ShaderEditorPage"
+             Title="Shader Editor"
+             BackgroundColor="#1e1e1e">
+    
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Dark theme colors -->
+            <Color x:Key="DarkBackground">#1e1e1e</Color>
+            <Color x:Key="EditorBackground">#2d2d30</Color>
+            <Color x:Key="HeaderBackground">#252526</Color>
+            <Color x:Key="TextColor">#d4d4d4</Color>
+            <Color x:Key="AccentColor">#007acc</Color>
+            <Color x:Key="ButtonBackground">#0e639c</Color>
+            <Color x:Key="ButtonHover">#1177bb</Color>
+            <Color x:Key="BorderColor">#3c3c3c</Color>
+            
+            <!-- Button styles -->
+            <Style x:Key="ActionButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource ButtonBackground}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="Padding" Value="20,10" />
+                <Setter Property="Margin" Value="5,0" />
+                <Setter Property="CornerRadius" Value="4" />
+                <Setter Property="MinimumWidthRequest" Value="80" />
+            </Style>
+            
+            <Style x:Key="CloseButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#d13438" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="Padding" Value="20,10" />
+                <Setter Property="Margin" Value="5,0" />
+                <Setter Property="CornerRadius" Value="4" />
+                <Setter Property="MinimumWidthRequest" Value="80" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
+    <Grid RowDefinitions="Auto,*,Auto" BackgroundColor="{StaticResource DarkBackground}">
+        
+        <!-- Header -->
+        <Border Grid.Row="0" 
+                BackgroundColor="{StaticResource HeaderBackground}"
+                Padding="20,15">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackLayout Grid.Column="0" Orientation="Vertical" Spacing="2">
+                    <Label Text="Shader Code Editor" 
+                           FontSize="18" 
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource TextColor}" />
+                    <Label Text="Edit currenlty running SKSL shader code" 
+                           FontSize="12" 
+                           TextColor="#9d9d9d" />
+                </StackLayout>
+                <Label Grid.Column="1" 
+                       Text="SKSL" 
+                       FontSize="14" 
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource AccentColor}"
+                       VerticalOptions="Center"
+                       Padding="10,5"
+                       BackgroundColor="#2d2d30" />
+            </Grid>
+        </Border>
+        
+        <!-- Editor Area -->
+        <Border Grid.Row="1" 
+                BackgroundColor="{StaticResource EditorBackground}"
+                Stroke="{StaticResource BorderColor}"
+                StrokeThickness="1"
+                Margin="10">
+            <Grid>
+                <!-- Background editor for actual text input -->
+                <Editor x:Name="Editor"
+                        BackgroundColor="Transparent"
+                        TextColor="Transparent"
+                        FontFamily="Consolas"
+                        FontSize="14"
+                        Placeholder="Enter your SKSL shader code here..."
+                        PlaceholderColor="#6d6d6d"
+                        AutoSize="TextChanges"
+                        Margin="10"
+                        Focused="Editor_OnFocused"
+                        TextChanged="OnEditorTextChanged" />
+                
+                <!-- Overlay for syntax highlighting -->
+                <ScrollView x:Name="HighlightScrollView"
+                           IsEnabled="False"
+                           Margin="10"
+                           Padding="0">
+                    <Label x:Name="HighlightLabel"
+                           FontFamily="Consolas"
+                           FontSize="14"
+                           BackgroundColor="Transparent"
+                           TextColor="{StaticResource TextColor}"
+                           LineHeight="1.2"
+                           VerticalOptions="Start"
+                           HorizontalOptions="Start" />
+                </ScrollView>
+            </Grid>
+        </Border>
+        
+        <!-- Action Buttons -->
+        <Border Grid.Row="2" 
+                BackgroundColor="{StaticResource HeaderBackground}"
+                Padding="20,15">
+            <Grid ColumnDefinitions="*,Auto">
+                <!-- Info section -->
+                <!--<StackLayout Grid.Column="0" Orientation="Vertical" Spacing="2" VerticalOptions="Center">
+                    <Label Text="SKSL shader editor for camera effects" 
+                           FontSize="11" 
+                           TextColor="#9d9d9d" />
+                    <Label Text="Apply to preview changes • Save &amp; Close to save and exit" 
+                           FontSize="11" 
+                           TextColor="#9d9d9d" />
+                </StackLayout>-->
+                
+                <!-- Buttons -->
+                <HorizontalStackLayout Grid.Column="1" Spacing="0">
+                    <Button Text="Close" 
+                            Style="{StaticResource CloseButtonStyle}"
+                            Clicked="ButtonClose_OnClicked" />
+                    <Button Text="Apply" 
+                            Style="{StaticResource ActionButtonStyle}"
+                            Clicked="ButtonApply_OnClicked" />
+                    <Button Text="Save &amp; Close" 
+                            Style="{StaticResource ActionButtonStyle}"
+                            Clicked="ButtonSave_OnClicked" />
+                </HorizontalStackLayout>
+            </Grid>
+        </Border>
+        
+    </Grid>
+</ContentPage>
