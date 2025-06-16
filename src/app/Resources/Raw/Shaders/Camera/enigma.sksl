@@ -1,0 +1,40 @@
+﻿uniform float4 iMouse;           // Mouse drag pos=.xy Click pos=.zw (pixels)
+uniform float  iTime;            // Shader playback time (s)
+uniform float2 iResolution;      // Viewport resolution (pixels)
+uniform float2 iImageResolution; // iImage1 resolution (pixels)
+uniform shader iImage1;          // Texture
+uniform float2 iOffset;          // Top-left corner of DrawingRect
+uniform float2 iOrigin;          // Mouse drag started here
+
+/// <summary>
+/// Applies subtle Matrix movie color grading
+/// </summary>
+/// <param name="color">Input RGB color</param>
+/// <returns>Matrix-style color graded image</returns>
+half3 matrixColorGrade(half3 color) {
+    // Slightly desaturate
+    float luminance = dot(color, half3(0.299, 0.587, 0.114));
+    half3 desaturated = mix(color, half3(luminance), 0.3);
+    
+    // Very subtle green tint
+    desaturated.r *= 0.85;
+    desaturated.g *= 1.05;
+    desaturated.b *= 0.80;
+    
+    // Slightly increase contrast
+    desaturated = (desaturated - 0.5) * 1.15 + 0.5;
+    
+    return clamp(desaturated, 0.0, 1.0);
+}
+
+half4 main(float2 fragCoord) 
+{	
+    float2 renderingScale = iImageResolution.xy / iResolution.xy;
+    float2 inputCoord = (fragCoord - iOffset) * renderingScale;
+    
+    half4 originalColor = iImage1.eval(inputCoord);
+    
+    half3 matrixColor = matrixColorGrade(originalColor.rgb);
+    
+    return half4(matrixColor, originalColor.a);
+}

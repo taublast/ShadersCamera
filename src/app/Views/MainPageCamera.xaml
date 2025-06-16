@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<views1:BasePageCodeBehind
-    x:Class="AppoMobi.Maui.DrawnUi.Demo.Views.MainPageShadersCamera"
+<ContentPage
+    x:Class="AppoMobi.Maui.DrawnUi.Demo.Views.MainPageCamera"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:draw="http://schemas.appomobi.com/drawnUi/2023/draw"
-    xmlns:viewModels1="clr-namespace:ShadersCamera.ViewModels"
-    xmlns:views="clr-namespace:AppoMobi.Maui.DrawnUi.Demo.Views"
-    xmlns:views1="clr-namespace:ShadersCamera.Views"
-    x:DataType="viewModels1:CameraViewModel">
+    xmlns:viewModels="clr-namespace:ShadersCamera.ViewModels"
+    xmlns:controls="clr-namespace:ShadersCamera.Controls"
+    xmlns:models="clr-namespace:ShadersCamera.Models"
+    x:Name="ThisPage"
+    x:DataType="viewModels:CameraViewModel">
 
     <draw:Canvas
+        ViewDisposing="CanvasWillDispose"
         WillFirstTimeDraw="DrawnView_OnWillFirstTimeDraw"
         Gestures="Enabled"
         HorizontalOptions="Fill" VerticalOptions="Fill"
@@ -50,7 +52,7 @@
                 </draw:SkiaLayer.Resources>
 
                 <!--  CAMERA PREVIEW ETC  -->
-                <views:CameraWithEffects
+                <controls:CameraWithEffects
                     ConstantUpdate="True"
                     x:Name="CameraControl"
                     BackgroundColor="Black"
@@ -69,44 +71,72 @@
                     UseCache="Operations"
                     VerticalOptions="Fill">
 
-                    <!--  BTNS  -->
-                    <draw:SkiaStack
-                        Margin="0,24,0,0"
-                        HorizontalOptions="Center">
 
-                        <draw:SkiaButton
-                            ControlStyle="Material"
-                            CornerRadius="12"
-                            BackgroundColor="Black"
-                            Tapped="TappedSwitchCamera"
-                            Text="Source"
-                            WidthRequest="100" />
+                        <draw:SkiaShape HorizontalOptions="Center"
+                                    VerticalOptions="End"
+                                    Margin="0,0,0,24"
+                                    WidthRequest="300" HeightRequest="60"
+                                    StrokeColor="Black"
+                                    StrokeWidth="-1"
+                                    BackgroundColor="#66000000"
+                                    CornerRadius="32">
 
-                        <draw:SkiaButton
-                            ControlStyle="Material"
-                            CornerRadius="12"
-                            BackgroundColor="Black"
-                            Tapped="TappedTurnCamera"
-                            Text="On/Off"
-                            WidthRequest="100" />
 
-                        <draw:SkiaButton
-                            ControlStyle="Material"
-                            CornerRadius="12"
-                            BackgroundColor="Black"
-                            Tapped="TappedCycleEffects"
-                            Text="Effect"
-                            WidthRequest="100" />
+                        <draw:HStack 
+                            UseCache="GPU"
+                            HorizontalOptions="Center" VerticalOptions="Center">
 
-                        <draw:SkiaButton
-                            ControlStyle="Material"
-                            CornerRadius="12"
-                            BackgroundColor="Black"
-                            Tapped="TappedFlash"
-                            Text="Flash"
-                            WidthRequest="100" />
 
-                    </draw:SkiaStack>
+                            <!--POWER/PAUSE-->
+                            <draw:SkiaShape 
+                                Tapped="TappedTurnCamera"
+                                Type="Circle" HeightRequest="46" LockRatio="1" BackgroundColor="Black">
+
+                                <draw:SkiaLabel VerticalOptions="Center" HorizontalOptions="Center" Text="P" TextColor="White"/>
+
+                            </draw:SkiaShape>
+
+                            <!--EFFECTS-->
+                            <draw:SkiaShape 
+                                Tapped="TappedCycleEffects"
+                                Type="Circle" HeightRequest="46" LockRatio="1" BackgroundColor="Black">
+
+                                <draw:SkiaLabel VerticalOptions="Center" HorizontalOptions="Center" Text="E" TextColor="White"/>
+
+                            </draw:SkiaShape>
+
+                            <!--FLASH-->
+                            <draw:SkiaShape 
+                                Tapped="TappedFlash"
+                                Type="Circle" HeightRequest="46" LockRatio="1" BackgroundColor="Black">
+
+                                <draw:SkiaLabel VerticalOptions="Center" HorizontalOptions="Center" Text="F" TextColor="White"/>
+
+                            </draw:SkiaShape>
+
+                            <!--SOURCE/SWITCH-->
+                            <draw:SkiaShape 
+                                Tapped="TappedSwitchCamera"
+                                Type="Circle" HeightRequest="46" LockRatio="1" BackgroundColor="Black">
+
+                                <draw:SkiaLabel VerticalOptions="Center" HorizontalOptions="Center" Text="S" TextColor="White"/>
+
+                            </draw:SkiaShape>
+
+                            <draw:SkiaShape 
+                                draw:AddGestures.CommandTapped="{Binding CommandCaptureStillPhoto}"
+                                Type="Circle" HeightRequest="46" LockRatio="1" StrokeWidth="2" StrokeColor="Black" Padding="3">
+
+                                <draw:SkiaShape 
+                                    BackgroundColor="#330000"
+                                    Type="Circle" HorizontalOptions="Fill" VerticalOptions="Fill"/>
+
+                            </draw:SkiaShape>
+
+
+                        </draw:HStack>
+
+                    </draw:SkiaShape>
 
                     <draw:SkiaHotspot
                         HorizontalOptions="Center"
@@ -116,43 +146,6 @@
                         VerticalOptions="Center"
                         WidthRequest="290"
                         ZIndex="110" />
-
-                    <!--  middle button CAPTURE  -->
-                    <!--todo emboss-->
-                    <draw:SkiaShape
-                        BevelType="Emboss"
-                        UseCache="GPU"
-                        draw:AddGestures.CommandTapped="{Binding CommandCaptureStillPhoto}"
-                        BackgroundColor="Black"
-                        CornerRadius="12"
-                        HeightRequest="60"
-                        HorizontalOptions="Center"
-                        AddMarginBottom="24"
-                        VerticalOptions="End"
-                        LockRatio="1"
-                        ZIndex="10">
-
-                        <draw:SkiaSvg
-                            HeightRequest="32"
-                            HorizontalOptions="Center"
-                            LockRatio="1"
-                            SvgString="{x:StaticResource SvgShutter}"
-                            TintColor="White"
-                            UseCache="Operations"
-                            VerticalOptions="Center" />
-
-                        <draw:SkiaShape.Shadows>
-
-                            <draw:SkiaShadow
-                                Blur="8"
-                                Opacity="0.33"
-                                X="4"
-                                Y="4"
-                                Color="{StaticResource ColorPrimary}" />
-
-                        </draw:SkiaShape.Shadows>
-
-                    </draw:SkiaShape>
 
                 </draw:SkiaLayer>
 
@@ -166,7 +159,7 @@
 
             <!--  SHADER SELECTOR DRAWER  -->
             <draw:SkiaDrawer
-                Margin="0,0,0,100"
+                Margin="0,0,0,24"
                 x:Name="ShaderDrawer"
                 HeaderSize="40"
                 Direction="FromLeft"
@@ -198,17 +191,17 @@
                             VerticalOptions="Fill"
                             Padding="8">
 
-                            <draw:SkiaLayout
+                            <controls:SkiaLayoutWithSelector
                                 x:Name="Stack"
                                 Type="Row"
                                 VerticalOptions="Center"
                                 Spacing="8"
-                                RecyclingTemplate="Disabled"
+                                RecyclingTemplate="Enabled"
                                 UseCache="Operations"
                                 ItemsSource="{Binding ShaderItems}">
 
                                 <draw:SkiaLayout.ItemTemplate>
-                                    <DataTemplate x:DataType="views:ShaderItem">
+                                    <DataTemplate x:DataType="models:ShaderItem">
 
                                         <draw:SkiaShape
                                             Type="Rectangle"
@@ -228,6 +221,7 @@
                                                 <!--  IMAGE WITH SHADER EFFECT  -->
                                                 <draw:SkiaImage
                                                     Source="{Binding ImageSource}"
+                                                    ImageBitmap="{Binding  Source ={x:Reference ThisPage}, Path=DisplayPreview}"
                                                     Aspect="AspectCover"
                                                     HorizontalOptions="Fill"
                                                     VerticalOptions="Fill"
@@ -274,12 +268,13 @@
                                     </DataTemplate>
                                 </draw:SkiaLayout.ItemTemplate>
 
-                            </draw:SkiaLayout>
+                            </controls:SkiaLayoutWithSelector>
 
                         </draw:SkiaScroll>
 
                         <!--  DRAWER HEADER  -->
                         <draw:SkiaShape
+                            Tapped="TappedDrawerHeader"
                             UseCache="Image"
                             HorizontalOptions="End"
                             Type="Rectangle"
@@ -325,4 +320,4 @@
 
     </draw:Canvas>
 
-</views1:BasePageCodeBehind>
+</ContentPage>

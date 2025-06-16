@@ -1,12 +1,9 @@
 using System.Windows.Input;
-#if ANDROID
-using Android.Graphics;
-#endif
 using DrawnUi.Camera;
 using DrawnUi.Infrastructure;
 using ShadersCamera.Views.ShadersCamera;
 
-namespace AppoMobi.Maui.DrawnUi.Demo.Views
+namespace ShadersCamera.Controls
 {
     public class CameraWithEffects : SkiaCamera
     {
@@ -162,7 +159,7 @@ namespace AppoMobi.Maui.DrawnUi.Demo.Views
         {
             get
             {
-                return new Command(async (object context) =>
+                return new Command(async (context) =>
                 {
                     //just change currently running shader code, no matter what exactly we longpressed
                     if (_shader != null)

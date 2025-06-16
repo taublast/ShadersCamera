@@ -3,12 +3,12 @@ using System.Windows.Input;
 using AppoMobi.Maui.Gestures;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using AppoMobi.Maui.DrawnUi.Demo.Views;
 using ShadersCamera.Views.ShadersCamera;
+using ShadersCamera.Models;
+using ShadersCamera.Controls;
 
 namespace ShadersCamera.ViewModels
 {
-
     /// <summary>
     /// Captured picture will land here.
     /// We can get a preview for AI analysis inside this viewmodel too.
@@ -20,11 +20,32 @@ namespace ShadersCamera.ViewModels
         {
             ShaderItems = new ObservableCollection<ShaderItem>
             {
+                new ShaderItem { Title = "Classic B&W", ShaderFilename = "Shaders/Camera/bwclassic.sksl" },
+                new ShaderItem { Title = "Street", ShaderFilename = "Shaders/Camera/bwstreet.sksl" },
+                new ShaderItem { Title = "Street Zoom", ShaderFilename = "Shaders/Camera/bwstreet200.sksl" },
+                new ShaderItem { Title = "Fine Art B&W", ShaderFilename = "Shaders/Camera/bwfineart.sksl" },
+                new ShaderItem { Title = "Newpaper", ShaderFilename = "Shaders/Camera/bwprint.sksl" },
+                new ShaderItem { Title = "Portrait B&W", ShaderFilename = "Shaders/Camera/bwportrait.sksl" },
+
+                new ShaderItem { Title = "Sin City", ShaderFilename = "Shaders/Camera/selective.sksl" },
                 new ShaderItem { Title = "Negative", ShaderFilename = "Shaders/Camera/invert.sksl" },
+                new ShaderItem { Title = "Pastels", ShaderFilename = "Shaders/Camera/wes.sksl" },
+                new ShaderItem { Title = "Romance", ShaderFilename = "Shaders/Camera/romance.sksl" },
+                new ShaderItem { Title = "Mystic", ShaderFilename = "Shaders/Camera/enigma.sksl" },
+                new ShaderItem { Title = "Blade Runner", ShaderFilename = "Shaders/Camera/blade.sksl" },
+                new ShaderItem { Title = "Blues", ShaderFilename = "Shaders/Camera/nolan.sksl" },
+                new ShaderItem { Title = "Drive", ShaderFilename = "Shaders/Camera/pink.sksl" },
+                new ShaderItem { Title = "Action", ShaderFilename = "Shaders/Camera/action.sksl" },
+                new ShaderItem { Title = "Desert", ShaderFilename = "Shaders/Camera/desert.sksl" },
+                new ShaderItem { Title = "Blockbuster", ShaderFilename = "Shaders/Camera/blockbuster.sksl" },
+                new ShaderItem { Title = "Kodachrome", ShaderFilename = "Shaders/Camera/kodachrome.sksl" },
                 new ShaderItem { Title = "TV", ShaderFilename = "Shaders/Camera/retrotv.sksl" },
-                new ShaderItem { Title = "Gazette", ShaderFilename = "Shaders/Camera/newspaper.sksl" },
+                new ShaderItem { Title = "Film", ShaderFilename = "Shaders/Camera/film.sksl" },
+                new ShaderItem { Title = "Desaturated", ShaderFilename = "Shaders/Camera/snyder.sksl" },
+
                 new ShaderItem { Title = "Palette", ShaderFilename = "Shaders/Camera/old-palette.sksl" },
                 new ShaderItem { Title = "Neon", ShaderFilename = "Shaders/Camera/popart.sksl" },
+                new ShaderItem { Title = "Toon", ShaderFilename = "Shaders/Camera/toon.sksl" },
                 new ShaderItem { Title = "Sketch", ShaderFilename = "Shaders/Camera/sketch.sksl" },
                 new ShaderItem { Title = "Pixels", ShaderFilename = "Shaders/Camera/pixels.sksl" }
             };
@@ -47,6 +68,7 @@ namespace ShadersCamera.ViewModels
         #region PROPERTIES
 
         private ObservableCollection<ShaderItem> _shaderItems;
+
         public ObservableCollection<ShaderItem> ShaderItems
         {
             get { return _shaderItems; }
@@ -61,6 +83,7 @@ namespace ShadersCamera.ViewModels
         }
 
         private ShaderItem _selectedShader;
+
         public ShaderItem SelectedShader
         {
             get { return _selectedShader; }
@@ -77,8 +100,6 @@ namespace ShadersCamera.ViewModels
         #endregion
 
         #region COMMANDS
-
- 
 
         public ICommand CommandSelectShader
         {
@@ -98,7 +119,7 @@ namespace ShadersCamera.ViewModels
             }
         }
 
-     
+
         public ICommand CommandCaptureStillPhoto
         {
             get
@@ -133,12 +154,10 @@ namespace ShadersCamera.ViewModels
         public ICommand Callback { get; set; }
 
         private LoadedImageSource _displayPreview;
+
         public LoadedImageSource DisplayPreview
         {
-            get
-            {
-                return _displayPreview;
-            }
+            get { return _displayPreview; }
             set
             {
                 if (_displayPreview != value)
@@ -150,12 +169,10 @@ namespace ShadersCamera.ViewModels
         }
 
         private ImageSource _LoadImage;
+
         public ImageSource LoadImage
         {
-            get
-            {
-                return _LoadImage;
-            }
+            get { return _LoadImage; }
             set
             {
                 if (_LoadImage != value)
@@ -183,8 +200,6 @@ namespace ShadersCamera.ViewModels
 
         public override void OnDisposing()
         {
-
-
             if (Camera != null)
             {
                 Camera.CaptureSuccess -= OnCaptureSuccess;
@@ -214,6 +229,7 @@ namespace ShadersCamera.ViewModels
                 {
                     Camera.Display.Blur = 0;
                 }
+
                 ShowResume = false;
             }
             else
@@ -227,12 +243,10 @@ namespace ShadersCamera.ViewModels
         }
 
         private bool _ShowResume;
+
         public bool ShowResume
         {
-            get
-            {
-                return _ShowResume;
-            }
+            get { return _ShowResume; }
             set
             {
                 if (_ShowResume != value)
@@ -269,7 +283,7 @@ namespace ShadersCamera.ViewModels
 
             overlay.AddSubView(new SkiaLabel()
             {
-                Text = $"DrawnUi Camera Demo",
+                Text = $"DrawnUi Camera",
                 FontFamily = "FontPhotoBold",
                 FontSize = 26,
                 TextColor = Colors.White,
@@ -297,7 +311,8 @@ namespace ShadersCamera.ViewModels
             captured.Image = newBitmap;
 
             //save to device, can use custom album name if needed
-            Camera.CameraDevice.Meta.Orientation = 1; //since we rotate the capture to overlay info the orientation will always be 1 (default)
+            Camera.CameraDevice.Meta.Orientation =
+                1; //since we rotate the capture to overlay info the orientation will always be 1 (default)
             await Camera.SaveToGallery(captured, false);
 
             //display preview
@@ -313,6 +328,5 @@ namespace ShadersCamera.ViewModels
                 Callback.Execute(captured);
             }
         }
-
     }
 }

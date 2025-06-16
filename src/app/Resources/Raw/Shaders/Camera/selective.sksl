@@ -1,0 +1,63 @@
+﻿uniform float4 iMouse;           // Mouse drag pos=.xy Click pos=.zw (pixels)
+uniform float  iTime;            // Shader playback time (s)
+uniform float2 iResolution;      // Viewport resolution (pixels)
+uniform float2 iImageResolution; // iImage1 resolution (pixels)
+uniform shader iImage1;          // Texture
+uniform float2 iOffset;          // Top-left corner of DrawingRect
+uniform float2 iOrigin;          // Mouse drag started here
+
+/// <summary>
+/// Detects if a color is predominantly red for selective coloring
+/// </summary>
+/// <param name="color">Input RGB color</param>
+/// <returns>Red detection strength</returns>
+float detectRed(half3 color) {
+    float redStrength = color.r / max(color.g + color.b + 0.001, 0.001);
+    float saturation = max(color.r, max(color.g, color.b)) - min(color.r, min(color.g, color.b));
+    return smoothstep(1.2, 2.5, redStrength) * smoothstep(0.1, 0.4, saturation);
+}
+
+/// <summary>
+/// Applies the high contrast black and white with selective red from Sin City
+/// </summary>
+/// <param name="color">Input RGB color</param>
+/// <returns>Sin City styled color</returns>
+half3 sinCityGrade(half3 color) {
+    float luminance = dot(color, half3(0.299, 0.587, 0.114));
+    
+    // Create high contrast black and white
+    float contrastLum = (luminance - 0.5) * 3.0 + 0.5;
+    contrastLum = clamp(contrastLum, 0.0, 1.0);
+    
+    // Apply dramatic S-curve for graphic novel look
+    float sCurve = contrastLum * contrastLum * (3.0 - 2.0 * contrastLum);
+    
+    // Make it even more dramatic
+    sCurve = smoothstep(0.3, 0.7, sCurve);
+    
+    half3 blackWhite = half3(sCurve);
+    
+    // Detect red areas for selective color
+    float redMask = detectRed(color);
+    
+    // Enhanced red for selective areas
+    half3 enhancedRed = half3(color.r * 1.5, color.g * 0.3, color.b * 0.3);
+    enhancedRed = clamp(enhancedRed, 0.0, 1.0);
+    
+    // Blend between black/white and selective red
+    half3 finalColor = mix(blackWhite, enhancedRed, redMask);
+    
+    return finalColor;
+}
+
+half4 main(float2 fragCoord) 
+{	
+    float2 renderingScale = iImageResolution.xy / iResolution.xy;
+    float2 inputCoord = (fragCoord - iOffset) * renderingScale;
+    
+    half4 originalColor = iImage1.eval(inputCoord);
+    
+    half3 gradedColor = sinCityGrade(originalColor.rgb);
+    
+    return half4(gradedColor, originalColor.a);
+}

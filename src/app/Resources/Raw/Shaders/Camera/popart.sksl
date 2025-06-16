@@ -8,25 +8,21 @@ uniform float2 iOrigin;
 
 const float COLOR_LEVELS = 4.0;
 const float GLOW_RADIUS = 3.0;
-const float PULSE_SPEED = 2.0;
 
 /// <summary>
 /// Maps luminance to vibrant neon colors
 /// </summary>
 /// <param name="luminance">Input luminance value</param>
-/// <param name="time">Current time for animation</param>
 /// <returns>Neon color</returns>
-half3 neonColorMap(float luminance, float time) {
-    float pulseFactor = sin(time * PULSE_SPEED) * 0.2 + 1.0;
-    
+half3 neonColorMap(float luminance) {
     if (luminance > 0.75) {
-        return half3(1.0, 0.2, 0.8) * pulseFactor;
+        return half3(1.0, 0.2, 0.8);
     } else if (luminance > 0.5) {
-        return half3(0.2, 1.0, 0.8) * pulseFactor;
+        return half3(0.2, 1.0, 0.8);
     } else if (luminance > 0.25) {
-        return half3(0.8, 0.2, 1.0) * pulseFactor;
+        return half3(0.8, 0.2, 1.0);
     } else {
-        return half3(1.0, 0.8, 0.2) * pulseFactor;
+        return half3(1.0, 0.8, 0.2);
     }
 }
 
@@ -80,7 +76,7 @@ half4 main(float2 fragCoord) {
     half3 posterizedColor = posterize(originalColor.rgb);
     float luminance = dot(posterizedColor, half3(0.299, 0.587, 0.114));
     
-    half3 neonColor = neonColorMap(luminance, iTime);
+    half3 neonColor = neonColorMap(luminance);
     
     float glowEffect = neonGlow(fragCoord);
     neonColor += glowEffect * half3(1.0, 0.5, 1.0);

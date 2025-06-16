@@ -1,0 +1,85 @@
+﻿uniform float4 iMouse;           // Mouse drag pos=.xy Click pos=.zw (pixels)
+uniform float  iTime;            // Shader playback time (s)
+uniform float2 iResolution;      // Viewport resolution (pixels)
+uniform float2 iImageResolution; // iImage1 resolution (pixels)
+uniform shader iImage1;          // Texture
+uniform float2 iOffset;          // Top-left corner of DrawingRect
+uniform float2 iOrigin;          // Mouse drag started here
+
+const float COLOR_LEVELS = 5.0;
+
+/// <summary>
+/// Color dodge blend mode
+/// </summary>
+/// <param name="src">Source color</param>
+/// <param name="dst">Destination color</param>
+/// <returns>Blended color</returns>
+half3 colorDodge(in half3 src, in half3 dst) {
+    return step(0.0, dst) * mix(min(half3(1.0), dst / (1.0 - src)), half3(1.0), step(1.0, src)); 
+}
+
+/// <summary>
+/// Converts color to grayscale
+/// </summary>
+/// <param name="col">Input color</param>
+/// <returns>Grayscale value</returns>
+float greyScale(in half3 col) {
+    return dot(col, half3(0.3, 0.59, 0.11));
+}
+
+/// <summary>
+/// Posterizes colors to create flat cartoon areas
+/// </summary>
+/// <param name="color">Input color</param>
+/// <returns>Posterized color</returns>
+half3 posterizeColor(half3 color) {
+    return floor(color * COLOR_LEVELS + 0.5) / COLOR_LEVELS;
+}
+
+half4 main(float2 fragCoord) 
+{	
+    float2 renderingScale = iImageResolution.xy / iResolution.xy;
+    float2 inputCoord = (fragCoord - iOffset) * renderingScale;
+    float2 q = inputCoord / iImageResolution.xy;
+    
+    half3 col = iImage1.eval(inputCoord).rgb;
+    
+    // Create posterized colors (the colors you loved)
+    half3 posterized = posterizeColor(col);
+    float luminance = dot(posterized, half3(0.299, 0.587, 0.114));
+    half3 cartoonColor = mix(half3(luminance), posterized, 1.3) * 1.1;
+    
+    // Create bigger blur for THICKER lines
+    half3 blurred = half3(0.0);
+    float totalWeight = 0.0;
+    
+    for (int i = -4; i <= 4; i++) {
+        for (int j = -4; j <= 4; j++) {
+            float weight = exp(-float(i*i + j*j) * 0.15);  // Wider blur
+            float2 sampleCoord = inputCoord + float2(float(i), float(j)) * 2.5;  // Sample farther
+            blurred += iImage1.eval(sampleCoord).rgb * weight;
+            totalWeight += weight;
+        }
+    }
+    blurred = blurred / totalWeight;
+    
+    // YOUR working edge detection that creates the lines
+    half3 inv = half3(1.0) - blurred; 
+    half3 lighten = colorDodge(col, inv);
+    half3 edgeResult = half3(greyScale(lighten));
+    
+    // Much more aggressive contrast for cleaner lines
+    edgeResult = half3(pow(edgeResult.x, 12.0));  // Increased from 6.0 to 12.0
+    
+    // Remove noise by making it more binary (either line or no line)
+    float cleanEdge = smoothstep(0.3, 0.7, edgeResult.x);  // Filter out weak edges 
+    
+    // Add subtle vignette effect (YOUR method)
+    cleanEdge *= 0.3 + 0.7 * pow(16.0 * q.x * q.y * (1.0 - q.x) * (1.0 - q.y), 0.2);
+    
+    // Where your shader creates WHITE (high values), use cartoon colors
+    // Where your shader creates BLACK (low values), use PURE BLACK lines
+    half3 finalColor = mix(half3(0.0, 0.0, 0.0), cartoonColor, cleanEdge);  // Pure black lines
+    
+    return half4(clamp(finalColor, 0.0, 1.0), 1.0);
+}

@@ -9,7 +9,7 @@
 
     <ShellContent
         Title="Drawn UI for .NET MAUI"
-        ContentTemplate="{DataTemplate views1:MainPageShadersCamera}"
+        ContentTemplate="{DataTemplate views1:MainPageCamera}"
         Route="MainPage" />
 
 </Shell>

@@ -1,4 +1,4 @@
-namespace AppoMobi.Maui.DrawnUi.Demo.Views
+namespace ShadersCamera.Models
 {
     public class ShaderItem : BindableObject
     {

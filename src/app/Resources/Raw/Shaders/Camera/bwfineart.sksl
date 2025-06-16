@@ -1,0 +1,76 @@
+﻿uniform float4 iMouse;           // Mouse drag pos=.xy Click pos=.zw (pixels)
+uniform float  iTime;            // Shader playback time (s)
+uniform float2 iResolution;      // Viewport resolution (pixels)
+uniform float2 iImageResolution; // iImage1 resolution (pixels)
+uniform shader iImage1;          // Texture
+uniform float2 iOffset;          // Top-left corner of DrawingRect
+uniform float2 iOrigin;          // Mouse drag started here
+
+/// <summary>
+/// Generates extremely fine grain for fine art work
+/// </summary>
+/// <param name="coord">Screen coordinate</param>
+/// <returns>Ultra-fine grain intensity</returns>
+float ultraFineGrain(float2 coord) {
+    float2 highRes = coord * 3.0;
+    float noise = fract(sin(dot(highRes, float2(12.9898, 78.233))) * 43758.5453);
+    return (noise - 0.5) * 0.008;
+}
+
+/// <summary>
+/// Applies Delta 100 style fine art B&W conversion
+/// </summary>
+/// <param name="color">Input RGB color</param>
+/// <returns>Fine art B&W value</returns>
+float delta100Conversion(half3 color) {
+    // Delta 100 has exceptional tonality and fine grain
+    float luminance = dot(color, half3(0.3, 0.59, 0.11));
+    
+    // Multiple gentle curves for smooth tonality
+    luminance = pow(luminance, 0.9);
+    luminance = luminance * luminance * (3.0 - 2.0 * luminance);
+    luminance = pow(luminance, 1.1);
+    
+    // Very subtle contrast enhancement
+    luminance = (luminance - 0.5) * 1.05 + 0.5;
+    
+    // Preserve shadow detail
+    float shadowDetail = smoothstep(0.0, 0.3, luminance);
+    luminance = mix(luminance * 1.1, luminance, shadowDetail);
+    
+    return clamp(luminance, 0.0, 1.0);
+}
+
+/// <summary>
+/// Creates subtle center focus for fine art
+/// </summary>
+/// <param name="uv">UV coordinates</param>
+/// <returns>Center focus multiplier</returns>
+float centerFocus(float2 uv) {
+    float2 centered = uv - 0.5;
+    float distance = length(centered);
+    return 1.0 - smoothstep(0.6, 1.1, distance * 0.7);
+}
+
+half4 main(float2 fragCoord) 
+{	
+    float2 renderingScale = iImageResolution.xy / iResolution.xy;
+    float2 inputCoord = (fragCoord - iOffset) * renderingScale;
+    float2 uv = inputCoord / iImageResolution.xy;
+    
+    half3 originalColor = iImage1.eval(inputCoord).rgb;
+    
+    float bwValue = delta100Conversion(originalColor);
+    
+    // Add ultra-fine grain
+    float grain = ultraFineGrain(inputCoord);
+    bwValue += grain;
+    
+    // Apply subtle center focus
+    float focus = centerFocus(uv);
+    bwValue *= focus * 0.95 + 0.05;
+    
+    bwValue = clamp(bwValue, 0.0, 1.0);
+    
+    return half4(bwValue, bwValue, bwValue, 1.0);
+}

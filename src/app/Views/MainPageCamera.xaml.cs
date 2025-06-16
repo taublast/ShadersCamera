@@ -1,16 +1,17 @@
 using AppoMobi.Specials;
 using DrawnUi;
 using DrawnUi.Camera;
+using Microsoft.Maui.Controls;
 using ShadersCamera;
 using ShadersCamera.ViewModels;
 
 namespace AppoMobi.Maui.DrawnUi.Demo.Views;
 
-public partial class MainPageShadersCamera
+public partial class MainPageCamera
 {
 #if DEBUG
 
-    public MainPageShadersCamera()
+    public MainPageCamera()
     {
         try
         {
@@ -35,6 +36,8 @@ public partial class MainPageShadersCamera
         {
             vm.AttachCamera(CameraControl);
 
+            CameraControl.NewPreviewSet += OnPreviewSet;
+
             try
             {
                 CameraControl.InitializeEffects();
@@ -46,6 +49,98 @@ public partial class MainPageShadersCamera
                 Super.Log(e);
             }
 
+        }
+    }
+
+    /// <summary>
+    /// Flag to capture a small ML/other small image from the current camera preview
+    /// </summary>
+    /// 
+    private bool TriggerUpdateSmallPreview;
+    SemaphoreSlim semaphoreProcessingFrame = new(1, 1);
+    private object lockCatchFrame = new();
+
+    private void OnPreviewSet(object sender, LoadedImageSource source)
+    {
+        lock (lockCatchFrame)
+        {
+            if (TriggerUpdateSmallPreview && semaphoreProcessingFrame.CurrentCount != 0)
+            {
+                TriggerUpdateSmallPreview = false;
+
+                var image = source.Image;
+                if (image == null)
+                {
+                    image = SKImage.FromBitmap(source.Bitmap);
+                }
+
+                //full copy from gpu preview surface NOT USED
+                //var info = image.Info;
+                //var pixelData = new byte[info.BytesSize];
+                //unsafe
+                //{
+                //    fixed (byte* ptr = pixelData)
+                //    {
+                //        bool success = image.ReadPixels(info, (nint)ptr);
+                //        if (success)
+                //        {
+                //            var copiedImage = SKImage.FromPixels(info, (nint)ptr, info.RowBytes);
+                //        }
+                //    }
+                //}
+
+                var marginFactor = 0.2f; // Crop from sides to focus on core center
+                var targetSize = 256;
+
+                var originalInfo = image.Info;
+                var maxCropSize = Math.Min(originalInfo.Width, originalInfo.Height); 
+                var actualCropSize = maxCropSize * (1.0f - marginFactor); 
+
+                var cropX = (originalInfo.Width - actualCropSize) / 2; 
+                var cropY = (originalInfo.Height - actualCropSize) / 2; 
+
+                var newInfo = new SKImageInfo(targetSize, targetSize, SKColorType.Rgb888x, SKAlphaType.Opaque);
+                using var surface = SKSurface.Create(newInfo);
+                surface.Canvas.DrawImage(image,
+                    new SKRect(cropX, cropY, cropX + actualCropSize, cropY + actualCropSize),
+                    new SKRect(0, 0, targetSize, targetSize)); 
+                var mlImage = surface.Snapshot();
+
+                //use in UI
+                var dispose = DisplayPreview;
+                DisplayPreview = new LoadedImageSource(mlImage)
+                {
+                    ProtectFromDispose = true
+                };
+                if (dispose != null)
+                {
+                    CameraControl.DisposeObject(dispose);
+                }
+
+                //for AI/ML use this:
+                //Task.Run(async () =>
+                //{
+                //    //todo use image here
+
+                //}).ConfigureAwait(false);
+            }
+        }
+    }
+
+    private LoadedImageSource _displayPreview;
+    public LoadedImageSource DisplayPreview
+    {
+        get
+        {
+            return _displayPreview;
+        }
+        set
+        {
+            if (_displayPreview != value)
+            {
+                _displayPreview = value;
+                OnPropertyChanged();
+            }
         }
     }
 
@@ -77,7 +172,7 @@ public partial class MainPageShadersCamera
     private readonly CameraViewModel _vm;
 
 
-    public MainPageShadersCamera(CameraViewModel vm)
+    public MainPageCamera(CameraViewModel vm)
     {
         _vm = vm;
 
@@ -150,14 +245,6 @@ public partial class MainPageShadersCamera
         CameraControl.Zoom += step;
     }
 
-    private void OnShaderDrawerHandleTapped(object sender, SkiaControl.ControlTappedEventArgs e)
-    {
-        //if (ShaderDrawer != null)
-        //{
-        //    ShaderDrawer.IsOpen = !ShaderDrawer.IsOpen;
-        //}
-    }
-
     private void OnZoomed(object sender, ZoomEventArgs e)
     {
         CameraControl.Zoom = e.Value;
@@ -177,22 +264,24 @@ public partial class MainPageShadersCamera
         }
     }
 
-    private void SkiaControl_OnChildTapped(object sender, SkiaControl.ControlTappedEventArgs e)
-    {
-        var stop = 1;
-    }
-
     private void TappedBackground(object sender, SkiaControl.ControlTappedEventArgs e)
     {
-        if (ShaderDrawer.IsOpen)
-        {
-            ShaderDrawer.IsOpen = false;
-        }
+        TriggerUpdateSmallPreview = true;
     }
 
 
     private void DrawnView_OnWillFirstTimeDraw(object sender, SkiaDrawingContext e)
     {
         AttachCamera();
+    }
+
+    private void CanvasWillDispose(object sender, EventArgs e)
+    {
+        CameraControl.NewPreviewSet -= OnPreviewSet;
+    }
+
+    private void TappedDrawerHeader(object sender, SkiaControl.ControlTappedEventArgs e)
+    {
+        ShaderDrawer.IsOpen = !ShaderDrawer.IsOpen;
     }
 }
