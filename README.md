@@ -1,12 +1,13 @@
 # ShadersCamera
 
-**UNDER HEAVY CONSTRUCTION PLENTY OF BUGS**
+**UNDER HEAVY CONSTRUCTION**
 
 > Uses `DrawnUi.Maui.Camera` nuget for playing with camera
 
-Applying shaders to camera preview in real-time and to saved photo as well.
-
-Can edit shaders code when running on desktop.
+* Applying shaders to camera preview in real-time
+* Saving captured photo with shader effect
+* Saving EXIF and injecting custom metadata
+* Can edit shaders code in standalone window when running on desktop
 
 ### Interaction:
 
@@ -16,3 +17,4 @@ Can edit shaders code when running on desktop.
 * Other on-screen buttons: Power, Effect, Flash, Source, Capture Photo
 
 Effect button is here temporarily: it's different basic color filters vs custom effect: shaders.
+UI to be will changed much..
