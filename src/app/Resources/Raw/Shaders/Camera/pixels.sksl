@@ -2,48 +2,63 @@
 uniform float  iTime;            // Shader playback time (s)
 uniform float2 iResolution;      // Viewport resolution (pixels)
 uniform float2 iImageResolution; // iImage1 resolution (pixels)
-uniform shader iImage1;  // Texture
-uniform float2 iOffset;  // Top-left corner of DrawingRect
-uniform float2 iOrigin; // Mouse drag started here
+uniform shader iImage1;          // Texture
+uniform float2 iOffset;          // Top-left corner of DrawingRect
+uniform float2 iOrigin;          // Mouse drag started here
 
-// Fixed parameters for the "Minecraft" effect:
-// You can adjust these values directly in the shader to fine-tune the look.
-const float PIXEL_SIZE = 16.0;             // Controls the size of the 'pixels' (blockiness).
-                                         // Larger values make bigger blocks.
-const float COLOR_QUANTIZATION_LEVELS = 16.0; // Controls the number of distinct color levels per channel.
-                                            // Lower values create a more limited, retro palette.
-
-// The main function is the entry point for the fragment shader.
-// It's called for each pixel on the output surface.
-// 'fragCoord' is the current pixel's coordinate (e.g., (x, y)) on the output surface.
+// Cool retro game parameters that kids will actually like:
+const float PIXEL_SIZE = 10.0;           
+const float COLOR_LEVELS = 32.0;     
+const float WARMTH_BOOST = 1.08;      // makes skin look better
+const float RETRO_SATURATION = 1.25;  // Boost colors but keep it natural
+const float CONTRAST_ENHANCE = 1.5;   // Subtle contrast for crisp look
 
 half4 main(float2 fragCoord) {
-    // 1. Map fragment coordinate to input image coordinate space:
-    // This part comes directly from your template, ensuring the shader correctly samples
-    // the camera feed regardless of where the drawing rectangle is or its scale.
+    // 1. Map fragment coordinate to input image coordinate space
     float2 renderingScale = iImageResolution.xy / iResolution.xy;
     float2 inputCoord = (fragCoord - iOffset) * renderingScale;
-
-    // 2. Apply Pixelation:
-    // Quantize the input coordinates to snap them to a grid defined by PIXEL_SIZE.
-    // This makes all pixels within a 'block' receive the same color from the source.
-    float2 pixelatedCoord = floor(inputCoord / PIXEL_SIZE) * PIXEL_SIZE;
-
-    // 3. Sample the original camera image at the pixelated coordinate:
-    // IMPORTANT: For crisp, hard-edged pixels, ensure your Skia setup uses
-    // nearest-neighbor sampling (SkFilterMode::kNearest) for the 'iImage1' shader.
-    // Linear filtering will blur the pixel edges.
-    half4 color = iImage1.eval(pixelatedCoord);
-
-    // 4. Apply Color Quantization:
-    // Reduce the number of distinct colors per channel to give an old-school/8-bit look.
-    // We scale the color, round it to the nearest integer multiple of the quantization level,
-    // and then scale it back to the 0.0-1.0 range.
-    color.rgb = floor(color.rgb * COLOR_QUANTIZATION_LEVELS) / COLOR_QUANTIZATION_LEVELS;
-
-    // 5. Add slight contrast boost for that game-like look
-    color.rgb = pow(color.rgb, half3(0.8));
-
-    // Return the final processed color for the current pixel.
-    return color;
+    
+    // 2. Smooth pixelation - less harsh, more stylized
+    float2 pixelPos = floor(inputCoord / PIXEL_SIZE) * PIXEL_SIZE;
+    float2 pixelCenter = pixelPos + PIXEL_SIZE * 0.5;
+    
+    // 3. Sample with slight blur for smoother pixels
+    half4 color = iImage1.eval(pixelCenter);
+    half4 blendColor = iImage1.eval(pixelPos + PIXEL_SIZE * 0.25);
+    color = mix(color, blendColor, 0.15); // Subtle blend for smoother look
+    
+    // 4. Enhance contrast gently
+    color.rgb = mix(color.rgb, (color.rgb - 0.5) * CONTRAST_ENHANCE + 0.5, 0.7);
+    
+    // 5. Add warm, appealing tint (like Instagram filters kids love)
+    color.r *= WARMTH_BOOST;
+    color.g *= (WARMTH_BOOST * 0.98);
+    
+    // 6. Smart color quantization that preserves skin tones
+    half3 quantized = floor(color.rgb * COLOR_LEVELS + 0.5) / COLOR_LEVELS;
+    
+    // 7. Boost saturation but keep it natural
+    half luminance = dot(quantized, half3(0.299, 0.587, 0.114));
+    quantized = mix(half3(luminance), quantized, RETRO_SATURATION);
+    
+    // 8. Add subtle "retro game" edge definition
+    float edgeOffset = PIXEL_SIZE * 0.5;
+    half4 rightPixel = iImage1.eval(pixelCenter + float2(edgeOffset, 0));
+    half4 bottomPixel = iImage1.eval(pixelCenter + float2(0, edgeOffset));
+    
+    half edgeDetection = length(color.rgb - rightPixel.rgb) + length(color.rgb - bottomPixel.rgb);
+    half edgeEnhance = clamp(edgeDetection * 3.0, 0.0, 0.15);
+    quantized = mix(quantized, quantized * 1.1, edgeEnhance);
+    
+    // 9. Add subtle animated "digital" sparkle effect for fun
+    float2 sparkleCoord = floor(fragCoord / 8.0);
+    float sparkleNoise = fract(sin(dot(sparkleCoord, float2(12.9898, 78.233)) + iTime * 0.5) * 43758.5453);
+    if (sparkleNoise > 0.98 && luminance > 0.7) {
+        quantized += 0.1; // Subtle highlight sparkle on bright areas
+    }
+    
+    // 10. Final touch - ensure colors stay appealing
+    quantized = clamp(quantized, 0.0, 1.0);
+    
+    return half4(quantized, color.a);
 }

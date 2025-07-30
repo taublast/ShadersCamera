@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using ShadersCamera.Views;
 
 namespace ShadersCamera
 {
@@ -11,11 +12,6 @@ namespace ShadersCamera
             InitializeComponent();
 
             MainPage = new AppShell();
-        }
-
-        public void SetMainPage(Page page)
-        {
-            MainThread.BeginInvokeOnMainThread(async () => { MainPage = page; });
         }
 
         public static App Instance => App.Current as App;

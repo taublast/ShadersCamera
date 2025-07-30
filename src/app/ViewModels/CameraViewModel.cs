@@ -1,11 +1,9 @@
-﻿using DrawnUi.Camera;
-using System.Windows.Input;
-using AppoMobi.Maui.Gestures;
-using System.Collections.ObjectModel;
-using System.Globalization;
-using ShadersCamera.Views.ShadersCamera;
+﻿using AppoMobi.Maui.Gestures;
+using DrawnUi.Camera;
 using ShadersCamera.Models;
-using ShadersCamera.Controls;
+using ShadersCamera.Views.Controls;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace ShadersCamera.ViewModels
 {
@@ -20,34 +18,36 @@ namespace ShadersCamera.ViewModels
         {
             ShaderItems = new ObservableCollection<ShaderItem>
             {
-                new ShaderItem { Title = "Classic B&W", ShaderFilename = "Shaders/Camera/bwclassic.sksl" },
-                new ShaderItem { Title = "Street", ShaderFilename = "Shaders/Camera/bwstreet.sksl" },
-                new ShaderItem { Title = "Street Zoom", ShaderFilename = "Shaders/Camera/bwstreet200.sksl" },
-                new ShaderItem { Title = "Fine Art B&W", ShaderFilename = "Shaders/Camera/bwfineart.sksl" },
-                new ShaderItem { Title = "Newpaper", ShaderFilename = "Shaders/Camera/bwprint.sksl" },
-                new ShaderItem { Title = "Portrait B&W", ShaderFilename = "Shaders/Camera/bwportrait.sksl" },
+                new ShaderItem { Title = "Raw", Filename = "Shaders/Camera/blit.sksl" },
 
-                new ShaderItem { Title = "Sin City", ShaderFilename = "Shaders/Camera/selective.sksl" },
-                new ShaderItem { Title = "Negative", ShaderFilename = "Shaders/Camera/invert.sksl" },
-                new ShaderItem { Title = "Pastels", ShaderFilename = "Shaders/Camera/wes.sksl" },
-                new ShaderItem { Title = "Romance", ShaderFilename = "Shaders/Camera/romance.sksl" },
-                new ShaderItem { Title = "Mystic", ShaderFilename = "Shaders/Camera/enigma.sksl" },
-                new ShaderItem { Title = "Blade Runner", ShaderFilename = "Shaders/Camera/blade.sksl" },
-                new ShaderItem { Title = "Blues", ShaderFilename = "Shaders/Camera/nolan.sksl" },
-                new ShaderItem { Title = "Drive", ShaderFilename = "Shaders/Camera/pink.sksl" },
-                new ShaderItem { Title = "Action", ShaderFilename = "Shaders/Camera/action.sksl" },
-                new ShaderItem { Title = "Desert", ShaderFilename = "Shaders/Camera/desert.sksl" },
-                new ShaderItem { Title = "Blockbuster", ShaderFilename = "Shaders/Camera/blockbuster.sksl" },
-                new ShaderItem { Title = "Kodachrome", ShaderFilename = "Shaders/Camera/kodachrome.sksl" },
-                new ShaderItem { Title = "TV", ShaderFilename = "Shaders/Camera/retrotv.sksl" },
-                new ShaderItem { Title = "Film", ShaderFilename = "Shaders/Camera/film.sksl" },
-                new ShaderItem { Title = "Desaturated", ShaderFilename = "Shaders/Camera/snyder.sksl" },
+                new ShaderItem { Title = "Classic", Filename = "Shaders/Camera/bwclassic.sksl" },
+                new ShaderItem { Title = "Street", Filename = "Shaders/Camera/bwstreet.sksl" },
+                new ShaderItem { Title = "Street Zoom", Filename = "Shaders/Camera/bwstreet200.sksl" },
+                new ShaderItem { Title = "Fine Art", Filename = "Shaders/Camera/bwfineart.sksl" },
+                new ShaderItem { Title = "Newspaper", Filename = "Shaders/Camera/bwprint.sksl" },
+                new ShaderItem { Title = "Portrait", Filename = "Shaders/Camera/bwportrait.sksl" },
 
-                new ShaderItem { Title = "Palette", ShaderFilename = "Shaders/Camera/old-palette.sksl" },
-                new ShaderItem { Title = "Neon", ShaderFilename = "Shaders/Camera/popart.sksl" },
-                new ShaderItem { Title = "Toon", ShaderFilename = "Shaders/Camera/toon.sksl" },
-                new ShaderItem { Title = "Sketch", ShaderFilename = "Shaders/Camera/sketch.sksl" },
-                new ShaderItem { Title = "Pixels", ShaderFilename = "Shaders/Camera/pixels.sksl" }
+                new ShaderItem { Title = "Sin City", Filename = "Shaders/Camera/selective.sksl" },
+                new ShaderItem { Title = "Negative", Filename = "Shaders/Camera/invert.sksl" },
+                new ShaderItem { Title = "Pastels", Filename = "Shaders/Camera/wes.sksl" },
+                new ShaderItem { Title = "Romance", Filename = "Shaders/Camera/romance.sksl" },
+                new ShaderItem { Title = "Mystic", Filename = "Shaders/Camera/enigma.sksl" },
+                new ShaderItem { Title = "Blade Runner", Filename = "Shaders/Camera/blade.sksl" },
+                new ShaderItem { Title = "Blues", Filename = "Shaders/Camera/nolan.sksl" },
+                new ShaderItem { Title = "Drive", Filename = "Shaders/Camera/pink.sksl" },
+                new ShaderItem { Title = "Action", Filename = "Shaders/Camera/action.sksl" },
+                new ShaderItem { Title = "Desert", Filename = "Shaders/Camera/desert.sksl" },
+                new ShaderItem { Title = "Blockbuster", Filename = "Shaders/Camera/blockbuster.sksl" },
+                new ShaderItem { Title = "Kodachrome", Filename = "Shaders/Camera/kodachrome.sksl" },
+                new ShaderItem { Title = "TV", Filename = "Shaders/Camera/retrotv.sksl" },
+                new ShaderItem { Title = "Film", Filename = "Shaders/Camera/film.sksl" },
+                new ShaderItem { Title = "Desaturated", Filename = "Shaders/Camera/snyder.sksl" },
+
+                new ShaderItem { Title = "Palette", Filename = "Shaders/Camera/old-palette.sksl" },
+                new ShaderItem { Title = "Neon", Filename = "Shaders/Camera/popart.sksl" },
+                new ShaderItem { Title = "Toon", Filename = "Shaders/Camera/toon.sksl" },
+                new ShaderItem { Title = "Sketch", Filename = "Shaders/Camera/sketch.sksl" },
+                new ShaderItem { Title = "Pixels", Filename = "Shaders/Camera/pixels.sksl" }
             };
 
             SelectedShader = ShaderItems[5];
@@ -109,11 +109,7 @@ namespace ShadersCamera.ViewModels
                 {
                     if (context is ShaderItem shader)
                     {
-                        if (shader != null && Camera is CameraWithEffects cameraWithEffects)
-                        {
-                            SelectedShader = shader;
-                            cameraWithEffects.SetCustomShader(shader.ShaderFilename);
-                        }
+                        SelectedShader = shader;
                     }
                 });
             }
@@ -299,7 +295,7 @@ namespace ShadersCamera.ViewModels
                 {
                     var shaderEffect = new SkiaShaderEffect()
                     {
-                        ShaderSource = SelectedShader.ShaderFilename,
+                        ShaderSource = SelectedShader.Filename,
                     };
                     image.VisualEffects.Add(shaderEffect);
                 }

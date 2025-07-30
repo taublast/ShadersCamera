@@ -1,17 +1,13 @@
-using AppoMobi.Specials;
-using DrawnUi;
 using DrawnUi.Camera;
-using Microsoft.Maui.Controls;
-using ShadersCamera;
 using ShadersCamera.ViewModels;
 
-namespace AppoMobi.Maui.DrawnUi.Demo.Views;
+namespace ShadersCamera.Views;
 
-public partial class MainPageCamera
+public partial class MainPage
 {
 #if DEBUG
 
-    public MainPageCamera()
+    public MainPage()
     {
         try
         {
@@ -20,6 +16,10 @@ public partial class MainPageCamera
             BindingContext = _vm;
 
             InitializeComponent();
+
+#if ANDROID
+            Super.SetNavigationBarColor(Colors.Black, Colors.Black, true);
+#endif
 
             Loaded += OnPageLoaded;
         }
@@ -40,15 +40,12 @@ public partial class MainPageCamera
 
             try
             {
-                CameraControl.InitializeEffects();
-
                 CameraControl.IsOn = true;
             }
             catch (Exception e)
             {
                 Super.Log(e);
             }
-
         }
     }
 
@@ -57,6 +54,7 @@ public partial class MainPageCamera
     /// </summary>
     /// 
     private bool TriggerUpdateSmallPreview;
+
     SemaphoreSlim semaphoreProcessingFrame = new(1, 1);
     private object lockCatchFrame = new();
 
@@ -93,17 +91,17 @@ public partial class MainPageCamera
                 var targetSize = 256;
 
                 var originalInfo = image.Info;
-                var maxCropSize = Math.Min(originalInfo.Width, originalInfo.Height); 
-                var actualCropSize = maxCropSize * (1.0f - marginFactor); 
+                var maxCropSize = Math.Min(originalInfo.Width, originalInfo.Height);
+                var actualCropSize = maxCropSize * (1.0f - marginFactor);
 
-                var cropX = (originalInfo.Width - actualCropSize) / 2; 
-                var cropY = (originalInfo.Height - actualCropSize) / 2; 
+                var cropX = (originalInfo.Width - actualCropSize) / 2;
+                var cropY = (originalInfo.Height - actualCropSize) / 2;
 
                 var newInfo = new SKImageInfo(targetSize, targetSize, SKColorType.Rgb888x, SKAlphaType.Opaque);
                 using var surface = SKSurface.Create(newInfo);
                 surface.Canvas.DrawImage(image,
                     new SKRect(cropX, cropY, cropX + actualCropSize, cropY + actualCropSize),
-                    new SKRect(0, 0, targetSize, targetSize)); 
+                    new SKRect(0, 0, targetSize, targetSize));
                 var mlImage = surface.Snapshot();
 
                 //use in UI
@@ -128,12 +126,10 @@ public partial class MainPageCamera
     }
 
     private LoadedImageSource _displayPreview;
+
     public LoadedImageSource DisplayPreview
     {
-        get
-        {
-            return _displayPreview;
-        }
+        get { return _displayPreview; }
         set
         {
             if (_displayPreview != value)
@@ -172,7 +168,7 @@ public partial class MainPageCamera
     private readonly CameraViewModel _vm;
 
 
-    public MainPageCamera(CameraViewModel vm)
+    public MainPage(CameraViewModel vm)
     {
         _vm = vm;
 
@@ -181,7 +177,7 @@ public partial class MainPageCamera
         InitializeComponent();
     }
 
-    private void TappedSwitchCamera(object sender, SkiaControl.ControlTappedEventArgs controlTappedEventArgs)
+    private void TappedSwitchCamera(object sender, ControlTappedEventArgs controlTappedEventArgs)
     {
         if (CameraControl.IsOn)
         {
@@ -191,7 +187,7 @@ public partial class MainPageCamera
         }
     }
 
-    private void TappedTurnCamera(object sender, SkiaControl.ControlTappedEventArgs controlTappedEventArgs)
+    private void TappedTurnCamera(object sender, ControlTappedEventArgs controlTappedEventArgs)
     {
         if (CameraControl.State == CameraState.On)
         {
@@ -206,7 +202,7 @@ public partial class MainPageCamera
     /// <summary>
     /// Cycle through effects in order: Sepia -> BlackAndWhite -> Pastel -> None -> Sepia...
     /// </summary>
-    private void TappedCycleEffects(object sender, SkiaControl.ControlTappedEventArgs controlTappedEventArgs)
+    private void TappedCycleEffects(object sender, ControlTappedEventArgs controlTappedEventArgs)
     {
         var current = CameraControl.Effect;
         var currentIndex = CameraControl.AvailableEffects.IndexOf(current);
@@ -226,7 +222,7 @@ public partial class MainPageCamera
         }
     }
 
-    private void TappedResume(object sender, SkiaControl.ControlTappedEventArgs controlTappedEventArgs)
+    private void TappedResume(object sender, ControlTappedEventArgs controlTappedEventArgs)
     {
         CameraControl.IsOn = true;
     }
@@ -250,7 +246,7 @@ public partial class MainPageCamera
         CameraControl.Zoom = e.Value;
     }
 
-    private void TappedFlash(object sender, SkiaControl.ControlTappedEventArgs e)
+    private void TappedFlash(object sender, ControlTappedEventArgs e)
     {
         _flashOn = !_flashOn;
 
@@ -264,13 +260,13 @@ public partial class MainPageCamera
         }
     }
 
-    private void TappedBackground(object sender, SkiaControl.ControlTappedEventArgs e)
+    private void TappedBackground(object sender, ControlTappedEventArgs e)
     {
         TriggerUpdateSmallPreview = true;
     }
 
 
-    private void DrawnView_OnWillFirstTimeDraw(object sender, SkiaDrawingContext e)
+    private void WillFirstTimeDraw(object sender, SkiaDrawingContext e)
     {
         AttachCamera();
     }
@@ -280,7 +276,7 @@ public partial class MainPageCamera
         CameraControl.NewPreviewSet -= OnPreviewSet;
     }
 
-    private void TappedDrawerHeader(object sender, SkiaControl.ControlTappedEventArgs e)
+    private void TappedDrawerHeader(object sender, ControlTappedEventArgs e)
     {
         ShaderDrawer.IsOpen = !ShaderDrawer.IsOpen;
     }

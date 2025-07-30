@@ -1,4 +1,4 @@
-namespace ShadersCamera.Views.ShadersCamera;
+namespace ShadersCamera.Views;
 
 public partial class ShaderEditorPage : ContentPage
 {

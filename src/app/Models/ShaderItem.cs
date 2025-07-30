@@ -8,7 +8,7 @@ namespace ShadersCamera.Models
 
         public string ImageSource { get; set; } = "Images/8.jpg";
 
-        public string ShaderFilename { get; set; }
+        public string Filename { get; set; }
 
         /// <summary>
         /// If set will be used instead of filename

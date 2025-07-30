@@ -8,6 +8,7 @@
     <Style ApplyToDerivedTypes="True" TargetType="draw:SkiaLabel">
         <Setter Property="TextColor" Value="Black" />
         <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontFamily" Value="FontText" />
     </Style>
 
     <Style ApplyToDerivedTypes="True" TargetType="draw:SkiaButton">

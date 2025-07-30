@@ -1,6 +1,4 @@
-using static Android.Preferences.PreferenceActivity;
-
-namespace ShadersCamera.Controls;
+namespace ShadersCamera.Views.Controls;
 
 /// <summary>
 /// Subclassed Hstack to be able to draw a custom selector below/in-between children

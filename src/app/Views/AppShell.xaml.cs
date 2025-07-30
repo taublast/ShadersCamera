@@ -1,4 +1,4 @@
-﻿namespace ShadersCamera
+﻿namespace ShadersCamera.Views
 {
     public partial class AppShell : Shell, IDisposable
     {

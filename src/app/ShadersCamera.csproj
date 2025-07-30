@@ -21,17 +21,11 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <WindowsPackageType>MSIX</WindowsPackageType>
+    <WindowsPackageType>None</WindowsPackageType>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
-    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">
-      15.2
-    </SupportedOSPlatformVersion>
-    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-      21.0
-    </SupportedOSPlatformVersion>
-    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
-      10.0.19041.0
-    </SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.2</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.19041.0</SupportedOSPlatformVersion>
     <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.19041.0</TargetPlatformMinVersion>
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
   </PropertyGroup>
@@ -46,11 +40,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <!--<EnableLLVM>True</EnableLLVM>-->
     <Optimize>True</Optimize>
-    <!--<RunAOTCompilation>True</RunAOTCompilation>
-    <PublishTrimmed>True</PublishTrimmed>
-    <MtouchUseLlvm>True</MtouchUseLlvm>-->
     <AndroidEnableSGenConcurrent>True</AndroidEnableSGenConcurrent>
   </PropertyGroup>
 
@@ -66,8 +56,19 @@
     <ProvisioningType>manual</ProvisioningType>
   </PropertyGroup>
 
+  <ItemGroup Condition="$(TargetFramework.Contains('ios'))">
+    <!-- App Icon -->
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundScale="0.85" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#FEFEFE" />
+  </ItemGroup>
+
+  <ItemGroup Condition="!$(TargetFramework.Contains('ios'))">
+    <!-- App Icon -->
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundScale="0.5" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#FEFEFE" />
+  </ItemGroup>
 
   <ItemGroup>
+
+    <None Remove="Platforms\Android\Resources\values\styles.xml" />
 
     <None Remove="Resources\Images\" />
 
@@ -87,11 +88,8 @@
 
     <None Remove="Resources\Raw\Shaders\transfade.sksl" />
 
-    <!-- App Icon -->
-    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
-
     <!-- Splash Screen -->
-    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#212529" BaseSize="120,120" />
 
     <!-- Images -->
     <!--<MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />-->
@@ -103,9 +101,15 @@
     <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
+  <!--production-->
+  <ItemGroup Condition="'$(UseNuget)' == 'true'">
+    <PackageReference Include="DrawnUi.Maui.Camera" Version="1.6.2.8" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.70" />
   </ItemGroup>
 
   <!--for development-->
@@ -114,10 +118,6 @@
     <ProjectReference Include="..\..\..\DrawnUi.Maui\src\Maui\DrawnUi\DrawnUi.Maui.csproj" />
   </ItemGroup>
 
-  <!--production-->
-  <ItemGroup Condition="'$(UseNuget)' == 'true'">
-    <PackageReference Include="DrawnUi.Maui.Camera" Version="1.5.5.1" />
-  </ItemGroup>
 
   <ItemGroup>
 
@@ -174,8 +174,8 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>ResStrings.resx</DependentUpon>
     </Compile>
-    <Compile Update="Views\MainPageCamera.xaml.cs">
-      <DependentUpon>MainPageCamera.xaml</DependentUpon>
+    <Compile Update="Views\MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
 

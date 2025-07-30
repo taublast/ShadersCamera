@@ -21,7 +21,7 @@ namespace ShadersCamera
 
             builder.UseDrawnUi(new()
             {
-                UseDesktopKeyboard = true, //will not work inside maui shell on mac
+                MobileIsFullscreen = true,
                 DesktopWindow = new()
                 {
                     Width = 500,
