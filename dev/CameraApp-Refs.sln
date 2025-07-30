@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrawnUi.Maui", "..\..\Drawn
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShadersCamera", "..\src\app\ShadersCamera.csproj", "{9F71E169-6D24-B132-9826-8A6DA9FFFBC8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppoMobi.Maui.DrawnUi.Demo", "..\..\AppoMobi.Maui.DrawnUi.Demo\src\AllDrawn\AppoMobi.Maui.DrawnUi.Demo.csproj", "{B9726DC8-5E20-BF93-5EED-AC166CD612BF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{9F71E169-6D24-B132-9826-8A6DA9FFFBC8}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{9F71E169-6D24-B132-9826-8A6DA9FFFBC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F71E169-6D24-B132-9826-8A6DA9FFFBC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9726DC8-5E20-BF93-5EED-AC166CD612BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9726DC8-5E20-BF93-5EED-AC166CD612BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9726DC8-5E20-BF93-5EED-AC166CD612BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9726DC8-5E20-BF93-5EED-AC166CD612BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -47,6 +53,7 @@ Global
 		{DD2D491D-7046-41D2-A00E-FE65CBADE85E} = {5B1CDC4F-5ED6-4662-8EC6-3DE3FF0B05BE}
 		{83974207-9636-48DD-BDB3-98EDECBB1107} = {5B1CDC4F-5ED6-4662-8EC6-3DE3FF0B05BE}
 		{93E119B1-4378-87DF-2DD2-A818D1E6C2A2} = {5B1CDC4F-5ED6-4662-8EC6-3DE3FF0B05BE}
+		{B9726DC8-5E20-BF93-5EED-AC166CD612BF} = {5B1CDC4F-5ED6-4662-8EC6-3DE3FF0B05BE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {329E3D0C-A3F7-4A3E-B61C-6B2D1BD7F708}

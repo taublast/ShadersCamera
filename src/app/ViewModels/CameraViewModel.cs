@@ -1,7 +1,6 @@
 ﻿using AppoMobi.Maui.Gestures;
 using DrawnUi.Camera;
-using ShadersCamera.Models;
-using ShadersCamera.Views.Controls;
+ using ShadersCamera.Models;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
@@ -120,15 +119,15 @@ namespace ShadersCamera.ViewModels
         {
             get
             {
-                return new Command(async (object context) =>
+                return new Command( (object context) =>
                 {
                     if (TouchEffect.CheckLockAndSet())
                         return;
 
                     if (Camera.State == CameraState.On && !Camera.IsBusy)
                     {
-                        Camera.FlashScreen(Color.Parse("#EEFFFFFF"));
-                        await Camera.TakePicture().ConfigureAwait(false);
+                        //Camera.FlashScreen(Color.Parse("#EE000000"));
+                        _ = Camera.TakePicture().ConfigureAwait(false);
                     }
                 });
             }
@@ -259,37 +258,10 @@ namespace ShadersCamera.ViewModels
 
         private async void OnCaptureSuccess(object sender, CapturedImage captured)
         {
-            // normaly you would have several way to display a captured preview after you receive a large capture
-            // 1 - create small bitmap rotated according to device orientation
-            // 2 - just display the large bitmap but set preview UseCache="Bitmap"
-            // 3 - create a new rotated large bitmap with any overlays etc and display it, dont forget UseCache="Bitmap"
 
-            //this demonstrates case 3
+            captured.SolveExifOrientation();
 
-            //creating an overlay to be rendered over the captured photo
-            var overlay = new SkiaLayout()
-            {
-                Type = LayoutType.Column,
-                Spacing = 10,
-                BackgroundColor = Color.Parse("#46000000"),
-                VerticalOptions = LayoutOptions.End,
-                HorizontalOptions = LayoutOptions.Fill,
-                Padding = new Thickness(16),
-            };
-
-            overlay.AddSubView(new SkiaLabel()
-            {
-                Text = $"DrawnUi Camera",
-                FontFamily = "FontPhotoBold",
-                FontSize = 26,
-                TextColor = Colors.White,
-                HorizontalOptions = LayoutOptions.Center,
-                HorizontalTextAlignment = DrawTextAlignment.Center,
-                VerticalOptions = LayoutOptions.Start
-            });
-
-            //overlay some info over bitmap
-            var newBitmap = Camera.RenderCapturedPhoto(captured, overlay, image =>
+            var imageWithOverlay = Camera.RenderCapturedPhoto(captured, null, image =>
             {
                 if (SelectedShader != null)
                 {
@@ -301,15 +273,16 @@ namespace ShadersCamera.ViewModels
                 }
             });
 
-            //going to use the newly created bitmap with effects applied and overlay info
+            //going to use the newly created bitmap with effects 
             //to save to gallery, so need to dispose the original one
             captured.Image.Dispose();
-            captured.Image = newBitmap;
+            captured.Image = imageWithOverlay;
+
+            captured.Meta.Vendor = "DrawnUI";
+            captured.Meta.Model = "Shaders Camera";
 
             //save to device, can use custom album name if needed
-            Camera.CameraDevice.Meta.Orientation =
-                1; //since we rotate the capture to overlay info the orientation will always be 1 (default)
-            await Camera.SaveToGallery(captured, false);
+            await Camera.SaveToGalleryAsync(captured, false); 
 
             //display preview
             //captured.Bitmap will be disposed by image ImagePreview when it
@@ -324,5 +297,7 @@ namespace ShadersCamera.ViewModels
                 Callback.Execute(captured);
             }
         }
+
+ 
     }
 }

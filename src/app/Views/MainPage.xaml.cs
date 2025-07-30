@@ -1,9 +1,10 @@
+using System.ComponentModel;
 using DrawnUi.Camera;
 using ShadersCamera.ViewModels;
 
 namespace ShadersCamera.Views;
 
-public partial class MainPage
+public partial class MainPage : IDisposable
 {
 #if DEBUG
 
@@ -16,6 +17,8 @@ public partial class MainPage
             BindingContext = _vm;
 
             InitializeComponent();
+
+            CameraControl.PropertyChanged += OnContextPropertyChanged;
 
 #if ANDROID
             Super.SetNavigationBarColor(Colors.Black, Colors.Black, true);
@@ -280,4 +283,25 @@ public partial class MainPage
     {
         ShaderDrawer.IsOpen = !ShaderDrawer.IsOpen;
     }
+
+
+    /// <summary>
+    /// Observing SkiaCamera props
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void OnContextPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(SkiaCamera.IsBusy))
+        {
+            var color = CameraControl.IsBusy ? Colors.DarkRed : Color.Parse("#CECECE");
+            ButtonCapture.BackgroundColor = color;
+        }
+    }
+
+    public void Dispose()
+    {
+        CameraControl.PropertyChanged -= OnContextPropertyChanged;
+    }
+
 }

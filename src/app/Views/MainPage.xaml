@@ -128,13 +128,16 @@
 
                             </draw:SkiaShape>
 
+                            <!--CAPTURE-->
                             <draw:SkiaShape
                                 draw:AddGestures.CommandTapped="{Binding CommandCaptureStillPhoto}"
-                                Type="Circle" HeightRequest="46" LockRatio="1" StrokeWidth="2" StrokeColor="Black"
+                                Type="Circle" HeightRequest="46" LockRatio="1" StrokeWidth="2" StrokeColor="#CECECE"
+                                BackgroundColor="Black"
                                 Padding="3">
 
                                 <draw:SkiaShape
-                                    BackgroundColor="#330000"
+                                    x:Name="ButtonCapture"
+                                    BackgroundColor="#CECECE"
                                     Type="Circle" HorizontalOptions="Fill" VerticalOptions="Fill" />
 
                             </draw:SkiaShape>
