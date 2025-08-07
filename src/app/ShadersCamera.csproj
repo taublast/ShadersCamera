@@ -103,7 +103,7 @@
 
   <!--production-->
   <ItemGroup Condition="'$(UseNuget)' == 'true'">
-    <PackageReference Include="DrawnUi.Maui.Camera" Version="1.6.2.11-pre" />
+    <PackageReference Include="DrawnUi.Maui.Camera" Version="1.6.2.15" />
   </ItemGroup>
 
 
