@@ -107,9 +107,9 @@ public partial class MainPage : IDisposable
                     new SKRect(0, 0, targetSize, targetSize));
                 var mlImage = surface.Snapshot();
 
-                //use in UI
-                var dispose = DisplayPreview;
-                DisplayPreview = new LoadedImageSource(mlImage)
+                //use in UI - our preview for shaders menu
+                var dispose = SmallPreview;
+                SmallPreview = new LoadedImageSource(mlImage)
                 {
                     ProtectFromDispose = true
                 };
@@ -130,7 +130,7 @@ public partial class MainPage : IDisposable
 
     private LoadedImageSource _displayPreview;
 
-    public LoadedImageSource DisplayPreview
+    public LoadedImageSource SmallPreview
     {
         get { return _displayPreview; }
         set

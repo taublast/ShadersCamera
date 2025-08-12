@@ -72,10 +72,12 @@
                     UseCache="Operations"
                     VerticalOptions="Fill">
 
+                    <!--BTNS CONTROLS-->
                     <draw:SkiaShape HorizontalOptions="Center"
                                     VerticalOptions="End"
                                     Margin="0,0,0,24"
-                                    WidthRequest="300" HeightRequest="60"
+                                    Padding="8,0"
+                                     HeightRequest="60"
                                     StrokeColor="Black"
                                     StrokeWidth="-1"
                                     BackgroundColor="#66000000"
@@ -87,8 +89,30 @@
                             HorizontalOptions="Center" VerticalOptions="Center">
 
 
+                            <!--last photo tappable preview-->
+                            <draw:SkiaShape
+                                Type="Circle" HeightRequest="46" LockRatio="1" 
+                                BackgroundColor="#66000000"
+                                IsClippedToBounds="True"
+                                UseCache="Image"
+                                VerticalOptions="Start"
+                                WidthRequest="46">
+
+                                <draw:SkiaImage
+                                    draw:AddGestures.CommandTapped="{Binding CommandPreviewTapped}"
+                                    x:Name="ImagePreview"
+                                    Aspect="AspectCover"
+                                    HorizontalOptions="Fill"
+                                    ImageBitmap="{Binding DisplayPreview}"
+                                    Tag="Preview"
+                                    VerticalOptions="Fill" />
+
+                            </draw:SkiaShape>
+
                             <!--POWER/PAUSE-->
                             <draw:SkiaShape
+                                UseCache="Image"
+                                IsVisible="False"
                                 Tapped="TappedTurnCamera"
                                 Type="Circle" HeightRequest="46" LockRatio="1" BackgroundColor="Black">
 
@@ -99,6 +123,8 @@
 
                             <!--EFFECTS-->
                             <draw:SkiaShape
+                                UseCache="Image"
+                                IsVisible="False"
                                 Tapped="TappedCycleEffects"
                                 Type="Circle" HeightRequest="46" LockRatio="1" BackgroundColor="Black">
 
@@ -109,6 +135,7 @@
 
                             <!--FLASH-->
                             <draw:SkiaShape
+                                UseCache="Image"
                                 Tapped="TappedFlash"
                                 Type="Circle" HeightRequest="46" LockRatio="1" BackgroundColor="Black">
 
@@ -120,6 +147,7 @@
 
                             <!--SOURCE/SWITCH-->
                             <draw:SkiaShape
+                                UseCache="Image"
                                 Tapped="TappedSwitchCamera"
                                 Type="Circle" HeightRequest="46" LockRatio="1" BackgroundColor="Black">
 
@@ -130,6 +158,7 @@
 
                             <!--CAPTURE-->
                             <draw:SkiaShape
+                                UseCache="Image"
                                 draw:AddGestures.CommandTapped="{Binding CommandCaptureStillPhoto}"
                                 Type="Circle" HeightRequest="46" LockRatio="1" StrokeWidth="2" StrokeColor="#CECECE"
                                 BackgroundColor="Black"
@@ -147,6 +176,7 @@
 
                     </draw:SkiaShape>
 
+                    <!--tap to resume after cam paused-->
                     <draw:SkiaHotspot
                         HorizontalOptions="Center"
                         IsVisible="{Binding ShowResume}"
@@ -230,7 +260,7 @@
                                                 <!--  IMAGE WITH SHADER EFFECT  -->
                                                 <draw:SkiaImage
                                                     Source="{Binding ImageSource}"
-                                                    ImageBitmap="{Binding  Source ={x:Reference ThisPage}, Path=DisplayPreview}"
+                                                    ImageBitmap="{Binding  Source ={x:Reference ThisPage}, Path=SmallPreview}"
                                                     Aspect="AspectCover"
                                                     HorizontalOptions="Fill"
                                                     VerticalOptions="Fill"
@@ -316,6 +346,7 @@
             </draw:SkiaDrawer>
 
             <draw:SkiaLabelFps
+                IsVisible="{Binding IsDebug}"
                 Margin="0,0,4,24"
                 BackgroundColor="Black"
                 ForceRefresh="False"

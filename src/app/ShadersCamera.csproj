@@ -12,10 +12,10 @@
     <WarningsAsErrors>$(WarningsAsErrors);XLS0501</WarningsAsErrors>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-    <UseNuget>true</UseNuget>
+    <UseNuget>false</UseNuget>
 
-    <ApplicationTitle>ShadersCamera</ApplicationTitle>
-    <ApplicationId>com.drawnui.shaderscam</ApplicationId>
+    <ApplicationTitle>Shaders Camera</ApplicationTitle>
+    <ApplicationId>com.appomobi.drawnui.shaderscam</ApplicationId>
     <ApplicationIdGuid>340e07b0-ebc2-4fde-9ac9-074d5c3269b4</ApplicationIdGuid>
 
   </PropertyGroup>
@@ -58,12 +58,12 @@
 
   <ItemGroup Condition="$(TargetFramework.Contains('ios'))">
     <!-- App Icon -->
-    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundScale="0.85" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#FEFEFE" />
+    <MauiIcon Include="Resources\AppIcon\appicon.svg"  ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#FEFEFE" />
   </ItemGroup>
 
   <ItemGroup Condition="!$(TargetFramework.Contains('ios'))">
     <!-- App Icon -->
-    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundScale="0.5" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#FEFEFE" />
+    <MauiIcon Include="Resources\AppIcon\appicon.svg"  ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#FEFEFE" />
   </ItemGroup>
 
   <ItemGroup>

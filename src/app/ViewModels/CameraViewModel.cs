@@ -17,39 +17,43 @@ namespace ShadersCamera.ViewModels
         {
             ShaderItems = new ObservableCollection<ShaderItem>
             {
-                new ShaderItem { Title = "Raw", Filename = "Shaders/Camera/blit.sksl" },
-
                 new ShaderItem { Title = "Classic", Filename = "Shaders/Camera/bwclassic.sksl" },
                 new ShaderItem { Title = "Street", Filename = "Shaders/Camera/bwstreet.sksl" },
                 new ShaderItem { Title = "Street Zoom", Filename = "Shaders/Camera/bwstreet200.sksl" },
                 new ShaderItem { Title = "Fine Art", Filename = "Shaders/Camera/bwfineart.sksl" },
                 new ShaderItem { Title = "Newspaper", Filename = "Shaders/Camera/bwprint.sksl" },
                 new ShaderItem { Title = "Portrait", Filename = "Shaders/Camera/bwportrait.sksl" },
-
                 new ShaderItem { Title = "Sin City", Filename = "Shaders/Camera/selective.sksl" },
+                
                 new ShaderItem { Title = "Negative", Filename = "Shaders/Camera/invert.sksl" },
-                new ShaderItem { Title = "Pastels", Filename = "Shaders/Camera/wes.sksl" },
+
+                new ShaderItem { Title = "Raw", Filename = "Shaders/Camera/blit.sksl" },
+                new ShaderItem { Title = "Zoom", Filename = "Shaders/Camera/photozoom.sksl" },
+                new ShaderItem { Title = "Desaturated", Filename = "Shaders/Camera/snyder.sksl" },
+                new ShaderItem { Title = "Action", Filename = "Shaders/Camera/action.sksl" },
                 new ShaderItem { Title = "Romance", Filename = "Shaders/Camera/romance.sksl" },
+                new ShaderItem { Title = "Film", Filename = "Shaders/Camera/film.sksl" },
+
                 new ShaderItem { Title = "Mystic", Filename = "Shaders/Camera/enigma.sksl" },
                 new ShaderItem { Title = "Blade Runner", Filename = "Shaders/Camera/blade.sksl" },
                 new ShaderItem { Title = "Blues", Filename = "Shaders/Camera/nolan.sksl" },
                 new ShaderItem { Title = "Drive", Filename = "Shaders/Camera/pink.sksl" },
-                new ShaderItem { Title = "Action", Filename = "Shaders/Camera/action.sksl" },
                 new ShaderItem { Title = "Desert", Filename = "Shaders/Camera/desert.sksl" },
                 new ShaderItem { Title = "Blockbuster", Filename = "Shaders/Camera/blockbuster.sksl" },
+                new ShaderItem { Title = "Pastels", Filename = "Shaders/Camera/wes.sksl" },
                 new ShaderItem { Title = "Kodachrome", Filename = "Shaders/Camera/kodachrome.sksl" },
-                new ShaderItem { Title = "TV", Filename = "Shaders/Camera/retrotv.sksl" },
-                new ShaderItem { Title = "Film", Filename = "Shaders/Camera/film.sksl" },
-                new ShaderItem { Title = "Desaturated", Filename = "Shaders/Camera/snyder.sksl" },
 
                 new ShaderItem { Title = "Palette", Filename = "Shaders/Camera/old-palette.sksl" },
                 new ShaderItem { Title = "Neon", Filename = "Shaders/Camera/popart.sksl" },
+
+                new ShaderItem { Title = "TV", Filename = "Shaders/Camera/retrotv.sksl" },
                 new ShaderItem { Title = "Toon", Filename = "Shaders/Camera/toon.sksl" },
                 new ShaderItem { Title = "Sketch", Filename = "Shaders/Camera/sketch.sksl" },
+                
                 new ShaderItem { Title = "Pixels", Filename = "Shaders/Camera/pixels.sksl" }
             };
 
-            SelectedShader = ShaderItems[5];
+            SelectedShader = ShaderItems[0];
         }
 
         public void ApplyQueryAttributes(IDictionary<string, object> query)
@@ -138,7 +142,7 @@ namespace ShadersCamera.ViewModels
             if (TouchEffect.CheckLockAndSet() || string.IsNullOrEmpty(_lastSavedPath))
                 return;
 
-            Camera.OpenFileInGallery(_lastSavedPath);
+            SkiaCamera.OpenFileInGallery(_lastSavedPath);
         });
 
         #endregion
@@ -295,6 +299,13 @@ namespace ShadersCamera.ViewModels
             if (Callback != null)
             {
                 Callback.Execute(captured);
+            }
+
+            var dispose = DisplayPreview;
+            DisplayPreview = new LoadedImageSource(captured.Image);
+            if (dispose != null)
+            {
+                Camera?.DisposeObject(dispose);
             }
         }
 
