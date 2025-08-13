@@ -12,7 +12,7 @@
     <WarningsAsErrors>$(WarningsAsErrors);XLS0501</WarningsAsErrors>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-    <UseNuget>false</UseNuget>
+    <UseNuget>true</UseNuget>
 
     <ApplicationTitle>Shaders Camera</ApplicationTitle>
     <ApplicationId>com.appomobi.drawnui.shaderscam</ApplicationId>
@@ -58,12 +58,12 @@
 
   <ItemGroup Condition="$(TargetFramework.Contains('ios'))">
     <!-- App Icon -->
-    <MauiIcon Include="Resources\AppIcon\appicon.svg"  ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#FEFEFE" />
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#FEFEFE" />
   </ItemGroup>
 
   <ItemGroup Condition="!$(TargetFramework.Contains('ios'))">
     <!-- App Icon -->
-    <MauiIcon Include="Resources\AppIcon\appicon.svg"  ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#FEFEFE" />
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#FEFEFE" />
   </ItemGroup>
 
   <ItemGroup>
@@ -103,7 +103,7 @@
 
   <!--production-->
   <ItemGroup Condition="'$(UseNuget)' == 'true'">
-    <PackageReference Include="DrawnUi.Maui.Camera" Version="1.6.2.16" />
+    <PackageReference Include="DrawnUi.Maui.Camera" Version="1.6.2.18" />
   </ItemGroup>
 
 

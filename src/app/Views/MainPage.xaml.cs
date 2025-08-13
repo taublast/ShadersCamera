@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics;
 using DrawnUi.Camera;
 using ShadersCamera.ViewModels;
 
@@ -40,6 +41,8 @@ public partial class MainPage : IDisposable
             vm.AttachCamera(CameraControl);
 
             CameraControl.NewPreviewSet += OnPreviewSet;
+
+            SyncUi();
 
             try
             {
@@ -255,12 +258,14 @@ public partial class MainPage : IDisposable
 
         if (_flashOn)
         {
-            CameraControl.TurnOnFlash();
+            CameraControl.FlashMode = FlashMode.On; 
         }
         else
         {
-            CameraControl.TurnOffFlash();
+            CameraControl.FlashMode = FlashMode.Off;
         }
+
+        SyncUi();
     }
 
     private void TappedBackground(object sender, ControlTappedEventArgs e)
@@ -304,4 +309,59 @@ public partial class MainPage : IDisposable
         CameraControl.PropertyChanged -= OnContextPropertyChanged;
     }
 
+    void SyncUi()
+    {
+        // CaptureFlashMode
+        var currentMode = CameraControl.CaptureFlashMode;
+        switch (currentMode)
+        {
+            case CaptureFlashMode.Off:
+                SvgFlashCapture.SvgString = App.Current.Resources.Get<string>("SvgFlashOff");
+                break;
+            case CaptureFlashMode.Auto:
+                SvgFlashCapture.SvgString = App.Current.Resources.Get<string>("SvgFlashAuto");
+                break;
+            case CaptureFlashMode.On:
+                SvgFlashCapture.SvgString = App.Current.Resources.Get<string>("SvgFlashOn");
+                break;
+        }
+
+        //FlashMode
+        var torch = CameraControl.FlashMode;
+        switch (torch)
+        {
+            case FlashMode.On:
+                SvgFlashLight.SvgString = App.Current.Resources.Get<string>("SvgLightOn");
+                break;
+            case FlashMode.Off:
+            default:
+                SvgFlashLight.SvgString = App.Current.Resources.Get<string>("SvgLightOff");
+                break;
+        }
+    }
+
+    private void OnFlashClicked(object sender, object e)
+    {
+        try
+        {
+            var currentMode = CameraControl.CaptureFlashMode;
+            var nextMode = currentMode switch
+            {
+                CaptureFlashMode.Off => CaptureFlashMode.Auto,
+                CaptureFlashMode.Auto => CaptureFlashMode.On,
+                CaptureFlashMode.On => CaptureFlashMode.Off,
+                _ => CaptureFlashMode.Auto
+            };
+
+            CameraControl.CaptureFlashMode = nextMode;
+
+            SyncUi();
+
+            Debug.WriteLine($"Camera Status: Capture flash mode set to {nextMode}");
+        }
+        catch (Exception ex)
+        {
+            Super.Log($"[CameraTestPage] OnFlashClicked error: {ex}");
+        }
+    }
 }

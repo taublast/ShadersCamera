@@ -142,7 +142,10 @@ namespace ShadersCamera.ViewModels
             if (TouchEffect.CheckLockAndSet() || string.IsNullOrEmpty(_lastSavedPath))
                 return;
 
-            SkiaCamera.OpenFileInGallery(_lastSavedPath);
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                SkiaCamera.OpenFileInGallery(_lastSavedPath);
+            });
         });
 
         #endregion
