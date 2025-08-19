@@ -6,14 +6,14 @@
     xmlns:draw="http://schemas.appomobi.com/drawnUi/2023/draw">
 
     <Style ApplyToDerivedTypes="True" TargetType="draw:SkiaLabel">
-        <Setter Property="TextColor" Value="Black" />
+        <Setter Property="TextColor" Value="#CECECE" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="FontFamily" Value="FontText" />
     </Style>
 
     <Style ApplyToDerivedTypes="True" TargetType="draw:SkiaButton">
-        <Setter Property="TextColor" Value="Aqua" />
-        <Setter Property="BackgroundColor" Value="Red" />
+        <Setter Property="TextColor" Value="Black" />
+        <Setter Property="BackgroundColor" Value="#CECECE" />
     </Style>
 
     <Style x:Key="SkiaLabelDefaultStyle" TargetType="draw:SkiaLabel">

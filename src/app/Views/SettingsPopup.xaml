@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<fastPopups:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                  xmlns:fastPopups="clr-namespace:FastPopups;assembly=FastPopups"
+                  xmlns:draw="http://schemas.appomobi.com/drawnUi/2023/draw"
+                  xmlns:strings="clr-namespace:ShadersCamera.Resources.Strings"
+                  HorizontalOptions="Center"
+                  VerticalOptions="Center"
+                  x:Class="ShadersCamera.Views.SettingsPopup">
+
+    <Grid MaximumWidthRequest="350" MaximumHeightRequest="500">
+
+        <ScrollView>
+
+            <draw:Canvas Gestures="Lock" WidthRequest="300">
+
+                <draw:SkiaLayout HorizontalOptions="Fill">
+
+                    <draw:SkiaShape
+                        HorizontalOptions="Fill"
+                        Padding="20"
+                        BackgroundColor="Gray" CornerRadius="10" StrokeWidth="1" StrokeColor="Gray">
+
+                        <draw:SkiaLayout Type="Column" HorizontalOptions="Fill" Spacing="24">
+
+                            <draw:SkiaRichLabel
+                                HorizontalOptions="Center"
+                                Text="{x:Static strings:ResStrings.Settings}" />
+
+                            <draw:SkiaLayout HorizontalOptions="Fill">
+
+                                <draw:SkiaRichLabel
+                                    VerticalOptions="Center"
+                                    Text="FullScreen" />
+
+                                <draw:SkiaSwitch
+                                    HeightRequest="28"
+                                    WidthRequest="45"
+                                    HorizontalOptions="End" />
+
+                            </draw:SkiaLayout>
+
+                            <draw:SkiaLayout HorizontalOptions="Fill">
+
+                                <draw:SkiaRichLabel
+                                    Text="Capture Format" />
+
+                                <draw:SkiaRichLabel
+                                    HorizontalOptions="End"
+                                    VerticalOptions="Center"
+                                    Text="Format" />
+
+                            </draw:SkiaLayout>
+
+                        </draw:SkiaLayout>
+
+                    </draw:SkiaShape>
+
+                </draw:SkiaLayout>
+
+            </draw:Canvas>
+        </ScrollView>
+    </Grid>
+
+</fastPopups:Popup>

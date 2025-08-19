@@ -14,7 +14,7 @@
 
     <UseNuget>true</UseNuget>
 
-    <ApplicationTitle>Shaders Camera</ApplicationTitle>
+    <ApplicationTitle>Filters Camera</ApplicationTitle>
     <ApplicationId>com.appomobi.drawnui.shaderscam</ApplicationId>
     <ApplicationIdGuid>340e07b0-ebc2-4fde-9ac9-074d5c3269b4</ApplicationIdGuid>
 
@@ -103,11 +103,12 @@
 
   <!--production-->
   <ItemGroup Condition="'$(UseNuget)' == 'true'">
-    <PackageReference Include="DrawnUi.Maui.Camera" Version="1.6.2.18" />
+    <PackageReference Include="DrawnUi.Maui.Camera" Version="1.6.2.25" />
   </ItemGroup>
 
 
   <ItemGroup>
+    <PackageReference Include="AppoMobi.Maui.FastPopups" Version="1.0.0.3" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
     <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.70" />
   </ItemGroup>
@@ -177,6 +178,19 @@
     <Compile Update="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\HelpPopup.xaml.cs">
+      <DependentUpon>HelpPopup.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <MauiXaml Update="Views\HelpPopup.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Views\SettingsPopup.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
   </ItemGroup>
 
 

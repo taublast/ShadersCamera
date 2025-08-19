@@ -1,5 +1,6 @@
 ﻿global using DrawnUi.Draw;
 global using SkiaSharp;
+using FastPopups;
 using Microsoft.Extensions.Logging;
 
 namespace ShadersCamera
@@ -19,16 +20,21 @@ namespace ShadersCamera
                     fonts.AddFont("DOMB.TTF", "FontPhotoBold");
                 });
 
-            builder.UseDrawnUi(new()
-            {
-                MobileIsFullscreen = true,
-                DesktopWindow = new()
+            builder
+                // https://github.com/taublast/FastPopups
+                .AddPopups()
+
+                // https://github.com/taublast/DrawnUi
+                .UseDrawnUi(new()
                 {
-                    Width = 500,
-                    Height = 700,
-                    //IsFixedSize = true //user cannot resize window
-                }
-            });
+                    MobileIsFullscreen = true,
+                    DesktopWindow = new()
+                    {
+                        Width = 500,
+                        Height = 700,
+                        //IsFixedSize = true //user cannot resize window
+                    }
+                });
 
 #if DEBUG
             builder.Logging.AddDebug();

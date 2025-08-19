@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -118,53 +118,53 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="BtnSave" xml:space="preserve">
-    <value>Save</value>
+    <value>Sauvegarder</value>
   </data>
   <data name="BtnCancel" xml:space="preserve">
-    <value>Cancel</value>
+    <value>Annuler</value>
   </data>
   <data name="BtnClose" xml:space="preserve">
-    <value>Close</value>
+    <value>Fermer</value>
   </data>
   <data name="Yes" xml:space="preserve">
-    <value>Yes</value>
+    <value>Oui</value>
   </data>
   <data name="No" xml:space="preserve">
-    <value>No</value>
+    <value>Non</value>
   </data>
   <data name="BtnStart" xml:space="preserve">
-    <value>Start</value>
+    <value>Marche</value>
   </data>
   <data name="BtnStop" xml:space="preserve">
-    <value>Stop</value>
+    <value>Arrêt</value>
   </data>
   <data name="BtnConnect" xml:space="preserve">
-    <value>Connect</value>
+    <value>Connecter</value>
   </data>
   <data name="On" xml:space="preserve">
-    <value>On</value>
+    <value>Activé</value>
   </data>
   <data name="Off" xml:space="preserve">
-    <value>Off</value>
+    <value>Désactivé</value>
   </data>
   <data name="BtnReset" xml:space="preserve">
-    <value>Reset</value>
+    <value>Réinitialiser</value>
   </data>
   <data name="BtnCreate" xml:space="preserve">
-    <value>Create</value>
+    <value>Créer</value>
   </data>
   <data name="AboutApp" xml:space="preserve">
-    <value>About</value>
+    <value>À propos</value>
   </data>
   <data name="WelcomeTitle" xml:space="preserve">
-    <value>Welcome to FIlters Camera! 🎉</value>
+    <value>Bienvenue à Filtres Camera! 🎉</value>
   </data>
   <data name="WelcomeDetails" xml:space="preserve">
-    <value>- Tap anywhere on the screen to use current frame for bottom previews
-- Tap/swipe bottom menu at the bottom/left to select filters
-- Other on-screen buttons: Settings, Flash, Source, Capture Photo</value>
+    <value>- Appuyez n'importe où sur l'écran pour utiliser le cadre actuel pour les aperçus inférieurs
+- Appuyez / balayez le menu inférieur en bas / gauche pour sélectionner les filtres
+- Autres boutons à l'écran: Paramètres, flash, source, photo de capture</value>
   </data>
   <data name="Settings" xml:space="preserve">
-    <value>Settings</value>
+    <value>Paramètres</value>
   </data>
 </root>

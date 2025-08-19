@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<fastPopups:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                  xmlns:fastPopups="clr-namespace:FastPopups;assembly=FastPopups"
+                  xmlns:draw="http://schemas.appomobi.com/drawnUi/2023/draw"
+                  xmlns:strings="clr-namespace:ShadersCamera.Resources.Strings"
+                  HorizontalOptions="Center"
+                  VerticalOptions="Center"
+                  
+                  x:Class="ShadersCamera.Views.HelpPopup">
+
+    <Grid MaximumWidthRequest="350" MaximumHeightRequest="500">
+
+        <draw:Canvas Gestures="Lock">
+
+            <draw:SkiaLayout>
+
+                <draw:SkiaShape
+                    Padding="16"
+                    BackgroundColor="Black" CornerRadius="10" StrokeWidth="1" StrokeColor="Gray">
+
+                    <draw:SkiaLayout Type="Column" Spacing="16">
+
+                        <draw:SkiaRichLabel
+                            HorizontalOptions="Center"
+                            Text="{x:Static strings:ResStrings.WelcomeTitle}" />
+
+                        <draw:SkiaRichLabel
+                            HorizontalOptions="Center"
+                            Text="{x:Static strings:ResStrings.WelcomeDetails}" />
+
+                        <draw:SkiaButton 
+                            Margin="0,8,0,0"
+                            HeightRequest="30"
+                            Text="OK" HorizontalOptions="Center" 
+                            Tapped="TappedClosePopup" />
+
+                    </draw:SkiaLayout>
+
+                </draw:SkiaShape>
+
+            </draw:SkiaLayout>
+
+        </draw:Canvas>
+
+    </Grid>
+
+</fastPopups:Popup>

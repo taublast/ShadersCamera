@@ -61,11 +61,14 @@
 
                         <draw:SkiaRow
                             UseCache="GPU"
-                            HorizontalOptions="Center" VerticalOptions="Center">
-
+                            Padding="1"
+                            HorizontalOptions="Center" 
+                            VerticalOptions="Center">
 
                             <!--last photo tappable preview-->
                             <draw:SkiaShape
+                                StrokeColor="#66CECECE"
+                                StrokeWidth="1"
                                 Type="Circle" HeightRequest="46" LockRatio="1"
                                 BackgroundColor="#66000000"
                                 IsClippedToBounds="True"
@@ -82,6 +85,21 @@
                                     Tag="Preview"
                                     VerticalOptions="Fill" />
 
+                            </draw:SkiaShape>
+
+                            <!--SETTINGS-->
+                            <draw:SkiaShape
+                                StrokeColor="#66CECECE"
+                                StrokeWidth="1"
+                                UseCache="Image"
+                                Tapped="TappedSettings"
+                                Type="Circle" HeightRequest="46" LockRatio="1" BackgroundColor="Black">
+                                <draw:SkiaSvg
+                                    SvgString="{x:StaticResource SvgSettings}"
+                                    TintColor="#CECECE"
+                                    WidthRequest="18"
+                                    LockRatio="1"
+                                    HorizontalOptions="Center" VerticalOptions="Center" />
                             </draw:SkiaShape>
 
                             <!--POWER/PAUSE-->
@@ -110,6 +128,8 @@
 
                             <!--FLASH CAPTURE-->
                             <draw:SkiaShape
+                                StrokeColor="#66CECECE"
+                                StrokeWidth="1"
                                 UseCache="Image"
                                 Tapped="OnFlashClicked"
                                 Type="Circle" HeightRequest="46" LockRatio="1" BackgroundColor="Black">
@@ -129,6 +149,9 @@
 
                             <!--FLASH LIGHT-->
                             <draw:SkiaShape
+                                StrokeColor="#CECECE"
+                                StrokeWidth="1"
+                                IsVisible="False"
                                 UseCache="Image"
                                 Tapped="TappedFlash"
                                 Type="Circle" HeightRequest="46" LockRatio="1" BackgroundColor="Black">
@@ -149,6 +172,8 @@
 
                             <!--SOURCE/SWITCH-->
                             <draw:SkiaShape
+                                StrokeColor="#66CECECE"
+                                StrokeWidth="1"
                                 UseCache="Image"
                                 Tapped="TappedSwitchCamera"
                                 Type="Circle" HeightRequest="46" LockRatio="1" BackgroundColor="Black">
@@ -170,7 +195,7 @@
                             <draw:SkiaShape
                                 UseCache="Image"
                                 draw:AddGestures.CommandTapped="{Binding CommandCaptureStillPhoto}"
-                                Type="Circle" HeightRequest="46" LockRatio="1" StrokeWidth="2" StrokeColor="#CECECE"
+                                Type="Circle" HeightRequest="46" LockRatio="1" StrokeWidth="2" StrokeColor="#66CECECE"
                                 BackgroundColor="Black"
                                 Padding="3">
 
@@ -180,7 +205,6 @@
                                     Type="Circle" HorizontalOptions="Fill" VerticalOptions="Fill" />
 
                             </draw:SkiaShape>
-
 
                         </draw:SkiaRow>
 

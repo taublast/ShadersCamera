@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using DrawnUi.Camera;
+using FastPopups;
 using ShadersCamera.ViewModels;
 
 namespace ShadersCamera.Views;
@@ -58,16 +59,47 @@ public partial class MainPage : IDisposable
     /// <summary>
     /// Flag to capture a small ML/other small image from the current camera preview
     /// </summary>
-    /// 
     private bool TriggerUpdateSmallPreview;
 
     SemaphoreSlim semaphoreProcessingFrame = new(1, 1);
     private object lockCatchFrame = new();
 
+    /// <summary>
+    /// Flag to check first ever preview frame received ok
+    /// </summary>
+    private bool StartupSuccessChecked;
+
+    /// <summary>
+    /// We have captured a preview frame.
+    /// Will use it for shaders menu. Same mechanics could be used to send this to AI etc.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="source"></param>
     private void OnPreviewSet(object sender, LoadedImageSource source)
     {
         lock (lockCatchFrame)
         {
+            if (!StartupSuccessChecked)
+            {
+                StartupSuccessChecked = true;
+                try
+                {
+                    //if (!Preferences.Get("welcome", false))
+                    {
+                        Preferences.Set("welcome", true);
+                        MainThread.BeginInvokeOnMainThread(() =>
+                        {
+                            var popup = new HelpPopup();
+                            this.ShowPopup(popup);
+                        });
+                    }
+                }
+                catch (Exception e)
+                {
+                    Super.Log(e);
+                }
+                return;
+            }
             if (TriggerUpdateSmallPreview && semaphoreProcessingFrame.CurrentCount != 0)
             {
                 TriggerUpdateSmallPreview = false;
@@ -364,4 +396,14 @@ public partial class MainPage : IDisposable
             Super.Log($"[CameraTestPage] OnFlashClicked error: {ex}");
         }
     }
+
+    private void TappedSettings(object sender, ControlTappedEventArgs e)
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            var popup = new SettingsPopup();
+            this.ShowPopup(popup);
+        });
+    }
+
 }

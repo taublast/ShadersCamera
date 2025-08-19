@@ -142,20 +142,6 @@ namespace ShadersCamera.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to In the soon-coming __SkiaSharp__ release we could generate tagged PDF containing links and much more!.. 
-        /// To update the device software, follow these steps:
-        /// 1. Download the new version of the software from the website [supadupa.com](https://google.com).
-        /// 2. Copy the firmware file in `HEX` format corresponding to your device model to the root directory of the memory card.
-        /// 3. Insert the memory card into the device when it is turned off.
-        /// 4. While holding the `Mode` button, connect the device to power v [rest of string was truncated]&quot;;.
-        /// </summary>
-        public static string MarkdownTest {
-            get {
-                return ResourceManager.GetString("MarkdownTest", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to No.
         /// </summary>
         public static string No {
@@ -179,6 +165,35 @@ namespace ShadersCamera.Resources.Strings {
         public static string On {
             get {
                 return ResourceManager.GetString("On", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings.
+        /// </summary>
+        public static string Settings {
+            get {
+                return ResourceManager.GetString("Settings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to - Tap anywhere on the screen to use current frame for bottom previews
+        ///- Tap/swipe bottom menu at the bottom/left to select filters
+        ///- Other on-screen buttons: Settings, Flash, Source, Capture Photo.
+        /// </summary>
+        public static string WelcomeDetails {
+            get {
+                return ResourceManager.GetString("WelcomeDetails", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Welcome to FIlters Camera! 🎉.
+        /// </summary>
+        public static string WelcomeTitle {
+            get {
+                return ResourceManager.GetString("WelcomeTitle", resourceCulture);
             }
         }
         
