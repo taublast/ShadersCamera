@@ -7,13 +7,15 @@
                   xmlns:strings="clr-namespace:ShadersCamera.Resources.Strings"
                   HorizontalOptions="Center"
                   VerticalOptions="Center"
+                  WidthRequest="320"
+                  CloseWhenBackgroundIsClicked="True"
                   x:Class="ShadersCamera.Views.SettingsPopup">
 
-    <Grid MaximumWidthRequest="350" MaximumHeightRequest="500">
+    <Grid MaximumHeightRequest="500" HorizontalOptions="Start" VerticalOptions="Start">
 
-        <ScrollView>
+        <ScrollView HorizontalOptions="Fill" VerticalOptions="Start">
 
-            <draw:Canvas Gestures="Lock" WidthRequest="300">
+            <draw:Canvas Gestures="Lock" HorizontalOptions="Fill" VerticalOptions="Start">
 
                 <draw:SkiaLayout HorizontalOptions="Fill">
 
