@@ -182,5 +182,7 @@ namespace ShadersCamera.Views.Controls
             get { return (ShaderItem)GetValue(ShaderSourceProperty); }
             set { SetValue(ShaderSourceProperty, value); }
         }
+
+
     }
 }

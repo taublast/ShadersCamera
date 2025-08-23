@@ -157,7 +157,7 @@
     <value>About</value>
   </data>
   <data name="WelcomeTitle" xml:space="preserve">
-    <value>Welcome to FIlters Camera! 🎉</value>
+    <value>Welcome! 🎉</value>
   </data>
   <data name="WelcomeDetails" xml:space="preserve">
     <value>- Tap anywhere on the screen to use current frame for bottom previews

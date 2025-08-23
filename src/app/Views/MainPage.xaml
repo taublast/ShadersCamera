@@ -10,6 +10,7 @@
     xmlns:models="clr-namespace:ShadersCamera.Models"
     xmlns:controls="clr-namespace:ShadersCamera.Views.Controls"
     x:Name="ThisPage"
+    Background="Black"
     x:DataType="viewModels:CameraViewModel">
 
     <draw:Canvas
@@ -232,7 +233,7 @@
 
             <!--  SHADER SELECTOR DRAWER  -->
             <draw:SkiaDrawer
-                Margin="0,0,0,24"
+                Margin="0,0,0,100"
                 x:Name="ShaderDrawer"
                 HeaderSize="40"
                 Direction="FromLeft"

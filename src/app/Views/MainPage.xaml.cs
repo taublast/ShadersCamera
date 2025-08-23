@@ -341,8 +341,105 @@ public partial class MainPage : IDisposable
         CameraControl.PropertyChanged -= OnContextPropertyChanged;
     }
 
+
+    #region SELECT FORMAT
+
+    public CaptureFormat SelectedFormat
+    {
+        get
+        {
+            return CameraControl.CurrentStillCaptureFormat;
+        }
+    }
+
+    public void SelectFormat(Action<string>changed)
+    {
+        if (CameraControl.IsOn)
+        {
+
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                try
+                {
+                    var formats = await CameraControl.GetAvailableCaptureFormatsAsync();
+
+                    if (!formats.Any())
+                    {
+                        await App.Current.MainPage.DisplayAlert("Error", "No capture formats available", "OK");
+                        return;
+                    }
+
+                    // Create picker with detailed format info
+                    var options = formats.Select((format, index) =>
+                        $"{format.Width}x{format.Height}, {format.AspectRatioString}"
+                    ).ToArray();
+
+                    var result = await App.Current.MainPage.DisplayActionSheet(
+                        "Capture Still Photo Quality",
+                        "Cancel",
+                        null,
+                        options);
+
+                    if (!string.IsNullOrEmpty(result))
+                    {
+                        var selectedIndex = Array.IndexOf(options, result);
+                        if (selectedIndex >= 0)
+                        {
+                            // Set manual capture mode with selected format
+                            CameraControl.CaptureFormatIndex = selectedIndex;
+                            CameraControl.CapturePhotoQuality = CaptureQuality.Manual;
+                            OnPropertyChanged(nameof(SelectedFormat));
+                            changed?.Invoke(result);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await App.Current.MainPage.DisplayAlert("Error", $"Failed to get capture formats: {ex.Message}", "OK");
+                    Debug.WriteLine($"[CameraApp] Format selection error: {ex}");
+                }
+            });
+
+        }
+
+    }
+
+    #endregion
+
+    #region SELECT ASPECT
+
+    public void SetAspect(bool fullScreen)
+    {
+        IsFullScreen = fullScreen;
+        ApplyAspect();
+    }
+
+    void ApplyAspect()
+    {
+        if (CameraControl == null)
+        {
+            return;
+        }
+
+        if (IsFullScreen)
+        {
+            CameraControl.Aspect = TransformAspect.AspectCover;
+        }
+        else
+        {
+            CameraControl.Aspect = TransformAspect.AspectFitFill;
+        }
+    }
+
+    public bool IsFullScreen = false;
+
+    #endregion
+
     void SyncUi()
     {
+
+        ApplyAspect();
+
         // CaptureFlashMode
         var currentMode = CameraControl.CaptureFlashMode;
         switch (currentMode)
@@ -401,7 +498,7 @@ public partial class MainPage : IDisposable
     {
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            var popup = new SettingsPopup();
+            var popup = new SettingsPopup(this);
             this.ShowPopup(popup);
         });
     }

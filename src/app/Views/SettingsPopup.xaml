@@ -11,58 +11,65 @@
                   CloseWhenBackgroundIsClicked="True"
                   x:Class="ShadersCamera.Views.SettingsPopup">
 
-    <Grid MaximumHeightRequest="500" HorizontalOptions="Start" VerticalOptions="Start">
+    <Grid MaximumHeightRequest="500"
+          HorizontalOptions="Fill" VerticalOptions="Start">
 
-        <ScrollView HorizontalOptions="Fill" VerticalOptions="Start">
+        <draw:Canvas Gestures="Lock" HorizontalOptions="Fill" VerticalOptions="Start">
 
-            <draw:Canvas Gestures="Lock" HorizontalOptions="Fill" VerticalOptions="Start">
+            <draw:SkiaLayout HorizontalOptions="Fill">
 
-                <draw:SkiaLayout HorizontalOptions="Fill">
+                <draw:SkiaShape
+                    HorizontalOptions="Fill"
+                    Padding="20"
+                    BackgroundColor="Black" CornerRadius="10" StrokeWidth="1" StrokeColor="Gray">
 
-                    <draw:SkiaShape
-                        HorizontalOptions="Fill"
-                        Padding="20"
-                        BackgroundColor="Gray" CornerRadius="10" StrokeWidth="1" StrokeColor="Gray">
+                    <draw:SkiaLayout Type="Column" HorizontalOptions="Fill" Spacing="24">
 
-                        <draw:SkiaLayout Type="Column" HorizontalOptions="Fill" Spacing="24">
+                        <draw:SkiaRichLabel
+                            UseCache="Operations"
+                            HorizontalOptions="Center"
+                            Opacity="0.75"
+                            Text="{x:Static strings:ResStrings.Settings}" />
+
+                        <draw:SkiaLayout HorizontalOptions="Fill" UseCache="Operations">
 
                             <draw:SkiaRichLabel
-                                HorizontalOptions="Center"
-                                Text="{x:Static strings:ResStrings.Settings}" />
+                                UseCache="Operations"
+                                VerticalOptions="Center"
+                                Text="Fill Screen" />
 
-                            <draw:SkiaLayout HorizontalOptions="Fill">
-
-                                <draw:SkiaRichLabel
-                                    VerticalOptions="Center"
-                                    Text="FullScreen" />
-
-                                <draw:SkiaSwitch
-                                    HeightRequest="28"
-                                    WidthRequest="45"
-                                    HorizontalOptions="End" />
-
-                            </draw:SkiaLayout>
-
-                            <draw:SkiaLayout HorizontalOptions="Fill">
-
-                                <draw:SkiaRichLabel
-                                    Text="Capture Format" />
-
-                                <draw:SkiaRichLabel
-                                    HorizontalOptions="End"
-                                    VerticalOptions="Center"
-                                    Text="Format" />
-
-                            </draw:SkiaLayout>
+                            <draw:SkiaSwitch
+                                ColorFrameOn="BlueViolet"
+                                Toggled="FullScreenSwitch_OnToggled"
+                                x:Name="FullScreenSwitch"
+                                HeightRequest="28"
+                                WidthRequest="45"
+                                HorizontalOptions="End" />
 
                         </draw:SkiaLayout>
 
-                    </draw:SkiaShape>
+                        <draw:SkiaLayout HorizontalOptions="Fill" UseCache="Operations" Tapped="TappedSelectFormat">
 
-                </draw:SkiaLayout>
+                            <draw:SkiaRichLabel
+                                UseCache="Operations"
+                                Text="Capture Format" />
 
-            </draw:Canvas>
-        </ScrollView>
+                            <draw:SkiaRichLabel
+                                x:Name="FormatLabel"
+                                HorizontalOptions="End"
+                                VerticalOptions="Center"
+                                Text="Format" />
+
+                        </draw:SkiaLayout>
+
+                    </draw:SkiaLayout>
+
+                </draw:SkiaShape>
+
+            </draw:SkiaLayout>
+
+        </draw:Canvas>
+
     </Grid>
 
 </fastPopups:Popup>
