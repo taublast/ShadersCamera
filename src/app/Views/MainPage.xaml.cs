@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using ShadersCamera.ViewModels;
 using System.ComponentModel;
 using System.Diagnostics;
+using AppoMobi.Specials;
 using ShadersCamera.Helpers;
 
 namespace ShadersCamera.Views;
@@ -532,8 +533,38 @@ public partial class MainPage : IDisposable
         }
     }
 
-    private void TappedSettings(object sender, ControlTappedEventArgs e)
+    private void TappedSettings(object sender, ControlTappedEventArgs args)
     {
+
+        if (SelectedFormat == null || CameraControl.PermissionsError)
+        {
+            //camera error
+            try
+            {
+                CameraControl.IsOn = true;
+            }
+            catch (Exception e)
+            {
+                Super.Log(e);
+            }
+
+            Tasks.StartDelayed(TimeSpan.FromMilliseconds(500), () =>
+            {
+                if (CameraControl.PermissionsError)
+                {
+                    MainThread.BeginInvokeOnMainThread(async () =>
+                    {
+                        await DisplayAlert("Error", $"No permissions", "OK");
+
+#if ANDROID || IOS
+                        NativeTasks.OpenSystemSettings();
+#endif
+                    });
+                }
+            });
+            return;
+        }
+
         MainThread.BeginInvokeOnMainThread(() =>
         {
             var popup = new SettingsPopup(this);
