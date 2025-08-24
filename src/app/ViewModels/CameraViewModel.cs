@@ -308,8 +308,8 @@ namespace ShadersCamera.ViewModels
             captured.Image.Dispose();
             captured.Image = imageWithOverlay;
 
-            captured.Meta.Vendor = "DrawnUI";
-            captured.Meta.Model = "Shaders Camera";
+            captured.Meta.Vendor = MauiProgram.ExifCameraVendor;
+            captured.Meta.Model = MauiProgram.ExifCameraModel;
 
             //save to device, can use custom album name if needed
             await Camera.SaveToGalleryAsync(captured, false); 

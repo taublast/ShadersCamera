@@ -7,6 +7,10 @@ namespace ShadersCamera
 {
     public static class MauiProgram
     {
+
+        public static string ExifCameraVendor = "DrawnUI";
+        public static string ExifCameraModel = "Shaders Camera";
+
         public static MauiApp CreateMauiApp()
         {
      
