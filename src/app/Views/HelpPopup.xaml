@@ -17,7 +17,7 @@
             <draw:SkiaLayout>
 
                 <draw:SkiaShape
-                    Padding="20"
+                    Padding="24"
                     BackgroundColor="Black" CornerRadius="10" StrokeWidth="1" StrokeColor="Gray">
 
                     <draw:SkiaLayout Type="Column" Spacing="16">

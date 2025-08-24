@@ -63,6 +63,7 @@
                         <draw:SkiaRow
                             UseCache="GPU"
                             Padding="1"
+                            Spacing="10"
                             HorizontalOptions="Center" 
                             VerticalOptions="Center">
 

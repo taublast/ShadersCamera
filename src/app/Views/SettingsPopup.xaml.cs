@@ -1,3 +1,5 @@
+using ShadersCamera.Helpers;
+
 namespace ShadersCamera.Views;
 
 public partial class SettingsPopup 
@@ -39,5 +41,12 @@ public partial class SettingsPopup
         {
             FormatLabel.Text = name;
         });
+    }
+
+    protected override Task OnDismissedByTappingOutsideOfPopup(CancellationToken token = new CancellationToken())
+    {
+        UserSettings.Save();
+
+        return base.OnDismissedByTappingOutsideOfPopup(token);
     }
 }

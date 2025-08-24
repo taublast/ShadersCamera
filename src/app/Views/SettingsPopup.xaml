@@ -20,10 +20,10 @@
 
                 <draw:SkiaShape
                     HorizontalOptions="Fill"
-                    Padding="20"
+                    Padding="24"
                     BackgroundColor="Black" CornerRadius="10" StrokeWidth="1" StrokeColor="Gray">
 
-                    <draw:SkiaLayout Type="Column" HorizontalOptions="Fill" Spacing="24">
+                    <draw:SkiaLayout Type="Column" HorizontalOptions="Fill" Spacing="32">
 
                         <draw:SkiaRichLabel
                             UseCache="Operations"

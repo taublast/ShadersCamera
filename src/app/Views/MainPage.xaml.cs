@@ -1,13 +1,16 @@
-using System.ComponentModel;
-using System.Diagnostics;
 using DrawnUi.Camera;
 using FastPopups;
+using Newtonsoft.Json;
 using ShadersCamera.ViewModels;
+using System.ComponentModel;
+using System.Diagnostics;
+using ShadersCamera.Helpers;
 
 namespace ShadersCamera.Views;
 
 public partial class MainPage : IDisposable
 {
+
 #if DEBUG
 
     public MainPage()
@@ -18,7 +21,11 @@ public partial class MainPage : IDisposable
 
             BindingContext = _vm;
 
+            IsFullScreen = UserSettings.Current.Fill;
+
             InitializeComponent();
+
+            CameraControl.CaptureFlashMode = (CaptureFlashMode)UserSettings.Current.Flash;
 
             CameraControl.PropertyChanged += OnContextPropertyChanged;
 
@@ -42,6 +49,7 @@ public partial class MainPage : IDisposable
             vm.AttachCamera(CameraControl);
 
             CameraControl.NewPreviewSet += OnPreviewSet;
+            CameraControl.StateChanged += OnCameraStateChanged;
 
             SyncUi();
 
@@ -56,6 +64,7 @@ public partial class MainPage : IDisposable
         }
     }
 
+
     /// <summary>
     /// Flag to capture a small ML/other small image from the current camera preview
     /// </summary>
@@ -68,6 +77,24 @@ public partial class MainPage : IDisposable
     /// Flag to check first ever preview frame received ok
     /// </summary>
     private bool StartupSuccessChecked;
+
+    private void OnCameraStateChanged(object sender, CameraState state)
+    {
+        if (state == CameraState.On)
+        {
+            Debug.WriteLine($"[CameraApp] State in ON!");
+
+            if (UserSettings.Current.Formats.TryGetValue(CameraControl.CameraDevice.Id, out var format))
+            {
+                CameraControl.CaptureFormatIndex = format;
+                CameraControl.CapturePhotoQuality = CaptureQuality.Manual;
+            }
+            else
+            {
+                CameraControl.CapturePhotoQuality = CaptureQuality.Medium;
+            }
+        }
+    }
 
     /// <summary>
     /// We have captured a preview frame.
@@ -84,13 +111,14 @@ public partial class MainPage : IDisposable
                 StartupSuccessChecked = true;
                 try
                 {
-                    //if (!Preferences.Get("welcome", false))
+                    if (!UserSettings.Current.ShownWelcome)
                     {
-                        Preferences.Set("welcome", true);
+                        UserSettings.Current.ShownWelcome = true;
                         MainThread.BeginInvokeOnMainThread(() =>
                         {
                             var popup = new HelpPopup();
                             this.ShowPopup(popup);
+                            UserSettings.Save();
                         });
                     }
                 }
@@ -314,6 +342,7 @@ public partial class MainPage : IDisposable
     private void CanvasWillDispose(object sender, EventArgs e)
     {
         CameraControl.NewPreviewSet -= OnPreviewSet;
+        CameraControl.StateChanged -= OnCameraStateChanged;
     }
 
     private void TappedDrawerHeader(object sender, ControlTappedEventArgs e)
@@ -390,6 +419,10 @@ public partial class MainPage : IDisposable
                             CameraControl.CapturePhotoQuality = CaptureQuality.Manual;
                             OnPropertyChanged(nameof(SelectedFormat));
                             changed?.Invoke(result);
+
+                            Debug.WriteLine($"[CameraApp] Format selection: {selectedIndex} for {CameraControl.CameraDevice.Id}");
+
+                            UserSettings.Current.Formats[CameraControl.CameraDevice.Id] = selectedIndex;
                         }
                     }
                 }
@@ -429,6 +462,8 @@ public partial class MainPage : IDisposable
         {
             CameraControl.Aspect = TransformAspect.AspectFitFill;
         }
+
+        UserSettings.Current.Fill=  CameraControl.Aspect == TransformAspect.AspectCover;
     }
 
     public bool IsFullScreen = false;
@@ -487,6 +522,9 @@ public partial class MainPage : IDisposable
             SyncUi();
 
             Debug.WriteLine($"Camera Status: Capture flash mode set to {nextMode}");
+
+            UserSettings.Current.Flash = (int)nextMode;
+            UserSettings.Save();
         }
         catch (Exception ex)
         {

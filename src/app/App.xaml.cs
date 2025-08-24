@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using ShadersCamera.Helpers;
 using ShadersCamera.Views;
 
 namespace ShadersCamera
@@ -7,7 +8,7 @@ namespace ShadersCamera
     {
         public App()
         {
-            Super.SetLocale("en");
+            Super.SetLocale(UserSettings.Current.Lang);
 
             InitializeComponent();
 
@@ -15,6 +16,14 @@ namespace ShadersCamera
         }
 
         public static App Instance => App.Current as App;
+
+        protected override void OnSleep()
+        {
+            UserSettings.Save();
+
+            base.OnSleep();
+        }
+
     }
 
 }

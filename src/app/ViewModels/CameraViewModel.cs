@@ -3,6 +3,7 @@ using DrawnUi.Camera;
  using ShadersCamera.Models;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using ShadersCamera.Helpers;
 
 namespace ShadersCamera.ViewModels
 {
@@ -53,7 +54,20 @@ namespace ShadersCamera.ViewModels
                 new ShaderItem { Title = "Pixels", Filename = "Shaders/Camera/pixels.sksl" }
             };
 
-            SelectedShader = ShaderItems[0];
+            var index = 0;
+            if (!string.IsNullOrEmpty(UserSettings.Current.Filter))
+            {
+                var shaderNb = 0;
+                foreach (var shader in ShaderItems)
+                {
+                    if (shader.Title == UserSettings.Current.Filter)
+                    {
+                        index = shaderNb;
+                    }
+                    shaderNb++;
+                }
+            }
+            SelectedShader = ShaderItems[index];
         }
 
         public void ApplyQueryAttributes(IDictionary<string, object> query)
@@ -96,6 +110,15 @@ namespace ShadersCamera.ViewModels
                 {
                     _selectedShader = value;
                     OnPropertyChanged();
+                    if (value == null)
+                    {
+                        UserSettings.Current.Filter = string.Empty;
+                    }
+                    else
+                    {
+                        UserSettings.Current.Filter = value.Title;
+                    }
+                    UserSettings.Save();
                 }
             }
         }
