@@ -18,3 +18,9 @@
 
 Effect button is here temporarily: it's different basic color filters vs custom effect: shaders.
 UI to be will changed much..
+
+### Optional ToDo
+
+* Apply shaders while saving in background
+* Optional saving geolocation
+* Enhanced shaders editor including mobile version
