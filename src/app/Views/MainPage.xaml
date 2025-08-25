@@ -79,6 +79,7 @@
                                 WidthRequest="46">
 
                                 <draw:SkiaImage
+                                    RescalingQuality="None"
                                     draw:AddGestures.CommandTapped="{Binding CommandPreviewTapped}"
                                     x:Name="ImagePreview"
                                     Aspect="AspectCover"
@@ -295,6 +296,7 @@
 
                                                 <!--  IMAGE WITH SHADER EFFECT  -->
                                                 <draw:SkiaImage
+                                                    RescalingQuality="None"
                                                     Source="{Binding ImageSource}"
                                                     ImageBitmap="{Binding  Source ={x:Reference ThisPage}, Path=SmallPreview}"
                                                     Aspect="AspectCover"
