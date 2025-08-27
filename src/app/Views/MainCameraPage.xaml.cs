@@ -9,12 +9,12 @@ using ShadersCamera.Helpers;
 
 namespace ShadersCamera.Views;
 
-public partial class MainPage : IDisposable
+public partial class MainCameraPage : IDisposable
 {
 
-#if DEBUG
 
-    public MainPage()
+
+    public MainCameraPage()
     {
         try
         {
@@ -33,8 +33,7 @@ public partial class MainPage : IDisposable
 #if ANDROID
             Super.SetNavigationBarColor(Colors.Black, Colors.Black, true);
 #endif
-
-            Loaded += OnPageLoaded;
+ 
         }
         catch (Exception e)
         {
@@ -207,42 +206,10 @@ public partial class MainPage : IDisposable
         }
     }
 
-    private void OnPageLoaded(object sender, EventArgs e)
-    {
-        //AttachCamera();
-    }
-
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
-
-        _sVisible = true;
-    }
-
-    volatile bool _sVisible;
-
-    protected override void OnDisappearing()
-    {
-        base.OnDisappearing();
-
-        _sVisible = false;
-
-        CameraControl.IsOn = false;
-    }
-
-#endif
 
     private readonly CameraViewModel _vm;
 
-
-    public MainPage(CameraViewModel vm)
-    {
-        _vm = vm;
-
-        BindingContext = _vm;
-
-        InitializeComponent();
-    }
+ 
 
     private void TappedSwitchCamera(object sender, ControlTappedEventArgs controlTappedEventArgs)
     {

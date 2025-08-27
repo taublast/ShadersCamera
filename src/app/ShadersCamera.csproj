@@ -180,8 +180,8 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>ResStrings.resx</DependentUpon>
     </Compile>
-    <Compile Update="Views\MainPage.xaml.cs">
-      <DependentUpon>MainPage.xaml</DependentUpon>
+    <Compile Update="Views\MainCameraPage.xaml.cs">
+      <DependentUpon>MainCameraPage.xaml</DependentUpon>
     </Compile>
     <Compile Update="Views\HelpPopup.xaml.cs">
       <DependentUpon>HelpPopup.xaml</DependentUpon>

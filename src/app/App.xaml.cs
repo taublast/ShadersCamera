@@ -12,7 +12,7 @@ namespace ShadersCamera
 
             InitializeComponent();
 
-            MainPage = new AppShell();
+            MainPage = new MainCameraPage();
         }
 
         public static App Instance => App.Current as App;

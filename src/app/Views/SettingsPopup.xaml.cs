@@ -4,23 +4,23 @@ namespace ShadersCamera.Views;
 
 public partial class SettingsPopup 
 {
-    private readonly MainPage _parentPage;
+    private readonly MainCameraPage _parentCameraPage;
 
     private bool isInitializing;
 
-    public SettingsPopup(MainPage page)
+    public SettingsPopup(MainCameraPage cameraPage)
 	{
 		InitializeComponent();
 
-        _parentPage = page;
+        _parentCameraPage = cameraPage;
 
         isInitializing = true;
 
         //switch
-        FullScreenSwitch.IsToggled = _parentPage.IsFullScreen;
+        FullScreenSwitch.IsToggled = _parentCameraPage.IsFullScreen;
 
         //format
-        var format = _parentPage.SelectedFormat;
+        var format = _parentCameraPage.SelectedFormat;
         FormatLabel.Text = $"{format.Width}x{format.Height}, {format.AspectRatioString}";
 
         isInitializing = false;
@@ -32,12 +32,12 @@ public partial class SettingsPopup
         if (isInitializing)
             return;
 
-        _parentPage.SetAspect(value);
+        _parentCameraPage.SetAspect(value);
     }
 
     private void TappedSelectFormat(object sender, ControlTappedEventArgs e)
     {
-        _parentPage.SelectFormat((name) =>
+        _parentCameraPage.SelectFormat((name) =>
         {
             FormatLabel.Text = name;
         });

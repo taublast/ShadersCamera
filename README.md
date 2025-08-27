@@ -12,12 +12,11 @@
 ## TO FIX
 
 make Ui appear faster, before cam is initialized
-when droid preview open will not switch to it when already open
 
 fix palette for toon
 in cropped mode apply shader to image without borders
 create antispam for taking previews
-
+gallery
 ### Interaction:
 
 * Tap on the screen to use current frame for bottom menu previews
