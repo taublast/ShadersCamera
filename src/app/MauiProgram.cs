@@ -19,9 +19,8 @@ namespace ShadersCamera
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts =>
                 {
-                    fonts.AddFont("OpenSans-Regular.ttf", "FontText");
-                    fonts.AddFont("DOM.TTF", "FontPhoto");
-                    fonts.AddFont("DOMB.TTF", "FontPhotoBold");
+                    fonts.AddFont("BalsamiqSans-Bold.ttf", "FontTextBold");
+                    fonts.AddFont("BalsamiqSans-Regular.ttf", "FontText");
                 });
 
             builder

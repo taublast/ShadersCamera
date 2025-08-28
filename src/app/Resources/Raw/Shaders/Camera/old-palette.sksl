@@ -6,9 +6,7 @@ uniform shader iImage1;          // Texture
 uniform float2 iOffset;          // Top-left corner of DrawingRect
 uniform float2 iOrigin;          // Mouse drag started here
 
-/// <summary>
-/// Calculates Bayer dithering threshold for given pixel coordinates
-/// </summary>
+// Calculates Bayer dithering threshold for given pixel coordinates
 float get_bayer_threshold(int2 pixel_coords) {
     int x = int(mod(float(pixel_coords.x), 4.0));
     int y = int(mod(float(pixel_coords.y), 4.0));

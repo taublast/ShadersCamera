@@ -8,30 +8,17 @@ uniform float2 iOrigin;          // Mouse drag started here
 
 const float COLOR_LEVELS = 5.0;
 
-/// <summary>
-/// Color dodge blend mode
-/// </summary>
-/// <param name="src">Source color</param>
-/// <param name="dst">Destination color</param>
-/// <returns>Blended color</returns>
+// Color dodge blend mode
 half3 colorDodge(in half3 src, in half3 dst) {
     return step(0.0, dst) * mix(min(half3(1.0), dst / (1.0 - src)), half3(1.0), step(1.0, src)); 
 }
 
-/// <summary>
-/// Converts color to grayscale
-/// </summary>
-/// <param name="col">Input color</param>
-/// <returns>Grayscale value</returns>
+// Converts color to grayscale
 float greyScale(in half3 col) {
     return dot(col, half3(0.3, 0.59, 0.11));
 }
 
-/// <summary>
-/// Posterizes colors to create flat cartoon areas
-/// </summary>
-/// <param name="color">Input color</param>
-/// <returns>Posterized color</returns>
+// Posterizes colors to create flat cartoon areas
 half3 posterizeColor(half3 color) {
     return floor(color * COLOR_LEVELS + 0.5) / COLOR_LEVELS;
 }

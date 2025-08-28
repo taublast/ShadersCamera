@@ -9,14 +9,6 @@
 * Saving EXIF and injecting custom metadata
 * Can edit shaders code in standalone window when running on desktop
 
-## TO FIX
-
-make Ui appear faster, before cam is initialized
-
-fix palette for toon
-in cropped mode apply shader to image without borders
-create antispam for taking previews
-gallery
 ### Interaction:
 
 * Tap on the screen to use current frame for bottom menu previews

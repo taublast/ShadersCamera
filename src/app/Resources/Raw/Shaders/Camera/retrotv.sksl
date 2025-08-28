@@ -11,32 +11,19 @@ const float VIGNETTE_STRENGTH = 0.4;
 const float NOISE_INTENSITY = 0.08;
 const float CHROMATIC_ABBERATION = 0.002;
 
-/// <summary>
-/// Generates TV static noise
-/// </summary>
-/// <param name="coord">Coordinate for noise generation</param>
-/// <param name="time">Current time for animation</param>
-/// <returns>Noise value</returns>
+// Generates TV static noise
 float tvNoise(float2 coord, float time) {
     return fract(sin(dot(coord + time, float2(12.9898, 78.233))) * 43758.5453);
 }
 
-/// <summary>
-/// Creates vignette effect (darkened edges)
-/// </summary>
-/// <param name="uv">UV coordinates (0-1)</param>
-/// <returns>Vignette multiplier</returns>
+// Creates vignette effect (darkened edges)
 float vignette(float2 uv) {
     float2 centered = uv - 0.5;
     float distance = length(centered);
     return 1.0 - smoothstep(0.3, 0.8, distance * VIGNETTE_STRENGTH * 2.0);
 }
 
-/// <summary>
-/// Creates CRT barrel distortion
-/// </summary>
-/// <param name="uv">Original UV coordinates</param>
-/// <returns>Distorted UV coordinates</returns>
+// Creates CRT barrel distortion
 float2 barrelDistortion(float2 uv) {
     float2 centered = uv - 0.5;
     float r2 = dot(centered, centered);
@@ -44,11 +31,7 @@ float2 barrelDistortion(float2 uv) {
     return 0.5 + centered * distortion;
 }
 
-/// <summary>
-/// Main fragment shader for CRT/VHS effect
-/// </summary>
-/// <param name="fragCoord">Current pixel coordinate</param>
-/// <returns>Retro CRT-styled pixel color</returns>
+// Main fragment shader for CRT/VHS effect
 half4 main(float2 fragCoord) {
     float2 renderingScale = iImageResolution.xy / iResolution.xy;
     float2 inputCoord = (fragCoord - iOffset) * renderingScale;

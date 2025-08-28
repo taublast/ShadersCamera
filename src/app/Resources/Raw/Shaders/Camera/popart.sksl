@@ -9,11 +9,7 @@ uniform float2 iOrigin;
 const float COLOR_LEVELS = 4.0;
 const float GLOW_RADIUS = 3.0;
 
-/// <summary>
-/// Maps luminance to vibrant neon colors
-/// </summary>
-/// <param name="luminance">Input luminance value</param>
-/// <returns>Neon color</returns>
+// Maps luminance to vibrant neon colors
 half3 neonColorMap(float luminance) {
     if (luminance > 0.75) {
         return half3(1.0, 0.2, 0.8);
@@ -26,20 +22,12 @@ half3 neonColorMap(float luminance) {
     }
 }
 
-/// <summary>
-/// Creates posterized color effect
-/// </summary>
-/// <param name="color">Input color</param>
-/// <returns>Posterized color</returns>
+// Creates posterized color effect
 half3 posterize(half3 color) {
     return floor(color * COLOR_LEVELS) / COLOR_LEVELS;
 }
 
-/// <summary>
-/// Creates neon glow effect around edges
-/// </summary>
-/// <param name="coord">Current coordinate</param>
-/// <returns>Glow intensity</returns>
+// Creates neon glow effect around edges
 float neonGlow(float2 coord) {
     float2 renderingScale = iImageResolution.xy / iResolution.xy;
     float2 inputCoord = (coord - iOffset) * renderingScale;
@@ -62,11 +50,7 @@ float neonGlow(float2 coord) {
     return glow * 0.02;
 }
 
-/// <summary>
-/// Main fragment shader for neon pop art effect
-/// </summary>
-/// <param name="fragCoord">Current pixel coordinate</param>
-/// <returns>Neon styled pixel color</returns>
+// Main fragment shader for neon pop art effect
 half4 main(float2 fragCoord) {
     float2 renderingScale = iImageResolution.xy / iResolution.xy;
     float2 inputCoord = (fragCoord - iOffset) * renderingScale;

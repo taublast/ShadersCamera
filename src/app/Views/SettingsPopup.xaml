@@ -23,14 +23,16 @@
                     Padding="24"
                     BackgroundColor="Black" CornerRadius="10" StrokeWidth="1" StrokeColor="Gray">
 
-                    <draw:SkiaLayout Type="Column" HorizontalOptions="Fill" Spacing="32">
+                    <draw:SkiaLayout Type="Column" HorizontalOptions="Fill" Spacing="32" Margin="0,0,0,8">
 
                         <draw:SkiaRichLabel
+                            Opacity="0.75"
+                            FontFamily="FontTextBold"
                             UseCache="Operations"
                             HorizontalOptions="Center"
-                            Opacity="0.75"
                             Text="{x:Static strings:ResStrings.Settings}" />
 
+                        <!--FULLSCREEN-->
                         <draw:SkiaLayout HorizontalOptions="Fill" UseCache="Operations">
 
                             <draw:SkiaRichLabel
@@ -39,7 +41,7 @@
                                 Text="Fill Screen" />
 
                             <draw:SkiaSwitch
-                                ColorFrameOn="BlueViolet"
+                                ColorFrameOn="{x:StaticResource ColorPrimary}"
                                 Toggled="FullScreenSwitch_OnToggled"
                                 x:Name="FullScreenSwitch"
                                 HeightRequest="28"
@@ -48,17 +50,52 @@
 
                         </draw:SkiaLayout>
 
+                        <!--MIRROR-->
+                        <draw:SkiaLayout HorizontalOptions="Fill" UseCache="Operations">
+
+                            <draw:SkiaRichLabel
+                                UseCache="Operations"
+                                VerticalOptions="Center"
+                                Text="Mirror Preview" />
+
+                            <draw:SkiaSwitch
+                                ColorFrameOn="{x:StaticResource ColorPrimary}"
+                                Toggled="MirrorSwitch_OnToggled"
+                                x:Name="MirrorSwitch"
+                                HeightRequest="28"
+                                WidthRequest="45"
+                                HorizontalOptions="End" />
+
+                        </draw:SkiaLayout>
+
+                        <!--FORMAT-->
                         <draw:SkiaLayout HorizontalOptions="Fill" UseCache="Operations" Tapped="TappedSelectFormat">
 
                             <draw:SkiaRichLabel
                                 UseCache="Operations"
                                 Text="Capture Format" />
 
-                            <draw:SkiaRichLabel
+                            <draw:SkiaLabel
+                                Opacity="0.75"
                                 x:Name="FormatLabel"
                                 HorizontalOptions="End"
                                 VerticalOptions="Center"
                                 Text="Format" />
+
+                        </draw:SkiaLayout>
+
+                        <!--HELP-->
+                        <draw:SkiaLayout HorizontalOptions="Fill" UseCache="Operations" Tapped="TappedSelectHelp">
+
+                            <draw:SkiaRichLabel
+                                UseCache="Operations"
+                                Text="Help" />
+
+                            <draw:SkiaRichLabel
+                                Opacity="0.75"
+                                HorizontalOptions="End"
+                                VerticalOptions="Center"
+                                Text="❔" />
 
                         </draw:SkiaLayout>
 

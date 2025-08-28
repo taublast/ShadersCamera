@@ -6,22 +6,14 @@ uniform shader iImage1;          // Texture
 uniform float2 iOffset;          // Top-left corner of DrawingRect
 uniform float2 iOrigin;          // Mouse drag started here
 
-/// <summary>
-/// Detects if a color is predominantly red for selective coloring
-/// </summary>
-/// <param name="color">Input RGB color</param>
-/// <returns>Red detection strength</returns>
+// Detects if a color is predominantly red for selective coloring
 float detectRed(half3 color) {
     float redStrength = color.r / max(color.g + color.b + 0.001, 0.001);
     float saturation = max(color.r, max(color.g, color.b)) - min(color.r, min(color.g, color.b));
     return smoothstep(1.2, 2.5, redStrength) * smoothstep(0.1, 0.4, saturation);
 }
 
-/// <summary>
-/// Applies the high contrast black and white with selective red from Sin City
-/// </summary>
-/// <param name="color">Input RGB color</param>
-/// <returns>Sin City styled color</returns>
+// Applies high contrast black and white with selective red
 half3 sinCityGrade(half3 color) {
     float luminance = dot(color, half3(0.299, 0.587, 0.114));
     

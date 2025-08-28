@@ -6,11 +6,7 @@ uniform shader iImage1;          // Texture
 uniform float2 iOffset;          // Top-left corner of DrawingRect
 uniform float2 iOrigin;          // Mouse drag started here
 
-/// <summary>
-/// Generates heavy grain typical of pushed film
-/// </summary>
-/// <param name="coord">Screen coordinate</param>
-/// <returns>Heavy grain intensity</returns>
+// Generates heavy grain typical of pushed film
 float heavyGrain(float2 coord) {
     float2 grainCoord = coord * 1.2;
     float noise1 = fract(sin(dot(grainCoord, float2(127.1, 311.7))) * 43758.5453);
@@ -19,11 +15,7 @@ float heavyGrain(float2 coord) {
     return (noise1 + noise2 + noise3 - 1.5) * 0.04;
 }
 
-/// <summary>
-/// Applies pushed Tri-X style gritty B&W conversion
-/// </summary>
-/// <param name="color">Input RGB color</param>
-/// <returns>Gritty street B&W value</returns>
+// Applies pushed Tri-X style gritty B&W conversion
 float pushedTriXConversion(half3 color) {
     // Pushed film has enhanced grain and contrast
     float luminance = dot(color, half3(0.4, 0.4, 0.2));
@@ -42,11 +34,7 @@ float pushedTriXConversion(half3 color) {
     return clamp(luminance, 0.0, 1.0);
 }
 
-/// <summary>
-/// Creates harsh vignette for urban feel
-/// </summary>
-/// <param name="uv">UV coordinates</param>
-/// <returns>Urban vignette multiplier</returns>
+// Creates harsh vignette for urban feel
 float urbanVignette(float2 uv) {
     float2 centered = uv - 0.5;
     float distance = length(centered);

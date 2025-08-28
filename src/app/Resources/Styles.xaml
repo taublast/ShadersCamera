@@ -7,7 +7,9 @@
 
     <Style ApplyToDerivedTypes="True" TargetType="draw:SkiaLabel">
         <Setter Property="TextColor" Value="#CECECE" />
-        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="CharacterSpacing" Value="1.1" />
+        <Setter Property="ParagraphSpacing" Value="0.75" />
         <Setter Property="FontFamily" Value="FontText" />
     </Style>
 

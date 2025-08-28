@@ -6,22 +6,14 @@ uniform shader iImage1;          // Texture
 uniform float2 iOffset;          // Top-left corner of DrawingRect
 uniform float2 iOrigin;          // Mouse drag started here
 
-/// <summary>
-/// Generates extremely fine grain for fine art work
-/// </summary>
-/// <param name="coord">Screen coordinate</param>
-/// <returns>Ultra-fine grain intensity</returns>
+// Generates extremely fine grain for fine art work
 float ultraFineGrain(float2 coord) {
     float2 highRes = coord * 3.0;
     float noise = fract(sin(dot(highRes, float2(12.9898, 78.233))) * 43758.5453);
     return (noise - 0.5) * 0.008;
 }
 
-/// <summary>
-/// Applies Delta 100 style fine art B&W conversion
-/// </summary>
-/// <param name="color">Input RGB color</param>
-/// <returns>Fine art B&W value</returns>
+// Applies Delta 100 style fine art B&W conversion
 float delta100Conversion(half3 color) {
     // Delta 100 has exceptional tonality and fine grain
     float luminance = dot(color, half3(0.3, 0.59, 0.11));
@@ -41,11 +33,7 @@ float delta100Conversion(half3 color) {
     return clamp(luminance, 0.0, 1.0);
 }
 
-/// <summary>
-/// Creates subtle center focus for fine art
-/// </summary>
-/// <param name="uv">UV coordinates</param>
-/// <returns>Center focus multiplier</returns>
+// Creates subtle center focus for fine art
 float centerFocus(float2 uv) {
     float2 centered = uv - 0.5;
     float distance = length(centered);

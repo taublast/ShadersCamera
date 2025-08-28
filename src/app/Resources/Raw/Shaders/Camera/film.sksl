@@ -6,22 +6,14 @@ uniform shader iImage1;          // Texture
 uniform float2 iOffset;          // Top-left corner of DrawingRect
 uniform float2 iOrigin;          // Mouse drag started here
 
-/// <summary>
-/// Creates a subtle vignette effect
-/// </summary>
-/// <param name="uv">UV coordinates (0-1)</param>
-/// <returns>Vignette multiplier</returns>
+// Creates a subtle vignette effect
 float vignette(float2 uv) {
     float2 centered = uv - 0.5;
     float distance = length(centered);
     return 1.0 - smoothstep(0.4, 0.9, distance);
 }
 
-/// <summary>
-/// Applies Instagram-style vintage film emulation
-/// </summary>
-/// <param name="color">Input RGB color</param>
-/// <returns>Instagram styled color</returns>
+// Applies Instagram-style vintage film emulation
 half3 instagramGrade(half3 color) {
     float luminance = dot(color, half3(0.299, 0.587, 0.114));
     

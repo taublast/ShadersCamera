@@ -1,14 +1,15 @@
+using Newtonsoft.Json.Linq;
 using ShadersCamera.Helpers;
 
 namespace ShadersCamera.Views;
 
 public partial class SettingsPopup 
 {
-    private readonly MainCameraPage _parentCameraPage;
+    private readonly IPageWIthCamera _parentCameraPage;
 
     private bool isInitializing;
 
-    public SettingsPopup(MainCameraPage cameraPage)
+    public SettingsPopup(IPageWIthCamera cameraPage)
 	{
 		InitializeComponent();
 
@@ -16,8 +17,9 @@ public partial class SettingsPopup
 
         isInitializing = true;
 
-        //switch
+        //switches
         FullScreenSwitch.IsToggled = _parentCameraPage.IsFullScreen;
+        MirrorSwitch.IsToggled = _parentCameraPage.IsMirrored;
 
         //format
         var format = _parentCameraPage.SelectedFormat;
@@ -35,6 +37,11 @@ public partial class SettingsPopup
         _parentCameraPage.SetAspect(value);
     }
 
+    private void TappedSelectHelp(object sender, ControlTappedEventArgs e)
+    {
+        _parentCameraPage.OpenHelp();
+    }
+
     private void TappedSelectFormat(object sender, ControlTappedEventArgs e)
     {
         _parentCameraPage.SelectFormat((name) =>
@@ -48,5 +55,13 @@ public partial class SettingsPopup
         UserSettings.Save();
 
         return base.OnDismissedByTappingOutsideOfPopup(token);
+    }
+
+    private void MirrorSwitch_OnToggled(object sender, bool value)
+    {
+        if (isInitializing)
+            return;
+
+        _parentCameraPage.SetMirrored(value);
     }
 }

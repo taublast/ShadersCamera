@@ -6,11 +6,7 @@ uniform shader iImage1;          // Texture
 uniform float2 iOffset;          // Top-left corner of DrawingRect
 uniform float2 iOrigin;          // Mouse drag started here
 
-/// <summary>
-/// Applies subtle Matrix movie color grading
-/// </summary>
-/// <param name="color">Input RGB color</param>
-/// <returns>Matrix-style color graded image</returns>
+// Applies subtle Matrix movie color grading
 half3 matrixColorGrade(half3 color) {
     // Slightly desaturate
     float luminance = dot(color, half3(0.299, 0.587, 0.114));

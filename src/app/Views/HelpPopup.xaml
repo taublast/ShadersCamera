@@ -17,12 +17,15 @@
             <draw:SkiaLayout>
 
                 <draw:SkiaShape
+                    UseCache="Image"
                     Padding="24"
                     BackgroundColor="Black" CornerRadius="10" StrokeWidth="1" StrokeColor="Gray">
 
                     <draw:SkiaLayout Type="Column" Spacing="16">
 
                         <draw:SkiaRichLabel
+                            Opacity="0.75"
+                            FontFamily="FontTextBold"
                             HorizontalOptions="Center"
                             Text="{x:Static strings:ResStrings.WelcomeTitle}" />
 
@@ -31,7 +34,7 @@
                             Text="{x:Static strings:ResStrings.WelcomeDetails}" />
 
                         <draw:SkiaButton 
-                            Margin="0,8,0,0"
+                            Margin="0,16,0,4"
                             HeightRequest="30"
                             Text="OK" HorizontalOptions="Center" 
                             Tapped="TappedClosePopup" />

@@ -6,6 +6,34 @@ public partial class ShaderEditorPage : ContentPage
     private string _originalCode;
     private bool _hasUnsavedChanges;
 
+    private bool HasError { get; set; }
+
+    public void ReportCompilationError(string error)
+    {
+        if (!HasError)
+        {
+            HasError = true;
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                if (!string.IsNullOrEmpty(error))
+                {
+                    ErrorLabel.Text = error;
+                    ErrorPanel.IsVisible = true;
+                }
+                else
+                {
+                    HideError();
+                }
+            });
+        }
+    }
+
+    private void HideError()
+    {
+        ErrorPanel.IsVisible = false;
+        ErrorLabel.Text = string.Empty;
+    }
+
     public ShaderEditorPage(string code, Action<string> onSave)
 	{
 		InitializeComponent();
@@ -278,21 +306,22 @@ public partial class ShaderEditorPage : ContentPage
         }
     }
 
-    private void ButtonSave_OnClicked(object sender, EventArgs e)
+    private async void ButtonSave_OnClicked(object sender, EventArgs e)
     {
+        Apply();
+
+        await Task.Delay(30);
+
         try
         {
-            _callback?.Invoke(Editor.Text);
-            _originalCode = Editor.Text;
-            _hasUnsavedChanges = false;
-            UpdateTitle();
-            
-            // Show brief success feedback
-            MainThread.BeginInvokeOnMainThread(async () =>
+            if (!HasError)
             {
-                await DisplayAlert("Success", "Shader saved successfully!", "OK");
-                Application.Current?.CloseWindow(Application.Current.Windows.Last());
-            });
+                _originalCode = Editor.Text;
+                _hasUnsavedChanges = false;
+                UpdateTitle();
+
+                Close();
+            }
         }
         catch (Exception ex)
         {
@@ -308,14 +337,15 @@ public partial class ShaderEditorPage : ContentPage
         Close();
     }
 
-    private void ButtonApply_OnClicked(object sender, EventArgs e)
+    void Apply()
     {
         try
         {
+            // Hide any previous errors
+            HideError();
+            HasError = false;
+
             _callback?.Invoke(Editor.Text);
-            
-            // Show brief feedback without closing
-            //todo TOAST for success?
         }
         catch (Exception ex)
         {
@@ -323,6 +353,41 @@ public partial class ShaderEditorPage : ContentPage
             {
                 await DisplayAlert("Error", $"Failed to apply shader: {ex.Message}", "OK");
             });
+        }
+    }
+    private void ButtonApply_OnClicked(object sender, EventArgs e)
+    {
+        Apply();
+    }
+
+    private void CloseErrorButton_OnClicked(object sender, EventArgs e)
+    {
+        HideError();
+    }
+
+    private async void CopyErrorButton_OnClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(ErrorLabel.Text))
+            {
+                await Clipboard.SetTextAsync(ErrorLabel.Text);
+
+                // Show brief feedback that copy was successful
+                var originalText = CopyErrorButton.Text;
+                CopyErrorButton.Text = "✓";
+                CopyErrorButton.TextColor = Colors.LightGreen;
+
+                // Reset after 1 second
+                await Task.Delay(1000);
+                CopyErrorButton.Text = originalText;
+                CopyErrorButton.TextColor = Color.FromArgb("#d73a49");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Fallback if clipboard access fails
+            await DisplayAlert("Copy Failed", $"Could not copy to clipboard: {ex.Message}", "OK");
         }
     }
 

@@ -18,6 +18,7 @@ namespace ShadersCamera.Helpers
 
         public string Lang { get; set; }
         public bool Fill { get; set; }
+        public bool Mirror { get; set; }
         public Dictionary<string, int> Formats { get; set; }
         public string Filter { get; set; }
         public bool ShownWelcome { get; set; }

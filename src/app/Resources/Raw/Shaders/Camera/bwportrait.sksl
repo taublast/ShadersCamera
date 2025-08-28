@@ -6,11 +6,7 @@ uniform shader iImage1;          // Texture
 uniform float2 iOffset;          // Top-left corner of DrawingRect
 uniform float2 iOrigin;          // Mouse drag started here
 
-/// <summary>
-/// Generates subtle grain for portrait work
-/// </summary>
-/// <param name="coord">Screen coordinate</param>
-/// <returns>Subtle grain intensity</returns>
+// Generates subtle grain for portrait work
 float portraitGrain(float2 coord) {
     float2 scaledCoord = coord * 0.8;
     float noise1 = fract(sin(dot(scaledCoord, float2(127.1, 311.7))) * 43758.5453);
@@ -18,11 +14,7 @@ float portraitGrain(float2 coord) {
     return (noise1 * noise2 - 0.5) * 0.018;
 }
 
-/// <summary>
-/// Applies Ilford FP4 style soft portrait B&W conversion
-/// </summary>
-/// <param name="color">Input RGB color</param>
-/// <returns>Soft portrait B&W value</returns>
+// Applies Ilford FP4 style soft portrait B&W conversion
 float fp4Conversion(half3 color) {
     // FP4 has excellent skin tone rendering, balanced sensitivity
     float luminance = dot(color, half3(0.32, 0.55, 0.13));
@@ -40,11 +32,7 @@ float fp4Conversion(half3 color) {
     return clamp(luminance, 0.0, 1.0);
 }
 
-/// <summary>
-/// Creates soft edge vignette for portrait feel
-/// </summary>
-/// <param name="uv">UV coordinates</param>
-/// <returns>Soft vignette multiplier</returns>
+// Creates soft edge vignette for portrait feel
 float softVignette(float2 uv) {
     float2 centered = uv - 0.5;
     float distance = length(centered);

@@ -2,6 +2,7 @@ using DrawnUi.Camera;
 using DrawnUi.Infrastructure;
 using ShadersCamera.Models;
 using System.Windows.Input;
+using AppoMobi.Specials;
 
 namespace ShadersCamera.Views.Controls
 {
@@ -10,14 +11,18 @@ namespace ShadersCamera.Views.Controls
 
         public CameraWithEffects()
         {
-            InitializeAvailableShaders();
+        
         }
 
         protected override void OnDisplayReady()
         {
             base.OnDisplayReady();
 
-            InitializeEffects();
+            Tasks.StartDelayed(TimeSpan.FromMilliseconds(10), () =>
+            {
+                //do not block startup by this
+                InitializeEffects();
+            });
         }
 
         protected override void Paint(DrawingContext ctx)
@@ -93,6 +98,7 @@ namespace ShadersCamera.Views.Controls
             // Remove existing shader if any
             if (_shader != null && VisualEffects.Contains(_shader))
             {
+                _shader.OnCompilationError -= OnShaderError;
                 VisualEffects.Remove(_shader);
             }
 
@@ -100,7 +106,7 @@ namespace ShadersCamera.Views.Controls
             {
 
                 // Create new shader with the specified filename
-                _shader = new SkiaShaderEffect()
+                _shader = new ClippedShaderEffect(Display)
                 {
                     ShaderSource = shader.Filename,
                     //FilterMode = SKFilterMode.Linear <== it's default
@@ -109,9 +115,17 @@ namespace ShadersCamera.Views.Controls
                 // Add the new shader
                 if (_shader != null && !VisualEffects.Contains(_shader))
                 {
+                    _shader.OnCompilationError += OnShaderError;
                     VisualEffects.Add(_shader);
                 }
             }
+        }
+
+        private ShaderEditorPage _editor;
+
+        private void OnShaderError(object sender, string error)
+        {
+            _editor.ReportCompilationError(error);
         }
 
         public ICommand CommandEditShader
@@ -126,8 +140,8 @@ namespace ShadersCamera.Views.Controls
                         var code = _shader.LoadedCode;
                         MainThread.BeginInvokeOnMainThread(() =>
                         {
-                            var page = new ShaderEditorPage(code, CallBackSetSelectedShaderCode);
-                            OpenPageInNewWindow(page, "Shader Editor");
+                            _editor = new ShaderEditorPage(code, CallBackSetSelectedShaderCode);
+                            OpenPageInNewWindow(_editor, "Shader Editor");
                         });
                     }
                 });

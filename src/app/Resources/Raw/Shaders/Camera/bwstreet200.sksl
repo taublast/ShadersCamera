@@ -10,11 +10,7 @@ uniform float2 iOrigin;          // Mouse drag started here
 // INJECTED 200MM LENS FUNCTIONS
 // ===============================================
 
-/// <summary>
-/// Creates perspective compression typical of 200mm telephoto lenses
-/// </summary>
-/// <param name="uv">Original UV coordinates</param>
-/// <returns>Compressed perspective coordinates</returns>
+// Creates perspective compression typical of 200mm telephoto lenses
 float2 telephotoCompression(float2 uv) {
     float2 centered = uv - 0.5;
     float distance = length(centered);
@@ -39,12 +35,7 @@ float2 telephotoCompression(float2 uv) {
     return 0.5 + compressed;
 }
 
-/// <summary>
-/// Simulates shallow depth of field from 200mm lens
-/// </summary>
-/// <param name="coord">Screen coordinate</param>
-/// <param name="uv">UV coordinates</param>
-/// <returns>Focus-blurred color</returns>
+// Simulates shallow depth of field from 200mm lens
 half3 shallowDepthOfField(float2 coord, float2 uv) {
 
     float blurStrength = 1.0;
@@ -78,11 +69,7 @@ half3 shallowDepthOfField(float2 coord, float2 uv) {
 // ORIGINAL STREET B&W FILM FUNCTIONS (UNCHANGED)
 // ===============================================
 
-/// <summary>
-/// Generates heavy grain typical of pushed film
-/// </summary>
-/// <param name="coord">Screen coordinate</param>
-/// <returns>Heavy grain intensity</returns>
+// Generates heavy grain typical of pushed film
 float heavyGrain(float2 coord) {
     float2 grainCoord = coord * 1.2;
     float noise1 = fract(sin(dot(grainCoord, float2(127.1, 311.7))) * 43758.5453);
@@ -91,11 +78,7 @@ float heavyGrain(float2 coord) {
     return (noise1 + noise2 + noise3 - 1.5) * 0.04;
 }
 
-/// <summary>
-/// Applies pushed Tri-X style gritty B&W conversion
-/// </summary>
-/// <param name="color">Input RGB color</param>
-/// <returns>Gritty street B&W value</returns>
+// Applies pushed Tri-X style gritty B&W conversion
 float pushedTriXConversion(half3 color) {
     float luminance = dot(color, half3(0.4, 0.4, 0.2));
     
@@ -110,11 +93,7 @@ float pushedTriXConversion(half3 color) {
     return clamp(luminance, 0.0, 1.0);
 }
 
-/// <summary>
-/// Creates harsh vignette for urban feel
-/// </summary>
-/// <param name="uv">UV coordinates</param>
-/// <returns>Urban vignette multiplier</returns>
+// Creates harsh vignette for urban feel
 float urbanVignette(float2 uv) {
     float2 centered = uv - 0.5;
     float distance = length(centered);

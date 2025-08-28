@@ -6,8 +6,8 @@
 
 
     <Color x:Key="ColorPrimaryLight">#DFD8F7</Color>
-    <Color x:Key="ColorPrimary">#512BD4</Color>
-    <Color x:Key="ColorPrimaryDark">#2B0B98</Color>
+    <Color x:Key="ColorPrimary">#E43DE3</Color>
+    <Color x:Key="ColorPrimaryDark">#A62CA5</Color>
 
     <Color x:Key="ColorAccent">#FF0000</Color>
 

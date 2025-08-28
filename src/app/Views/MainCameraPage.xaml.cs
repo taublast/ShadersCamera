@@ -9,11 +9,8 @@ using ShadersCamera.Helpers;
 
 namespace ShadersCamera.Views;
 
-public partial class MainCameraPage : IDisposable
+public partial class MainCameraPage : IPageWIthCamera, IDisposable
 {
-
-
-
     public MainCameraPage()
     {
         try
@@ -23,6 +20,7 @@ public partial class MainCameraPage : IDisposable
             BindingContext = _vm;
 
             IsFullScreen = UserSettings.Current.Fill;
+            IsMirrored = UserSettings.Current.Mirror;
 
             InitializeComponent();
 
@@ -33,7 +31,6 @@ public partial class MainCameraPage : IDisposable
 #if ANDROID
             Super.SetNavigationBarColor(Colors.Black, Colors.Black, true);
 #endif
- 
         }
         catch (Exception e)
         {
@@ -96,6 +93,17 @@ public partial class MainCameraPage : IDisposable
         }
     }
 
+    public void OpenHelp()
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            var popup = new HelpPopup();
+            this.ShowPopup(popup);
+            UserSettings.Save();
+        });
+    }
+
+
     /// <summary>
     /// We have captured a preview frame.
     /// Will use it for shaders menu. Same mechanics could be used to send this to AI etc.
@@ -114,20 +122,17 @@ public partial class MainCameraPage : IDisposable
                     if (!UserSettings.Current.ShownWelcome)
                     {
                         UserSettings.Current.ShownWelcome = true;
-                        MainThread.BeginInvokeOnMainThread(() =>
-                        {
-                            var popup = new HelpPopup();
-                            this.ShowPopup(popup);
-                            UserSettings.Save();
-                        });
+                        OpenHelp();
                     }
                 }
                 catch (Exception e)
                 {
                     Super.Log(e);
                 }
+
                 return;
             }
+
             if (TriggerUpdateSmallPreview && semaphoreProcessingFrame.CurrentCount != 0)
             {
                 TriggerUpdateSmallPreview = false;
@@ -209,7 +214,6 @@ public partial class MainCameraPage : IDisposable
 
     private readonly CameraViewModel _vm;
 
- 
 
     private void TappedSwitchCamera(object sender, ControlTappedEventArgs controlTappedEventArgs)
     {
@@ -286,7 +290,7 @@ public partial class MainCameraPage : IDisposable
 
         if (_flashOn)
         {
-            CameraControl.FlashMode = FlashMode.On; 
+            CameraControl.FlashMode = FlashMode.On;
         }
         else
         {
@@ -343,17 +347,13 @@ public partial class MainCameraPage : IDisposable
 
     public CaptureFormat SelectedFormat
     {
-        get
-        {
-            return CameraControl.CurrentStillCaptureFormat;
-        }
+        get { return CameraControl.CurrentStillCaptureFormat; }
     }
 
-    public void SelectFormat(Action<string>changed)
+    public void SelectFormat(Action<string> changed)
     {
         if (CameraControl.IsOn)
         {
-
             MainThread.BeginInvokeOnMainThread(async () =>
             {
                 try
@@ -388,7 +388,8 @@ public partial class MainCameraPage : IDisposable
                             OnPropertyChanged(nameof(SelectedFormat));
                             changed?.Invoke(result);
 
-                            Debug.WriteLine($"[CameraApp] Format selection: {selectedIndex} for {CameraControl.CameraDevice.Id}");
+                            Debug.WriteLine(
+                                $"[CameraApp] Format selection: {selectedIndex} for {CameraControl.CameraDevice.Id}");
 
                             UserSettings.Current.Formats[CameraControl.CameraDevice.Id] = selectedIndex;
                         }
@@ -396,13 +397,12 @@ public partial class MainCameraPage : IDisposable
                 }
                 catch (Exception ex)
                 {
-                    await App.Current.MainPage.DisplayAlert("Error", $"Failed to get capture formats: {ex.Message}", "OK");
+                    await App.Current.MainPage.DisplayAlert("Error", $"Failed to get capture formats: {ex.Message}",
+                        "OK");
                     Debug.WriteLine($"[CameraApp] Format selection error: {ex}");
                 }
             });
-
         }
-
     }
 
     #endregion
@@ -431,16 +431,26 @@ public partial class MainCameraPage : IDisposable
             CameraControl.Aspect = TransformAspect.AspectFitFill;
         }
 
-        UserSettings.Current.Fill=  CameraControl.Aspect == TransformAspect.AspectCover;
+        CameraControl.IsMirrored = IsMirrored;
+
+        UserSettings.Current.Mirror = IsMirrored;
+        UserSettings.Current.Fill = CameraControl.Aspect == TransformAspect.AspectCover;
     }
 
-    public bool IsFullScreen = false;
+    public bool IsFullScreen { get; set; }
+
+    public bool IsMirrored { get; set; }
+
+    public void SetMirrored(bool value)
+    {
+        IsMirrored = value;
+        ApplyAspect();
+    }
 
     #endregion
 
     void SyncUi()
     {
-
         ApplyAspect();
 
         // CaptureFlashMode
@@ -502,7 +512,6 @@ public partial class MainCameraPage : IDisposable
 
     private void TappedSettings(object sender, ControlTappedEventArgs args)
     {
-
         if (SelectedFormat == null || CameraControl.PermissionsError)
         {
             //camera error
@@ -538,5 +547,4 @@ public partial class MainCameraPage : IDisposable
             this.ShowPopup(popup);
         });
     }
-
 }

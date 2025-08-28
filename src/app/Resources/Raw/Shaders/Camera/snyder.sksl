@@ -6,11 +6,7 @@ uniform shader iImage1;          // Texture
 uniform float2 iOffset;          // Top-left corner of DrawingRect
 uniform float2 iOrigin;          // Mouse drag started here
 
-/// <summary>
-/// Detects highly saturated colors for selective enhancement
-/// </summary>
-/// <param name="color">Input RGB color</param>
-/// <returns>Saturation strength</returns>
+// Detects highly saturated colors for selective enhancement
 float detectSaturatedColor(half3 color) {
     float maxChannel = max(color.r, max(color.g, color.b));
     float minChannel = min(color.r, min(color.g, color.b));
@@ -18,11 +14,7 @@ float detectSaturatedColor(half3 color) {
     return smoothstep(0.2, 0.6, saturation);
 }
 
-/// <summary>
-/// Applies the heavily desaturated look with selective color pops from Zack Snyder films
-/// </summary>
-/// <param name="color">Input RGB color</param>
-/// <returns>Snyder styled color</returns>
+// Applies heavily desaturated look with selective color pops
 half3 snyderGrade(half3 color) {
     float luminance = dot(color, half3(0.299, 0.587, 0.114));
     
