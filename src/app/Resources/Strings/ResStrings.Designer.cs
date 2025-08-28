@@ -180,7 +180,7 @@ namespace ShadersCamera.Resources.Strings {
         /// <summary>
         ///   Looks up a localized string similar to - Tap anywhere on the screen to use current frame for drawer previews
         ///- User drawer menu to select filters
-        ///- On-screen buttons: Settings, Flash, Source, Capture Photo.
+        ///- On-screen buttons:  View Captured, Settings, Flash, Source, Capture Photo.
         /// </summary>
         public static string WelcomeDetails {
             get {
@@ -189,7 +189,7 @@ namespace ShadersCamera.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Welcome! 🎉.
+        ///   Looks up a localized string similar to Welcome! 🥰.
         /// </summary>
         public static string WelcomeTitle {
             get {

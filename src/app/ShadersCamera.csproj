@@ -56,15 +56,12 @@
     <ProvisioningType>manual</ProvisioningType>
   </PropertyGroup>
 
-  <ItemGroup Condition="$(TargetFramework.Contains('ios'))">
-    <!-- App Icon -->
-    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#FEFEFE" />
+  <!-- Custom Android icons: include webp resources-->
+  <ItemGroup Condition="$(TargetFramework.Contains('android'))">
+    <AndroidResource Include="Platforms\Android\Resources\*\*.webp" />
   </ItemGroup>
 
-  <ItemGroup Condition="!$(TargetFramework.Contains('ios'))">
-    <!-- App Icon -->
-    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#FEFEFE" />
-  </ItemGroup>
+   
 
   <ItemGroup>
 
@@ -87,6 +84,9 @@
     <None Remove="Resources\Raw\Shaders\transdoorway.sksl" />
 
     <None Remove="Resources\Raw\Shaders\transfade.sksl" />
+
+    <!-- App Icon, ios and android will override this with our custom icons -->
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" ForegroundScale="0.8" Color="#212529" />
 
     <!-- Splash Screen -->
     <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#212529" BaseSize="120,120" />

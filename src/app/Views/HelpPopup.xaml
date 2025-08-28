@@ -7,21 +7,23 @@
                   xmlns:strings="clr-namespace:ShadersCamera.Resources.Strings"
                   HorizontalOptions="Center"
                   VerticalOptions="Center"
-                  
+                  WidthRequest="320"
+                  CloseWhenBackgroundIsClicked="True"
                   x:Class="ShadersCamera.Views.HelpPopup">
 
-    <Grid MaximumWidthRequest="350" MaximumHeightRequest="500">
+    <Grid MaximumHeightRequest="500"
+          HorizontalOptions="Fill" VerticalOptions="Start">
 
-        <draw:Canvas Gestures="Lock">
+        <draw:Canvas Gestures="Lock" HorizontalOptions="Fill" VerticalOptions="Start">
 
-            <draw:SkiaLayout>
+            <draw:SkiaLayout HorizontalOptions="Fill">
 
                 <draw:SkiaShape
-                    UseCache="Image"
+                    HorizontalOptions="Fill"
                     Padding="24"
                     BackgroundColor="Black" CornerRadius="10" StrokeWidth="1" StrokeColor="Gray">
 
-                    <draw:SkiaLayout Type="Column" Spacing="16">
+                    <draw:SkiaLayout Type="Column" Spacing="16" HorizontalOptions="Center">
 
                         <draw:SkiaRichLabel
                             Opacity="0.75"

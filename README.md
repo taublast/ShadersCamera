@@ -1,26 +1,29 @@
 # ShadersCamera
 
-**UNDER HEAVY CONSTRUCTION**
+**UNDER CONSTRUCTION**
 
-> Uses `DrawnUi.Maui.Camera` nuget for playing with camera
+> Uses `DrawnUi.Maui.Camera` add-on to DrawnUI for .NET MAUI
 
 * Applying shaders to camera preview in real-time
+* Switch mirror preview
+* Switch full-screen/fit preview
 * Saving captured photo with shader effect
 * Saving EXIF and injecting custom metadata
-* Can edit shaders code in standalone window when running on desktop
+* Edit shaders code in standalone window when running on desktop
 
 ### Interaction:
 
-* Tap on the screen to use current frame for bottom menu previews
-* Tap/swipe bottom shader menu to select shaders
-* Long pressing on shader preview in bottom menu would open shaders editor on desktop
-* Other on-screen buttons: Power, Effect, Flash, Source, Capture Photo
+* Tap on the screen to use current frame for drawer previews
+* Tap/swipe drawer menu to select shaders
+* On destop long pressing on shader preview in drawer menu will open shader editor!
+* On-screen buttons: View Captured, Filter, Flash, Source, Capture Photo
 
-Effect button is here temporarily: it's different basic color filters vs custom effect: shaders.
-UI to be will changed much..
+### ToDo Roadmap
+
+* Change language in settings
 
 ### Optional ToDo
 
 * Apply shaders while saving in background
-* Optional saving geolocation
-* Enhanced shaders editor including mobile version
+* Optional save geolocation to EXIF
+* Shaders editor for mobile version

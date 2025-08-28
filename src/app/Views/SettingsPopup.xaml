@@ -41,7 +41,7 @@
                                 Text="Fill Screen" />
 
                             <draw:SkiaSwitch
-                                ColorFrameOn="{x:StaticResource ColorPrimary}"
+                                ColorFrameOn="#CB230D"
                                 Toggled="FullScreenSwitch_OnToggled"
                                 x:Name="FullScreenSwitch"
                                 HeightRequest="28"

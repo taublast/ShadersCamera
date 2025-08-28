@@ -9,6 +9,8 @@
 		<integer>1</integer>
 		<integer>2</integer>
 	</array>
+	<key>XSAppIconAssets</key>
+  <string>Assets.xcassets/icon.appiconset</string>
   <key>NSCameraUsageDescription</key>
   <string>Allow access to the camera</string>
   <key>NSPhotoLibraryAddUsageDescription</key>

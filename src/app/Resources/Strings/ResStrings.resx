@@ -157,12 +157,12 @@
     <value>About</value>
   </data>
   <data name="WelcomeTitle" xml:space="preserve">
-    <value>Welcome! 🎉</value>
+    <value>Welcome! 🥰</value>
   </data>
   <data name="WelcomeDetails" xml:space="preserve">
     <value>- Tap anywhere on the screen to use current frame for drawer previews
 - User drawer menu to select filters
-- On-screen buttons: Settings, Flash, Source, Capture Photo</value>
+- On-screen buttons:  View Captured, Settings, Flash, Source, Capture Photo</value>
   </data>
   <data name="Settings" xml:space="preserve">
     <value>Settings</value>
