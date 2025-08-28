@@ -189,7 +189,7 @@ namespace ShadersCamera.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Welcome! 🥰.
+        ///   Looks up a localized string similar to ✨ Welcome! ✨.
         /// </summary>
         public static string WelcomeTitle {
             get {

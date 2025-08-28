@@ -26,7 +26,7 @@
                     <draw:SkiaLayout Type="Column" Spacing="16" HorizontalOptions="Center">
 
                         <draw:SkiaRichLabel
-                            Opacity="0.75"
+                            Opacity="0.66"
                             FontFamily="FontTextBold"
                             HorizontalOptions="Center"
                             Text="{x:Static strings:ResStrings.WelcomeTitle}" />

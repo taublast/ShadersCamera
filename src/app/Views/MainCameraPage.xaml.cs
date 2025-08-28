@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using AppoMobi.Specials;
 using ShadersCamera.Helpers;
+using ShadersCamera.Resources.Strings;
 
 namespace ShadersCamera.Views;
 
@@ -372,8 +373,8 @@ public partial class MainCameraPage : IPageWIthCamera, IDisposable
                     ).ToArray();
 
                     var result = await App.Current.MainPage.DisplayActionSheet(
-                        "Capture Still Photo Quality",
-                        "Cancel",
+                        "Capture Photo Quality",
+                        ResStrings.BtnCancel,
                         null,
                         options);
 

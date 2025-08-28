@@ -9,6 +9,7 @@ using ShadersCamera.ViewModels;
 using ShadersCamera.Views.Controls;
 using System.ComponentModel;
 using System.Diagnostics;
+using ShadersCamera.Resources.Strings;
 using Canvas = DrawnUi.Views.Canvas;
 
 namespace ShadersCamera.Views
@@ -1131,8 +1132,8 @@ namespace ShadersCamera.Views
                         ).ToArray();
 
                         var result = await App.Current.MainPage.DisplayActionSheet(
-                            "Capture Still Photo Quality",
-                            "Cancel",
+                            "Capture Photo Quality",
+                            ResStrings.BtnCancel,
                             null,
                             options);
 

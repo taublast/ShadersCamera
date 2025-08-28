@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+  <key>CFBundleVersion</key>
+  <string>100101</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIDeviceFamily</key>
@@ -11,6 +13,8 @@
 	</array>
 	<key>XSAppIconAssets</key>
   <string>Assets.xcassets/icon.appiconset</string>
+  <key>ITSAppUsesNonExemptEncryption</key>
+  <false/>
   <key>NSCameraUsageDescription</key>
   <string>Allow access to the camera</string>
   <key>NSPhotoLibraryAddUsageDescription</key>
@@ -18,6 +22,8 @@
   <key>NSPhotoLibraryUsageDescription</key>
   <string>Allow access to the library to save photos</string>
 	<key>UIRequiredDeviceCapabilities</key>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>To be able to geotag photos</string>
 	<array>
 		<string>arm64</string>
 	</array>
@@ -36,5 +42,7 @@
   <string>UIStatusBarStyleLightContent</string>  
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
 </dict>
 </plist>

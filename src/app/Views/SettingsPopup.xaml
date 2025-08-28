@@ -26,7 +26,7 @@
                     <draw:SkiaLayout Type="Column" HorizontalOptions="Fill" Spacing="32" Margin="0,0,0,8">
 
                         <draw:SkiaRichLabel
-                            Opacity="0.75"
+                            Opacity="0.66"
                             FontFamily="FontTextBold"
                             UseCache="Operations"
                             HorizontalOptions="Center"
@@ -41,7 +41,7 @@
                                 Text="Fill Screen" />
 
                             <draw:SkiaSwitch
-                                ColorFrameOn="#CB230D"
+                                ColorFrameOn="{x:StaticResource ColorPrimary}"
                                 Toggled="FullScreenSwitch_OnToggled"
                                 x:Name="FullScreenSwitch"
                                 HeightRequest="28"
