@@ -260,6 +260,7 @@
 
                         <!--  SHADER ITEMS SCROLL  -->
                         <draw:SkiaScroll
+                            SkipRenderingOutOfBounds="True"
                             RespondsToGestures="{Binding Source={x:Reference ShaderDrawer}, Path=IsOpen}"
                             BackgroundColor="WhiteSmoke"
                             Margin="0,0,20,0"
@@ -267,6 +268,20 @@
                             HorizontalOptions="Fill"
                             VerticalOptions="Fill"
                             Padding="8">
+
+                            <draw:SkiaScroll.Header>
+
+                                <draw:SkiaLayout 
+                                    VerticalOptions="Fill" WidthRequest="20"/>
+
+                            </draw:SkiaScroll.Header>
+
+                            <draw:SkiaScroll.Footer>
+
+                                <draw:SkiaLayout 
+                                    HeightRequest="8" WidthRequest="8"/>
+
+                            </draw:SkiaScroll.Footer>
 
                             <controls:SkiaLayoutWithSelector
                                 x:Name="Stack"
