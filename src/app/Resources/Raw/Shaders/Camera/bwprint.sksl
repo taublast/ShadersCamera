@@ -6,7 +6,14 @@ uniform shader iImage1;          // Texture
 uniform float2 iOffset;          // Top-left corner of DrawingRect
 uniform float2 iOrigin;          // Mouse drag started here
 
-// Calculates Bayer dithering threshold for given pixel coordinates
+const float  iDitherScale = 1.0;  // Controls dithering pattern scale (default: 1.0)
+const float contrast = 1.8;
+const int palette_size = 4;
+const float dither_strength = 0.8;
+
+/// <summary>
+/// Calculates Bayer dithering threshold for given pixel coordinates
+/// </summary>
 float get_bayer_threshold(int2 pixel_coords) {
     int x = int(mod(float(pixel_coords.x), 4.0));
     int y = int(mod(float(pixel_coords.y), 4.0));
@@ -37,30 +44,24 @@ half4 main(float2 fragCoord)
     
     half3 color = iImage1.eval(inputCoord).rgb;
     
-    // Convert to grayscale first (newspaper style)
     float gray = dot(color, half3(0.299, 0.587, 0.114));
     
-    // Add contrast for that dramatic newspaper look
-    float contrast = 1.8;  // Boost contrast significantly
     gray = clamp((gray - 0.5) * contrast + 0.5, 0.0, 1.0);
     
-    // Constants for authentic old newspaper look
-    int palette_size = 4;  // Just 4 levels: black, dark gray, light gray, white
-    float dither_strength = 0.8;  // Strong dither for that rough print quality
-    
-    int2 pixel_coords = int2(fragCoord.x, fragCoord.y);
+    // Scale the dithering pattern using manual control
+    // iDitherScale: 1.0 = normal, >1.0 = finer pattern, <1.0 = coarser pattern
+    float2 scaled_coords = fragCoord * iDitherScale;
+    int2 pixel_coords = int2(scaled_coords.x, scaled_coords.y);
     float threshold = get_bayer_threshold(pixel_coords);
     
-    // Apply dither to grayscale value
     float dither = (threshold - 0.5) * 2.0 * dither_strength / float(palette_size);
     float dithered_gray = clamp(gray + dither, 0.0, 1.0);
     
-    // Find closest gray level (4 levels: 0, 1/3, 2/3, 1)
     float min_dist = 999.0;
     float closest_gray = 0.0;
     
     for (int i = 0; i < 4; i++) {
-        float pal_gray = float(i) / 3.0;  // 0, 0.33, 0.67, 1.0
+        float pal_gray = float(i) / 3.0;
         float dist = abs(dithered_gray - pal_gray);
         
         if (dist < min_dist) {

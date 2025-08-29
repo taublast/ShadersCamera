@@ -14,11 +14,11 @@ half3 matrixColorGrade(half3 color) {
     
     // Very subtle green tint
     desaturated.r *= 0.85;
-    desaturated.g *= 1.05;
+    desaturated.g *= 1.00;
     desaturated.b *= 0.80;
     
     // Slightly increase contrast
-    desaturated = (desaturated - 0.5) * 1.15 + 0.5;
+    desaturated = (desaturated - 0.5) * 1.33 + 0.5;
     
     return clamp(desaturated, 0.0, 1.0);
 }

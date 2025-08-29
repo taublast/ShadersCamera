@@ -6,10 +6,14 @@ uniform shader iImage1;
 uniform float2 iOffset;  
 uniform float2 iOrigin; 
 
-const float COLOR_LEVELS = 4.0;
-const float GLOW_RADIUS = 3.0;
+// Scaling parameters for consistent look across resolutions
+const float BASE_GLOW_RADIUS = 3.0; // Glow radius for 1000x1000 baseline image
+const float BASELINE_SIZE = 1000.0; // Baseline image size
+const float COLOR_LEVELS = 8.0;
 
-// Maps luminance to vibrant neon colors
+/// <summary>
+/// Maps luminance to vibrant neon colors
+/// </summary>
 half3 neonColorMap(float luminance) {
     if (luminance > 0.75) {
         return half3(1.0, 0.2, 0.8);
@@ -22,20 +26,29 @@ half3 neonColorMap(float luminance) {
     }
 }
 
-// Creates posterized color effect
+/// <summary>
+/// Creates posterized color effect
+/// </summary>
 half3 posterize(half3 color) {
     return floor(color * COLOR_LEVELS) / COLOR_LEVELS;
 }
 
-// Creates neon glow effect around edges
-float neonGlow(float2 coord) {
+/// <summary>
+/// Creates neon glow effect around edges
+/// </summary>
+float neonGlow(float2 coord, float glowRadius) {
     float2 renderingScale = iImageResolution.xy / iResolution.xy;
     float2 inputCoord = (coord - iOffset) * renderingScale;
     float2 texelSize = 1.0 / iImageResolution.xy;
     
+    const float MAX_GLOW_RADIUS = 10.0; // Maximum possible radius
+    
     float glow = 0.0;
-    for (float x = -GLOW_RADIUS; x <= GLOW_RADIUS; x++) {
-        for (float y = -GLOW_RADIUS; y <= GLOW_RADIUS; y++) {
+    for (float x = -MAX_GLOW_RADIUS; x <= MAX_GLOW_RADIUS; x++) {
+        if (abs(x) > glowRadius) continue;
+        for (float y = -MAX_GLOW_RADIUS; y <= MAX_GLOW_RADIUS; y++) {
+            if (abs(y) > glowRadius) continue;
+            
             float2 offset = float2(x, y) * texelSize;
             half4 sample = iImage1.eval(inputCoord + offset);
             float sampleLum = dot(sample.rgb, half3(0.299, 0.587, 0.114));
@@ -50,8 +63,14 @@ float neonGlow(float2 coord) {
     return glow * 0.02;
 }
 
-// Main fragment shader for neon pop art effect
+/// <summary>
+/// Main fragment shader for neon pop art effect
+/// </summary>
 half4 main(float2 fragCoord) {
+    // Calculate dynamic glow radius based on image dimensions
+    float targetGlowRatio = BASE_GLOW_RADIUS / BASELINE_SIZE;
+    float GLOW_RADIUS = targetGlowRatio * max(iImageResolution.x, iImageResolution.y);
+    
     float2 renderingScale = iImageResolution.xy / iResolution.xy;
     float2 inputCoord = (fragCoord - iOffset) * renderingScale;
     
@@ -62,7 +81,7 @@ half4 main(float2 fragCoord) {
     
     half3 neonColor = neonColorMap(luminance);
     
-    float glowEffect = neonGlow(fragCoord);
+    float glowEffect = neonGlow(fragCoord, GLOW_RADIUS);
     neonColor += glowEffect * half3(1.0, 0.5, 1.0);
     
     float contrast = 1.3;

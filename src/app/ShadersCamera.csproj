@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+
+
     <TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
 
@@ -12,7 +14,7 @@
     <WarningsAsErrors>$(WarningsAsErrors);XLS0501</WarningsAsErrors>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-    <UseNuget>true</UseNuget>
+    <UseNuget>false</UseNuget>
 
     <ApplicationTitle>Filters Camera</ApplicationTitle>
     <ApplicationId>com.appomobi.drawnui.shaderscam</ApplicationId>
@@ -102,7 +104,7 @@
   </ItemGroup>
 
   <!--production-->
-  <ItemGroup Condition="'$(UseNuget)' == 'true'">
+  <ItemGroup Condition="'$(UseNuget)' == 'false'">
     <PackageReference Include="DrawnUi.Maui.Camera" Version="1.6.2.29" />
   </ItemGroup>
 
@@ -168,7 +170,6 @@
     <None Include="..\..\README.md" Link="README.md" />
   </ItemGroup>
 
-
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -180,23 +181,10 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>ResStrings.resx</DependentUpon>
     </Compile>
-    <Compile Update="Views\MainCameraPage.xaml.cs">
-      <DependentUpon>MainCameraPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Update="Views\HelpPopup.xaml.cs">
-      <DependentUpon>HelpPopup.xaml</DependentUpon>
-    </Compile>
+ 
   </ItemGroup>
 
-
-  <ItemGroup>
-    <MauiXaml Update="Views\HelpPopup.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </MauiXaml>
-    <MauiXaml Update="Views\SettingsPopup.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </MauiXaml>
-  </ItemGroup>
+ 
 
 
 </Project>

@@ -1,0 +1,87 @@
+﻿uniform float4 iMouse;           // Mouse drag pos=.xy Click pos=.zw (pixels)
+uniform float  iTime;            // Shader playback time (s)
+uniform float2 iResolution;      // Viewport resolution (pixels)
+uniform float2 iImageResolution; // iImage1 resolution (pixels)
+uniform shader iImage1;          // Texture
+uniform float2 iOffset;          // Top-left corner of DrawingRect
+uniform float2 iOrigin;          // Mouse drag started here
+
+/// <summary>
+/// Applies cubic spline curve mapping for negative processing
+/// </summary>
+float applyCubicSpline(float value, float x0, float y0, float x1, float y1, float x2, float y2) {
+    // Normalize value to 0-1 range
+    value = value * 255.0;
+    
+    // Clamp to valid range
+    if (value <= x0) return y0 / 255.0;
+    if (value >= x2) return y2 / 255.0;
+    
+    float t, result;
+    
+    if (value <= x1) {
+        // First segment: x0 to x1
+        t = (value - x0) / (x1 - x0);
+        // Smooth interpolation using smoothstep-like curve
+        t = t * t * (3.0 - 2.0 * t);
+        result = mix(y0, y1, t);
+    } else {
+        // Second segment: x1 to x2  
+        t = (value - x1) / (x2 - x1);
+        // Smooth interpolation using smoothstep-like curve
+        t = t * t * (3.0 - 2.0 * t);
+        result = mix(y1, y2, t);
+    }
+    
+    return clamp(result / 255.0, 0.0, 1.0);
+}
+
+/// <summary>
+/// Alternative: True cubic Bezier interpolation for more precise curves
+/// </summary>
+float cubicBezier(float t, float p0, float p1, float p2, float p3) {
+    float u = 1.0 - t;
+    float tt = t * t;
+    float uu = u * u;
+    float uuu = uu * u;
+    float ttt = tt * t;
+    
+    return uuu * p0 + 3.0 * uu * t * p1 + 3.0 * u * tt * p2 + ttt * p3;
+}
+
+/// <summary>
+/// Advanced cubic spline with proper curve fitting
+/// </summary>
+float advancedCubicSpline(float value, float x0, float y0, float x1, float y1, float x2, float y2) {
+    value = value * 255.0;
+    
+    if (value <= x0) return y0 / 255.0;
+    if (value >= x2) return y2 / 255.0;
+    
+    // Calculate control points for cubic Bezier
+    float t = (value - x0) / (x2 - x0);
+    
+    // Control points based on the three key points
+    float p0 = y0;
+    float p3 = y2;
+    
+    // Calculate intermediate control points to pass through (x1, y1)
+    float t1 = (x1 - x0) / (x2 - x0);
+    float p1 = (y1 - (1.0 - t1) * (1.0 - t1) * (1.0 - t1) * p0 - t1 * t1 * t1 * p3) / (3.0 * (1.0 - t1) * t1);
+    float p2 = p1;
+    
+    float result = cubicBezier(t, p0, p1, p2, p3);
+    return clamp(result / 255.0, 0.0, 1.0);
+}
+
+half4 main(float2 fragCoord) {
+    float2 renderingScale = iImageResolution.xy / iResolution.xy;
+    float2 inputCoord = (fragCoord - iOffset) * renderingScale;
+    half4 originalColor = iImage1.eval(inputCoord);
+    
+float newR = advancedCubicSpline(originalColor.r, 0.0, 10.0, 128.0, 140.0, 255.0, 245.0); // Warm highlights
+float newG = advancedCubicSpline(originalColor.g, 0.0, 30.0, 128.0, 130.0, 255.0, 220.0); // Slight green push
+float newB = advancedCubicSpline(originalColor.b, 0.0, 50.0, 128.0, 135.0, 255.0, 200.0); // Teal shadows
+
+    return half4(newR, newG, newB, originalColor.a);
+}

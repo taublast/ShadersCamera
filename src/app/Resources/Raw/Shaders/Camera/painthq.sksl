@@ -8,8 +8,15 @@ uniform float2 iOffset;
 uniform float2 iOrigin;  
 uniform float4 iMargins;
 
-// pixel independent, width is in points!
+// Sketch parameters
 const float iLineWidth = 3.0;
+
+// Color enhancement parameters (adjustable)
+const float COLOR_LEVELS = 32.0;        // Color quantization levels
+const float WARMTH_BOOST = 1.08;        // Warm tint boost (makes skin look better)
+const float RETRO_SATURATION = 1.25;    // Saturation boost (keep it natural)
+const float CONTRAST_ENHANCE = 1.5;     // Contrast enhancement
+const float LINE_OPACITY = 0.8;         // Opacity of sketch lines (0.0 = no lines, 1.0 = full lines)
 
 // Color dodge blend mode
 half3 colorDodge(in half3 src, in half3 dst) {
@@ -19,6 +26,25 @@ half3 colorDodge(in half3 src, in half3 dst) {
 // Converts color to grayscale
 float greyScale(in half3 col) {
     return dot(col, half3(0.3, 0.59, 0.11));
+}
+
+/// Apply retro color enhancements from pixel shader
+half3 enhanceColors(half3 color) {
+    // Enhance contrast gently
+    half3 contrastedColor = mix(color, (color - 0.5) * CONTRAST_ENHANCE + 0.5, 0.7);
+    
+    // Add warm, appealing tint
+    contrastedColor.r *= WARMTH_BOOST;
+    contrastedColor.g *= (WARMTH_BOOST * 0.98);
+    
+    // Smart color quantization
+    half3 quantized = floor(contrastedColor * COLOR_LEVELS + 0.5) / COLOR_LEVELS;
+    
+    // Boost saturation but keep it natural
+    half luminance = dot(quantized, half3(0.299, 0.587, 0.114));
+    quantized = mix(half3(luminance), quantized, RETRO_SATURATION);
+    
+    return clamp(quantized, 0.0, 1.0);
 }
 
 // Detects edges for continuous line drawing with size-independent sampling
@@ -58,9 +84,9 @@ half3 directionalBlur(float2 coord, float2 direction, float scaleFactor, float l
     return result / totalWeight;
 }
 
-// Main fragment shader for continuous sketch lines effect with size-independent line width
+// Main fragment shader - enhanced colors with sketch lines on top
 half4 main(float2 fragCoord) {
-    // Reference resolution for consistent line width (adjust as needed)
+    // Reference resolution for consistent line width
     float REFERENCE_SIZE = 1000.0;
     
     float2 renderingScale = iImageResolution.xy / iResolution.xy;
@@ -73,6 +99,10 @@ half4 main(float2 fragCoord) {
     
     half3 col = iImage1.eval(inputCoord).rgb;
     
+    // Apply retro color enhancements to create beautiful base image
+    half3 enhancedCol = enhanceColors(col);
+    
+    // Sketch effect processing for line detection
     half3 blurred = half3(0.0);
     float totalWeight = 0.0;
     
@@ -107,5 +137,19 @@ half4 main(float2 fragCoord) {
     
     res *= 0.3 + 0.7 * pow(16.0 * q.x * q.y * (1.0 - q.x) * (1.0 - q.y), 0.2);
     
-    return half4(res, 1.0); 
+    // Calculate line strength (inverted - low res.x = strong lines)
+    float lineStrength = (1.0 - res.x) * LINE_OPACITY;
+    
+    // Draw black lines ON TOP of the enhanced colored image
+    half3 finalColor = mix(enhancedCol, half3(0.0, 0.0, 0.0), lineStrength);
+    
+    // Add subtle animated "digital" sparkle effect for fun
+    float2 sparkleCoord = floor(fragCoord / 8.0);
+    float sparkleNoise = fract(sin(dot(sparkleCoord, float2(12.9898, 78.233)) + iTime * 0.5) * 43758.5453);
+    half luminance = dot(finalColor, half3(0.299, 0.587, 0.114));
+    if (sparkleNoise > 0.98 && luminance > 0.7) {
+        finalColor += 0.05; // Subtle highlight sparkle on bright areas
+    }
+    
+    return half4(clamp(finalColor, 0.0, 1.0), 1.0);
 }

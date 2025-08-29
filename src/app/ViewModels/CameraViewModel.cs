@@ -25,8 +25,7 @@ namespace ShadersCamera.ViewModels
                 new ShaderItem { Title = "Newspaper", Filename = "Shaders/Camera/bwprint.sksl" },
                 new ShaderItem { Title = "Portrait", Filename = "Shaders/Camera/bwportrait.sksl" },
                 new ShaderItem { Title = "Sin City", Filename = "Shaders/Camera/selective.sksl" },
-                
-                new ShaderItem { Title = "Negative", Filename = "Shaders/Camera/invert.sksl" },
+
 
                 new ShaderItem { Title = "Raw", Filename = "Shaders/Camera/blit.sksl" },
                 new ShaderItem { Title = "Zoom", Filename = "Shaders/Camera/photozoom.sksl" },
@@ -34,24 +33,28 @@ namespace ShadersCamera.ViewModels
                 new ShaderItem { Title = "Action", Filename = "Shaders/Camera/action.sksl" },
                 new ShaderItem { Title = "Romance", Filename = "Shaders/Camera/romance.sksl" },
                 new ShaderItem { Title = "Film", Filename = "Shaders/Camera/film.sksl" },
-
+                
                 new ShaderItem { Title = "Mystic", Filename = "Shaders/Camera/enigma.sksl" },
-                new ShaderItem { Title = "Blade Runner", Filename = "Shaders/Camera/blade.sksl" },
                 new ShaderItem { Title = "Blues", Filename = "Shaders/Camera/nolan.sksl" },
+                new ShaderItem { Title = "Runner", Filename = "Shaders/Camera/blade.sksl" },
                 new ShaderItem { Title = "Drive", Filename = "Shaders/Camera/pink.sksl" },
+                new ShaderItem { Title = "Soft Pink", Filename = "Shaders/Camera/faded.sksl" },
+                new ShaderItem { Title = "Wood", Filename = "Shaders/Camera/orange.sksl" },
+                new ShaderItem { Title = "Soft", Filename = "Shaders/Camera/insta.sksl" },
+                new ShaderItem { Title = "Pastels", Filename = "Shaders/Camera/wes.sksl" },
                 new ShaderItem { Title = "Desert", Filename = "Shaders/Camera/desert.sksl" },
                 new ShaderItem { Title = "Blockbuster", Filename = "Shaders/Camera/blockbuster.sksl" },
-                new ShaderItem { Title = "Pastels", Filename = "Shaders/Camera/wes.sksl" },
                 new ShaderItem { Title = "Kodachrome", Filename = "Shaders/Camera/kodachrome.sksl" },
 
-                new ShaderItem { Title = "Palette", Filename = "Shaders/Camera/old-palette.sksl" },
-                new ShaderItem { Title = "Neon", Filename = "Shaders/Camera/popart.sksl" },
-
+                //new ShaderItem { Title = "Palette", Filename = "Shaders/Camera/old-palette.sksl" },
                 new ShaderItem { Title = "TV", Filename = "Shaders/Camera/retrotv.sksl" },
-                new ShaderItem { Title = "Toon", Filename = "Shaders/Camera/toon.sksl" },
+                new ShaderItem { Title = "Ink", Filename = "Shaders/Camera/sketchcolored.sksl" },
+                new ShaderItem { Title = "Paint", Filename = "Shaders/Camera/painthq.sksl" },
                 new ShaderItem { Title = "Sketch", Filename = "Shaders/Camera/sketch.sksl" },
-                
-                new ShaderItem { Title = "Pixels", Filename = "Shaders/Camera/pixels.sksl" }
+                new ShaderItem { Title = "Pixels", Filename = "Shaders/Camera/pixels.sksl" },
+                new ShaderItem { Title = "Hell", Filename = "Shaders/Camera/hell.sksl" },
+                new ShaderItem { Title = "Invert", Filename = "Shaders/Camera/invert.sksl" },
+                new ShaderItem { Title = "Negative", Filename = "Shaders/Camera/negative.sksl" },
             };
 
             var index = 0;
@@ -291,7 +294,7 @@ namespace ShadersCamera.ViewModels
 
             captured.SolveExifOrientation();
 
-            var imageWithOverlay = Camera.RenderCapturedPhoto(captured, null, image =>
+            var imageWithOverlay = await Camera.RenderCapturedPhotoAsync(captured, null, image =>
             {
                 if (SelectedShader != null)
                 {
@@ -301,7 +304,7 @@ namespace ShadersCamera.ViewModels
                     };
                     image.VisualEffects.Add(shaderEffect);
                 }
-            });
+            }, true);// DeviceInfo.Platform != DevicePlatform.Android); //todo a bug in Android actually has to do something about it
 
             //going to use the newly created bitmap with effects 
             //to save to gallery, so need to dispose the original one
