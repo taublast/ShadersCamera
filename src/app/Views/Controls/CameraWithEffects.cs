@@ -125,7 +125,7 @@ namespace ShadersCamera.Views.Controls
 
         private void OnShaderError(object sender, string error)
         {
-            _editor.ReportCompilationError(error);
+            _editor?.ReportCompilationError(error);
         }
 
         public ICommand CommandEditShader

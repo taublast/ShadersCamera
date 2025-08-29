@@ -26,7 +26,7 @@ public class ClippedShaderEffect : SkiaShaderEffect
         if (_image != null)
         {
             var clipped = ctx.Destination;
-            clipped.Intersect(new ((int)_image.DisplayRect.Left, (int)_image.DisplayRect.Top, (int)Math.Round(_image.DisplayRect.Right), (int)Math.Round(_image.DisplayRect.Bottom)));
+            clipped.Intersect(new ((int)Math.Round(_image.DisplayRect.Left), (int)Math.Round(_image.DisplayRect.Top), (int)Math.Round(_image.DisplayRect.Right), (int)Math.Round(_image.DisplayRect.Bottom)));
             base.Render(ctx.WithDestination(clipped));
         }
     }
