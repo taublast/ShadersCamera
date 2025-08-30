@@ -1,0 +1,155 @@
+﻿uniform float4 iMouse;           // Mouse drag pos=.xy Click pos=.zw (pixels)
+uniform float  iTime;            // Shader playback time (s)
+uniform float2 iResolution;      // Viewport resolution (pixels)
+uniform float2 iImageResolution; // iImage1 resolution (pixels)
+uniform shader iImage1;          // Texture
+uniform float2 iOffset;          // Top-left corner of DrawingRect
+uniform float2 iOrigin;          // Mouse drag started here
+
+/// <summary>
+/// Generates T-Max's signature tabular grain - extremely fine and directional
+/// </summary>
+float tmaxTabularGrain(float2 coord) {
+    // T-Max tabular grains are flatter and more directional
+    float2 grainCoord = coord * 1.2;
+    
+    // Tabular grain has directional characteristics
+    float2 rotated = float2(
+        grainCoord.x * 0.866 - grainCoord.y * 0.5,
+        grainCoord.x * 0.5 + grainCoord.y * 0.866
+    );
+    
+    // Multiple noise layers for tabular structure
+    float noise1 = fract(sin(dot(rotated, float2(127.1, 311.7))) * 43758.5453);
+    float noise2 = fract(sin(dot(rotated * 3.7, float2(269.5, 183.3))) * 17951.3421);
+    float noise3 = fract(sin(dot(rotated * 0.3, float2(419.2, 371.9))) * 31415.9265);
+    
+    // T-Max has incredibly fine grain - much subtler than conventional films
+    float grain = (noise1 * 0.5 + noise2 * 0.3 + noise3 * 0.2 - 0.5) * 0.008;
+    
+    return grain;
+}
+
+/// <summary>
+/// T-Max characteristic curve with extended highlight detail
+/// </summary>
+float tmaxToneMapping(float luminance) {
+    // T-Max is famous for its extended highlight range
+    float highlights = 1.0 - exp(-luminance * 2.5);
+    
+    // Sharp shoulder for highlight retention
+    float shoulder = luminance / (luminance + 0.3);
+    
+    // Clean midtones with slight contrast boost
+    float midtones = pow(luminance, 0.9);
+    
+    // Blend based on luminance zones
+    float mapped;
+    if (luminance < 0.2) {
+        mapped = luminance * 1.1; // Slight shadow lift
+    } else if (luminance < 0.7) {
+        mapped = midtones; // Clean midtones
+    } else {
+        mapped = mix(midtones, highlights, smoothstep(0.7, 1.0, luminance));
+    }
+    
+    // T-Max's signature clean contrast
+    mapped = (mapped - 0.5) * 1.3 + 0.5;
+    
+    return clamp(mapped, 0.0, 1.0);
+}
+
+/// <summary>
+/// T-Max spectral response - modern panchromatic emulsion
+/// </summary>
+float tmaxConversion(half3 color) {
+    // T-Max 400 has modern spectral sensitivity
+    // Balanced response with slight blue sensitivity boost
+    float luminance = dot(color, half3(0.32, 0.48, 0.2));
+    
+    // Apply T-Max tone curve
+    luminance = tmaxToneMapping(luminance);
+    
+    return luminance;
+}
+
+/// <summary>
+/// T-Max edge enhancement using tabular grain technology simulation
+/// </summary>
+float tmaxAcutance(float value, float2 coord) {
+    float2 pixelSize = 1.0 / iImageResolution.xy;
+    
+    // T-Max's tabular grains provide incredible edge sharpness
+    float center = value;
+    
+    // Directional sampling for tabular grain effect
+    float right = tmaxConversion(iImage1.eval(coord + float2(pixelSize.x, 0.0)).rgb);
+    float left = tmaxConversion(iImage1.eval(coord - float2(pixelSize.x, 0.0)).rgb);
+    float up = tmaxConversion(iImage1.eval(coord + float2(0.0, pixelSize.y)).rgb);
+    float down = tmaxConversion(iImage1.eval(coord - float2(0.0, pixelSize.y)).rgb);
+    
+    // Calculate edge strength
+    float horizontal = abs(right - left);
+    float vertical = abs(up - down);
+    float edge = horizontal + vertical;
+    
+    // T-Max's famous acutance boost
+    float acutance = edge * 0.4;
+    
+    return clamp(center + acutance, 0.0, 1.0);
+}
+
+/// <summary>
+/// Creates modern, clean vignette typical of T-Max lab prints
+/// </summary>
+float tmaxVignette(float2 uv) {
+    float2 centered = uv - 0.5;
+    float distance = length(centered);
+    
+    // Very minimal vignette - T-Max is known for clean, modern look
+    return 1.0 - smoothstep(0.8, 1.3, distance * 0.6);
+}
+
+/// <summary>
+/// Applies T-Max's signature highlight rolloff
+/// </summary>
+float tmaxHighlightRolloff(float value) {
+    // T-Max excels at highlight detail retention
+    if (value > 0.85) {
+        float excess = value - 0.85;
+        value = 0.85 + excess * 0.7; // Gentle rolloff in highlights
+    }
+    
+    return value;
+}
+
+half4 main(float2 fragCoord) 
+{	
+    float2 renderingScale = iImageResolution.xy / iResolution.xy;
+    float2 inputCoord = (fragCoord - iOffset) * renderingScale;
+    float2 uv = inputCoord / iImageResolution.xy;
+    
+    half3 originalColor = iImage1.eval(inputCoord).rgb;
+    
+    // Convert using T-Max spectral response
+    float bwValue = tmaxConversion(originalColor);
+    
+    // Apply T-Max's famous acutance
+    bwValue = tmaxAcutance(bwValue, inputCoord);
+    
+    // T-Max highlight rolloff
+    bwValue = tmaxHighlightRolloff(bwValue);
+    
+    // Add subtle tabular grain
+    float grain = tmaxTabularGrain(inputCoord);
+    bwValue += grain;
+    
+    // Clean, modern vignette
+    float vignette = tmaxVignette(uv);
+    bwValue *= vignette * 0.98 + 0.02;
+    
+    // Final T-Max characteristic - clean and neutral
+    bwValue = clamp(bwValue, 0.0, 0.99);
+    
+    return half4(bwValue, bwValue, bwValue, 1.0);
+}

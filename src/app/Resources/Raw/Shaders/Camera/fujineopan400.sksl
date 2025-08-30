@@ -1,0 +1,123 @@
+﻿uniform float4 iMouse;           // Mouse drag pos=.xy Click pos=.zw (pixels)
+uniform float  iTime;            // Shader playback time (s)
+uniform float2 iResolution;      // Viewport resolution (pixels)
+uniform float2 iImageResolution; // iImage1 resolution (pixels)
+uniform shader iImage1;          // Texture
+uniform float2 iOffset;          // Top-left corner of DrawingRect
+uniform float2 iOrigin;          // Mouse drag started here
+
+/// <summary>
+/// Generates fine Neopan-style grain with multiple octaves
+/// </summary>
+float neopanFineGrain(float2 coord) {
+    float2 grainCoord = coord * 0.8;
+    
+    // Multiple octaves for realistic grain structure
+    float noise1 = fract(sin(dot(grainCoord, float2(127.1, 311.7))) * 43758.5453);
+    float noise2 = fract(sin(dot(grainCoord * 2.1, float2(269.5, 183.3))) * 17951.3421);
+    float noise3 = fract(sin(dot(grainCoord * 4.3, float2(419.2, 371.9))) * 31415.9265);
+    
+    // Neopan has very fine, subtle grain
+    float grain = (noise1 * 0.6 + noise2 * 0.3 + noise3 * 0.1 - 0.5) * 0.015;
+    
+    return grain;
+}
+
+/// <summary>
+/// Applies Neopan's characteristic S-curve tone mapping
+/// </summary>
+float neopanToneMapping(float luminance) {
+    // Neopan's signature smooth S-curve with excellent shadow detail
+    float shadows = smoothstep(0.0, 0.3, luminance);
+    float midtones = smoothstep(0.2, 0.7, luminance);
+    float highlights = smoothstep(0.6, 1.0, luminance);
+    
+    // Blend the curves for smooth transitions
+    float mapped = shadows * 0.15 + midtones * 0.5 + highlights * 0.8;
+    
+    // Slight contrast boost while maintaining smooth gradation
+    mapped = (mapped - 0.5) * 1.2 + 0.5;
+    
+    // Preserve shadow detail (Neopan strength)
+    mapped = max(mapped, luminance * 0.1);
+    
+    return clamp(mapped, 0.0, 1.0);
+}
+
+/// <summary>
+/// Neopan's RGB to B&W conversion with spectral response
+/// </summary>
+float neopanConversion(half3 color) {
+    // Neopan 400 spectral sensitivity (panchromatic)
+    // Enhanced red sensitivity, good blue response
+    float luminance = dot(color, half3(0.35, 0.45, 0.2));
+    
+    // Apply Neopan's tone curve
+    luminance = neopanToneMapping(luminance);
+    
+    return luminance;
+}
+
+/// <summary>
+/// Creates subtle lens vignette typical of medium format Neopan shots
+/// </summary>
+float neopanVignette(float2 uv) {
+    float2 centered = uv - 0.5;
+    float distance = length(centered);
+    
+    // Very subtle vignette - Neopan doesn't have harsh edges
+    return 1.0 - smoothstep(0.6, 1.2, distance * 0.8);
+}
+
+/// <summary>
+/// Applies micro-contrast enhancement for that crisp Neopan look
+/// </summary>
+float neopanMicroContrast(float value, float2 coord) {
+    // Sample neighboring pixels for local contrast
+    float2 pixelSize = 1.0 / iImageResolution.xy;
+    
+    float center = value;
+    float avg = 0.0;
+    
+    // 3x3 kernel for local average
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            float2 sampleCoord = coord + float2(float(x), float(y)) * pixelSize;
+            half3 sampleColor = iImage1.eval(sampleCoord).rgb;
+            avg += neopanConversion(sampleColor);
+        }
+    }
+    avg /= 9.0;
+    
+    // Subtle micro-contrast boost
+    float contrast = (center - avg) * 0.2;
+    return clamp(center + contrast, 0.0, 1.0);
+}
+
+half4 main(float2 fragCoord) 
+{	
+    float2 renderingScale = iImageResolution.xy / iResolution.xy;
+    float2 inputCoord = (fragCoord - iOffset) * renderingScale;
+    float2 uv = inputCoord / iImageResolution.xy;
+    
+    half3 originalColor = iImage1.eval(inputCoord).rgb;
+    
+    // Convert to B&W using Neopan's spectral response
+    float bwValue = neopanConversion(originalColor);
+    
+    // Apply micro-contrast for that crisp Neopan detail
+    bwValue = neopanMicroContrast(bwValue, inputCoord);
+    
+    // Add fine grain structure
+    float grain = neopanFineGrain(inputCoord);
+    bwValue += grain;
+    
+    // Apply subtle vignette
+    float vignette = neopanVignette(uv);
+    bwValue *= vignette * 0.95 + 0.05;
+    
+    // Final clamp and slight warmth typical of Neopan prints
+    bwValue = clamp(bwValue, 0.0, 0.98);
+    
+    return half4(bwValue, bwValue, bwValue, 1.0);
+}

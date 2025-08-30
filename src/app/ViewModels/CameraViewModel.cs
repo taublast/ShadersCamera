@@ -22,8 +22,10 @@ namespace ShadersCamera.ViewModels
                 new ShaderItem { Title = "Street", Filename = "Shaders/Camera/bwstreet.sksl" },
                 new ShaderItem { Title = "Street Zoom", Filename = "Shaders/Camera/bwstreet200.sksl" },
                 new ShaderItem { Title = "Fine Art", Filename = "Shaders/Camera/bwfineart.sksl" },
+                new ShaderItem { Title = "Kodak", Filename = "Shaders/Camera/kodaktmax400.sksl" },
+                new ShaderItem { Title = "Fuji", Filename = "Shaders/Camera/fujineopan400.sksl" },
+                new ShaderItem { Title = "Ilford", Filename = "Shaders/Camera/ilford.sksl" },
                 new ShaderItem { Title = "Newspaper", Filename = "Shaders/Camera/bwprint.sksl" },
-                new ShaderItem { Title = "Portrait", Filename = "Shaders/Camera/bwportrait.sksl" },
                 new ShaderItem { Title = "Sin City", Filename = "Shaders/Camera/selective.sksl" },
 
 
@@ -48,11 +50,11 @@ namespace ShadersCamera.ViewModels
 
                 //new ShaderItem { Title = "Palette", Filename = "Shaders/Camera/old-palette.sksl" },
                 new ShaderItem { Title = "TV", Filename = "Shaders/Camera/retrotv.sksl" },
-                new ShaderItem { Title = "Ink", Filename = "Shaders/Camera/sketchcolored.sksl" },
-                new ShaderItem { Title = "Paint", Filename = "Shaders/Camera/painthq.sksl" },
+                new ShaderItem { Title = "Outline", Filename = "Shaders/Camera/sketchcolored.sksl" },
+                new ShaderItem { Title = "Draw", Filename = "Shaders/Camera/painthq.sksl" },
                 new ShaderItem { Title = "Sketch", Filename = "Shaders/Camera/sketch.sksl" },
                 new ShaderItem { Title = "Pixels", Filename = "Shaders/Camera/pixels.sksl" },
-                new ShaderItem { Title = "Hell", Filename = "Shaders/Camera/hell.sksl" },
+                new ShaderItem { Title = "Mars", Filename = "Shaders/Camera/hell.sksl" },
                 new ShaderItem { Title = "Invert", Filename = "Shaders/Camera/invert.sksl" },
                 new ShaderItem { Title = "Negative", Filename = "Shaders/Camera/negative.sksl" },
             };

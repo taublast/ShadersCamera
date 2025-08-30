@@ -1,0 +1,116 @@
+﻿uniform float4 iMouse;           // Mouse drag pos=.xy Click pos=.zw (pixels)
+uniform float  iTime;            // Shader playback time (s)
+uniform float2 iResolution;      // Viewport resolution (pixels)
+uniform float2 iImageResolution; // iImage1 resolution (pixels)
+uniform shader iImage1;          // Texture
+uniform float2 iOffset;          // Top-left corner of DrawingRect
+uniform float2 iOrigin;          // Mouse drag started here
+
+/// <summary>
+/// Generates FP4's characteristic fine grain structure
+/// </summary>
+float fp4FineGrain(float2 coord) {
+    float2 grainCoord = coord * 0.6; // 125 ISO = fine grain
+    
+    float noise1 = fract(sin(dot(grainCoord, float2(127.1, 311.7))) * 43758.5453);
+    float noise2 = fract(sin(dot(grainCoord * 2.3, float2(269.5, 183.3))) * 17951.3421);
+    float noise3 = fract(sin(dot(grainCoord * 0.4, float2(419.2, 371.9))) * 31415.9265);
+    
+    // Very fine grain but still visible
+    return (noise1 * 0.6 + noise2 * 0.25 + noise3 * 0.15 - 0.5) * 0.012;
+}
+
+/// <summary>
+/// FP4's excellent tonal curve with smooth gradation and good contrast
+/// </summary>
+float fp4ToneMapping(float luminance) {
+    // FP4's smooth S-curve with excellent shadow-to-highlight transition
+    float shadows = smoothstep(0.0, 0.4, luminance) * 0.3;
+    float midtones = smoothstep(0.2, 0.8, luminance) * 0.6;
+    float highlights = smoothstep(0.6, 1.0, luminance) * 0.9;
+    
+    float mapped = shadows + midtones + highlights;
+    
+    // FP4 has good contrast, not flat!
+    mapped = (mapped - 0.5) * 1.25 + 0.5;
+    
+    // Gentle toe lift for shadow detail (not excessive)
+    if (mapped < 0.1) {
+        mapped = mapped * 0.8 + 0.02;
+    }
+    
+    return clamp(mapped, 0.0, 1.0);
+}
+
+/// <summary>
+/// FP4's spectral response - excellent for portraits and general use
+/// </summary>
+float fp4Conversion(half3 color) {
+    // FP4 Plus spectral sensitivity (orthochromatic-extended)
+    // Good red response, balanced green, moderate blue
+    float luminance = dot(color, half3(0.38, 0.42, 0.2));
+    
+    // Apply FP4's tone curve
+    return fp4ToneMapping(luminance);
+}
+
+/// <summary>
+/// FP4's smooth micro-contrast for crisp but not harsh detail
+/// </summary>
+float fp4MicroContrast(float value, float2 coord) {
+    float2 pixelSize = 1.0 / iImageResolution.xy;
+    
+    float center = value;
+    
+    // Gentle local contrast sampling
+    float right = fp4Conversion(iImage1.eval(coord + float2(pixelSize.x, 0.0)).rgb);
+    float left = fp4Conversion(iImage1.eval(coord - float2(pixelSize.x, 0.0)).rgb);
+    float up = fp4Conversion(iImage1.eval(coord + float2(0.0, pixelSize.y)).rgb);
+    float down = fp4Conversion(iImage1.eval(coord - float2(0.0, pixelSize.y)).rgb);
+    
+    float localAvg = (right + left + up + down) * 0.25;
+    
+    // Subtle micro-contrast boost for FP4's crisp detail
+    float contrast = (center - localAvg) * 0.15;
+    
+    return clamp(center + contrast, 0.0, 1.0);
+}
+
+/// <summary>
+/// Creates classic portrait vignette without being heavy-handed
+/// </summary>
+float fp4Vignette(float2 uv) {
+    float2 centered = uv - 0.5;
+    float distance = length(centered);
+    
+    // Gentle vignette for portrait work
+    return 1.0 - smoothstep(0.5, 1.1, distance * 0.9);
+}
+
+half4 main(float2 fragCoord) 
+{	
+    float2 renderingScale = iImageResolution.xy / iResolution.xy;
+    float2 inputCoord = (fragCoord - iOffset) * renderingScale;
+    float2 uv = inputCoord / iImageResolution.xy;
+    
+    half3 originalColor = iImage1.eval(inputCoord).rgb;
+    
+    // Convert using proper FP4 spectral response
+    float bwValue = fp4Conversion(originalColor);
+    
+    // Apply FP4's smooth micro-contrast
+    bwValue = fp4MicroContrast(bwValue, inputCoord);
+    
+    // Add fine grain structure
+    float grain = fp4FineGrain(inputCoord);
+    bwValue += grain;
+    
+    // Apply gentle portrait vignette
+    float vignette = fp4Vignette(uv);
+    bwValue *= vignette * 0.92 + 0.08;
+    
+    // Final FP4 character - smooth but with good contrast
+    bwValue = clamp(bwValue, 0.0, 0.97);
+    
+    return half4(bwValue, bwValue, bwValue, 1.0);
+}
