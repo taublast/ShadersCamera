@@ -1,12 +1,11 @@
 # Filters Camera
 
-A shaders camera open-source cross-platform app for iOS, Mac Catalyst, Android and Windows with real-time filtered preview.
+Open-source app for iOS, Mac Catalyst, Android and Windows applying hardware-accelerated shaders in real-time to camera preview and saved photos. 
+Comes with built-in desktop [SKSL](https://skia.org/docs/user/sksl) editor.
 
-SKSL shaders demonstrating: film grain, cubic splines, various image adjustments, lens distortion effects, edge detection and more.
+SKSL shaders demonstrate: film grain, cubic splines, various image adjustments, lens distortion effects, edge detection and more.
 
-Using hardware acceleration on all platforms both for camera preview and separate captured image processing rendering.
-
-Made with DrawnUI for .NET MAUI
+Made with [DrawnUI for .NET MAUI](https://drawnui.net).
 
 * Applying shaders to camera preview in real-time
 * Switch mirror preview
@@ -46,3 +45,9 @@ For Windows users best with Photo Link app to instantly view your taken photos!
 * Combine with lens shaders
 * Save geolocation to EXIF
 * Shaders editor for mobile version
+
+### .NET MAUI Libs Stack
+
+* [SkiaSharp](https://github.com/mono/SkiaSharp)
+* [DrawnUi for .NET MAUI](https://github.com/taublast/DrawnUi)
+* [FastPopups for .NET MAUI](https://github.com/taublast/FastPopups)
