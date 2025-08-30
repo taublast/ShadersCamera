@@ -55,7 +55,7 @@
   </PropertyGroup>
 
   <!--dev provisioning for iPhone-->
-  <Import Project="../../ShadersCam.targets" Condition="Exists('../../ShadersCam.targets')" />
+  <Import Project="../../../ShadersCam.targets" />
 
   <!--DEBUG-->
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
