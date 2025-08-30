@@ -45,9 +45,14 @@ For Windows users best with Photo Link app to instantly view your taken photos!
 * Combine with lens shaders
 * Save geolocation to EXIF
 * Shaders editor for mobile version
+* ML Z-axis detection and apply smart bokeh
 
 ### .NET MAUI Libs Stack
 
 * [SkiaSharp](https://github.com/mono/SkiaSharp)
 * [DrawnUi for .NET MAUI](https://github.com/taublast/DrawnUi)
 * [FastPopups for .NET MAUI](https://github.com/taublast/FastPopups)
+
+### Contributing
+
+Contributing to repository is very welcome. Many other nifty shaders could be added, the current UI is also not something fixed.

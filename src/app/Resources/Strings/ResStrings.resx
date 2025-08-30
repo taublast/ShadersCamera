@@ -160,11 +160,10 @@
     <value>✨ Welcome! ✨</value>
   </data>
   <data name="WelcomeDetails" xml:space="preserve">
-    <value>- On-screen buttons:  View Captured, Settings, Flash, Source, Capture Photo
-- User drawer menu to select filters
-- Tap anywhere on the screen to use current frame for drawer previews
-- Zoom with fingers
-</value>
+    <value>- Tap anywhere on the screen to set frame as preview
+- Choose your filter from bottom drawer menu!
+- Can zoom camera with fingers
+- Open settings for more!</value>
   </data>
   <data name="Settings" xml:space="preserve">
     <value>Settings</value>

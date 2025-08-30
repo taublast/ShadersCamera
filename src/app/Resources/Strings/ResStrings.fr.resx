@@ -159,11 +159,6 @@
   <data name="WelcomeTitle" xml:space="preserve">
     <value>✨ Bienvenue ! ✨</value>
   </data>
-  <data name="WelcomeDetails" xml:space="preserve">
-    <value>- Appuyez n'importe où sur l'écran pour utiliser le cadre actuel pour les aperçus inférieurs
-- Appuyez / balayez le menu inférieur en bas / gauche pour sélectionner les filtres
-- Autres boutons à l'écran: Paramètres, flash, source, photo de capture</value>
-  </data>
   <data name="Settings" xml:space="preserve">
     <value>Paramètres</value>
   </data>

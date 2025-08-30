@@ -30,6 +30,7 @@
                             FontFamily="FontTextBold"
                             UseCache="Operations"
                             HorizontalOptions="Center"
+                            Margin="0,0,0,4"
                             Text="{x:Static strings:ResStrings.Settings}" />
 
                         <!--FULLSCREEN-->

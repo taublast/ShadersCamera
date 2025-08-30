@@ -54,8 +54,8 @@
     <AndroidEnableMultiDex>True</AndroidEnableMultiDex>
   </PropertyGroup>
 
-  <!--dev provisioning for iPhone-->
-  <Import Project="../../../ShadersCam.targets" />
+  <!--dev personal provisioning for iPhone-->
+  <Import Project="../../../ShadersCam.targets" Condition="Exists('../../../ShadersCam.targets')" />
 
   <!--DEBUG-->
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">

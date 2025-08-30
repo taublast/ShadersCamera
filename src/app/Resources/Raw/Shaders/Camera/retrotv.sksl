@@ -11,50 +11,84 @@ const float VIGNETTE_STRENGTH = 0.4;
 const float NOISE_INTENSITY = 0.08;
 const float CHROMATIC_ABBERATION = 0.002;
 
-// Generates TV static noise
+/// <summary>
+/// Generates TV static noise
+/// </summary>
 float tvNoise(float2 coord, float time) {
     return fract(sin(dot(coord + time, float2(12.9898, 78.233))) * 43758.5453);
 }
 
-// Creates vignette effect (darkened edges)
+/// <summary>
+/// Creates vignette effect (darkened edges)
+/// </summary>
 float vignette(float2 uv) {
     float2 centered = uv - 0.5;
     float distance = length(centered);
     return 1.0 - smoothstep(0.3, 0.8, distance * VIGNETTE_STRENGTH * 2.0);
 }
 
-// Creates CRT barrel distortion
+/// <summary>
+/// Creates CRT barrel distortion with bounded output
+/// </summary>
 float2 barrelDistortion(float2 uv) {
     float2 centered = uv - 0.5;
     float r2 = dot(centered, centered);
-    float distortion = 1.0 + r2 * 0.15;
+    
+    // Reduce distortion strength as we get closer to edges
+    float edgeFalloff = 1.0 - smoothstep(0.0, 0.25, r2);
+    float distortion = 1.0 + r2 * 0.15 * edgeFalloff;
+    
     return 0.5 + centered * distortion;
 }
 
-// Main fragment shader for CRT/VHS effect
+/// <summary>
+/// Safe texture sampling with coordinate clamping
+/// </summary>
+half4 sampleTextureSafe(float2 coord) {
+    // Clamp coordinates to valid texture bounds
+    float2 clampedCoord = clamp(coord, float2(0.0), iImageResolution.xy - float2(1.0));
+    return iImage1.eval(clampedCoord);
+}
+
 half4 main(float2 fragCoord) {
     float2 renderingScale = iImageResolution.xy / iResolution.xy;
     float2 inputCoord = (fragCoord - iOffset) * renderingScale;
     float2 uv = inputCoord / iImageResolution.xy;
     
+    // Apply barrel distortion
     float2 distortedUV = barrelDistortion(uv);
     float2 distortedCoord = distortedUV * iImageResolution.xy;
     
-    half4 colorR = iImage1.eval(distortedCoord + float2(CHROMATIC_ABBERATION * iImageResolution.x, 0.0));
-    half4 colorG = iImage1.eval(distortedCoord);
-    half4 colorB = iImage1.eval(distortedCoord - float2(CHROMATIC_ABBERATION * iImageResolution.x, 0.0));
+    // Calculate chromatic aberration offset in pixels
+    float chromatic_offset = CHROMATIC_ABBERATION * iImageResolution.x;
+    
+    // Safe sampling with bounds checking for chromatic aberration
+    half4 colorR = sampleTextureSafe(distortedCoord + float2(chromatic_offset, 0.0));
+    half4 colorG = sampleTextureSafe(distortedCoord);
+    half4 colorB = sampleTextureSafe(distortedCoord - float2(chromatic_offset, 0.0));
     
     half4 color = half4(colorR.r, colorG.g, colorB.b, colorG.a);
     
-    float scanlines = sin(distortedCoord.y * 3.14159 * 0.5) * SCANLINE_INTENSITY + (1.0 - SCANLINE_INTENSITY);
+    // Scale scanlines to maintain consistent density regardless of image size
+    // Use a reference resolution for consistent scanline spacing
+    float reference_height = 720.0; // Reference resolution height
+    float scanline_scale = iImageResolution.y / reference_height;
+    
+    // Apply scaled scanlines using the original UV coordinates (not distorted ones)
+    // This ensures consistent scanline density
+    float scanline_frequency = uv.y * iImageResolution.y * (1.0 / scanline_scale);
+    float scanlines = sin(scanline_frequency * 3.14159 * 0.5) * SCANLINE_INTENSITY + (1.0 - SCANLINE_INTENSITY);
     color.rgb *= scanlines;
     
+    // Apply noise using safe coordinates
     float noise = tvNoise(distortedCoord * 0.5, 0.0) * NOISE_INTENSITY;
     color.rgb += noise;
     
+    // Apply vignette effect
     float vignetteEffect = vignette(distortedUV);
     color.rgb *= vignetteEffect;
     
+    // Final color grading
     color.rgb = pow(color.rgb, half3(1.2));
     color.rgb *= 1.1;
     

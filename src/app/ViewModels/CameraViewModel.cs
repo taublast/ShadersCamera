@@ -303,6 +303,7 @@ namespace ShadersCamera.ViewModels
                     var shaderEffect = new SkiaShaderEffect()
                     {
                         ShaderSource = SelectedShader.Filename,
+                        TileMode = SKShaderTileMode.Mirror
                     };
                     image.VisualEffects.Add(shaderEffect);
                 }

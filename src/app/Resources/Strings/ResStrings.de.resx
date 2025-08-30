@@ -159,11 +159,6 @@
   <data name="WelcomeTitle" xml:space="preserve">
     <value>✨ Willkommen! ✨</value>
   </data>
-  <data name="WelcomeDetails" xml:space="preserve">
-    <value>- Tippen Sie auf dem Bildschirm überall auf dem Bildschirm, um den aktuellen Frame für die unteren Vorschau zu verwenden
-- Tippen Sie unten/links auf das Menü unten/wischen Sie, um Filter auszuwählen
-- Andere Tasten auf dem Bildschirm: Einstellungen, Blitz, Quelle, Aufnahmefoto</value>
-  </data>
   <data name="Settings" xml:space="preserve">
     <value>Einstellungen</value>
   </data>

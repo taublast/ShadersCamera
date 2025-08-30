@@ -55,7 +55,7 @@ namespace ShadersCamera.Views
                                 CreateMainLayout()
                             }
                         }.Assign(out ViewsContainer),
-#if DEBUG
+#if xDEBUG
                         new SkiaLabelFps()
                         {
                             Margin = new(0, 0, 4, 24),

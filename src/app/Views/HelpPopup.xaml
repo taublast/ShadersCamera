@@ -27,6 +27,7 @@
 
                         <draw:SkiaRichLabel
                             Opacity="0.66"
+                            Margin="0,0,0,4"
                             FontFamily="FontTextBold"
                             HorizontalOptions="Center"
                             Text="{x:Static strings:ResStrings.WelcomeTitle}" />

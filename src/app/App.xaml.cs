@@ -12,6 +12,10 @@ namespace ShadersCamera
 
             InitializeComponent();
 
+#if ANDROID
+            Super.SetNavigationBarColor(Colors.Black, Colors.Black, false);
+#endif
+
             MainPage = new MainCameraPageFluent();
         }
 
