@@ -1,6 +1,10 @@
 # Filters Camera
 
-Shaders Camera cross-platform app for iOS, Mac Catalyst, Android and Windows.
+A shaders camera open-source cross-platform app for iOS, Mac Catalyst, Android and Windows with real-time filtered preview.
+
+SKSL shaders demonstrating: film grain, cubic splines, various image adjustments, lens distortion effects, edge detection and more.
+
+Using hardware acceleration on all platforms both for camera preview and separate captured image processing rendering.
 
 Made with DrawnUI for .NET MAUI
 
@@ -12,15 +16,26 @@ Made with DrawnUI for .NET MAUI
 * Select camera and photo quality/format
 * Edit shaders code in standalone window when running on desktop
 
+### How To Use
+
+- Tap anywhere on the screen to set current frame as preview
+- Choose your real-time filter from previews in drawer menu!
+- Open settings for more!
+
+For Windows users best with Photo Link app to instantly view your taken photos!
+
 ### Interaction:
 
 - On-screen buttons:  View Captured, Settings, Flash, Source, Capture Photo
 - User drawer menu to select filters
 - Tap anywhere on the screen to use current frame for drawer previews
 - Zoom with fingers
+- On desktop long pressing shader preview opens SKSL editor
 
 ### On The Roadmap
 
+* Save filter name to EXIF
+* Add selection indicator for previews scroll
 * Pass rendering scale as uniform for all shaders for full consistency between preview and large capture
 * Localization and change language in settings
 
