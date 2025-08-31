@@ -58,7 +58,7 @@ namespace ShadersCamera.ViewModels
                 new ShaderItem { Title = "Sketch", Filename = "Shaders/Camera/sketch.sksl" },
                 new ShaderItem { Title = "Paint", Filename = "Shaders/Camera/sketchcolors.sksl" },
                 //new ShaderItem { Title = "Draw", Filename = "Shaders/Camera/sketchcomics3.sksl" },
-                //new ShaderItem { Title = "Print", Filename = "Shaders/Camera/sketchcomics4.sksl" },
+                new ShaderItem { Title = "Poster", Filename = "Shaders/Camera/sketchcomics4.sksl" },
                 new ShaderItem { Title = "Mars", Filename = "Shaders/Camera/hell.sksl" },
                 new ShaderItem { Title = "Invert", Filename = "Shaders/Camera/invert.sksl" },
                 new ShaderItem { Title = "Negative", Filename = "Shaders/Camera/negative.sksl" },
