@@ -44,6 +44,8 @@ For Windows users best with Photo Link app to instantly view your taken photos!
 
 ### On The Roadmap
 
+* Rotate saved photo on iOS if taken while rotated even if rotation turned off for app
+* Rotate previews in menu when phone is rotated to landscape
 * Save filter name to EXIF (what field, Software (0x0131)?)
 * Add selection indicator for previews, scroll to selected at startup
 * Pass rendering scale as uniform for all shaders for full consistency between preview and large capture

@@ -312,7 +312,7 @@ namespace ShadersCamera.ViewModels
                     };
                     image.VisualEffects.Add(shaderEffect);
                 }
-            }, true);// DeviceInfo.Platform != DevicePlatform.Android); //todo a bug in Android actually has to do something about it
+            }, true); 
 
             //going to use the newly created bitmap with effects 
             //to save to gallery, so need to dispose the original one

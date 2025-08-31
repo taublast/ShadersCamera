@@ -14,8 +14,6 @@
     <WarningsAsErrors>$(WarningsAsErrors);XLS0501</WarningsAsErrors>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-    <UseNuget>false</UseNuget>
-
     <ApplicationTitle>Filters Camera</ApplicationTitle>
     <ApplicationId>com.appomobi.drawnui.shaderscam</ApplicationId>
     <ApplicationIdGuid>340e07b0-ebc2-4fde-9ac9-074d5c3269b4</ApplicationIdGuid>
@@ -67,7 +65,6 @@
     <AndroidResource Include="Platforms\Android\Resources\*\*.webp" />
   </ItemGroup>
 
-   
 
   <ItemGroup>
 
@@ -108,23 +105,16 @@
   </ItemGroup>
 
   <!--production-->
-  <ItemGroup Condition="'$(UseNuget)' == 'false'">
-    <PackageReference Include="DrawnUi.Maui.Camera" Version="1.6.2.29" />
+  <ItemGroup Condition="'$(UseSource)' == 'false'">
+
   </ItemGroup>
 
-
   <ItemGroup>
+    <PackageReference Include="DrawnUi.Maui.Camera" Version="1.6.2.30" />
     <PackageReference Include="AppoMobi.Maui.FastPopups" Version="1.0.0.6" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
     <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.70" />
   </ItemGroup>
-
-  <!--for development-->
-  <ItemGroup Condition="'$(UseNuget)' != 'true'">
-    <ProjectReference Include="..\..\..\DrawnUi.Maui\src\Maui\Addons\DrawnUi.Maui.Camera\DrawnUi.Maui.Camera.csproj" />
-    <ProjectReference Include="..\..\..\DrawnUi.Maui\src\Maui\DrawnUi\DrawnUi.Maui.csproj" />
-  </ItemGroup>
-
 
   <ItemGroup>
 
