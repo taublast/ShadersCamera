@@ -7,18 +7,39 @@ uniform float2 iOffset;          // Top-left corner of DrawingRect
 uniform float2 iOrigin;          // Mouse drag started here
 
 // Cool retro game parameters that kids will actually like:
-const float BASE_PIXEL_SIZE = 10.0;      // Pixel size for 1000x1000 baseline image
+const float BASE_PIXEL_SIZE = 8.0;      // Pixel size for 1000x1000 baseline image
 const float BASELINE_SIZE = 1000.0;      // Baseline image size
-const float COLOR_LEVELS = 24.0;     
+const float COLOR_LEVELS = 32.0;     
 const float WARMTH_BOOST = 1.08;         // makes skin look better
 const float RETRO_SATURATION = 1.5;     // Boost colors but keep it natural
-const float CONTRAST_ENHANCE = 1.2;      // Subtle contrast for crisp look
+const float CONTRAST_ENHANCE = 1.5;      // Subtle contrast for crisp look
+
+// Blacks and whites control
+const float iWhites = 0.2;     // Adjust bright tones (positive = brighter whites, negative = darker whites)
+const float iBlacks = -0.2;    // Adjust dark tones (positive = brighter blacks, negative = darker blacks)
+
+/// Apply whites and blacks adjustments to extreme tones
+half3 adjustWhitesBlacks(half3 rgb, float whitesAdj, float blacksAdj) {
+    float luminance = dot(rgb, half3(0.299, 0.587, 0.114));
+    
+    // Whites mask: targets the brightest 25% of tones (0.75 to 1.0)
+    float whitesMask = smoothstep(0.75, 1.0, luminance);
+    
+    // Blacks mask: targets the darkest 25% of tones (0.0 to 0.25)
+    float blacksMask = 1.0 - smoothstep(0.0, 0.25, luminance);
+    
+    float whitesAdjustment = whitesAdj * whitesMask;
+    float blacksAdjustment = blacksAdj * blacksMask;
+    
+    half3 adjustedRgb = rgb + half3(whitesAdjustment + blacksAdjustment);
+    return clamp(adjustedRgb, 0.0, 1.0);
+}
 
 half4 main(float2 fragCoord) {
     // 1. Calculate dynamic pixel size based on image dimensions
-// Replace your current scaling lines with this:
-float targetPixelRatio = BASE_PIXEL_SIZE / BASELINE_SIZE; // This gives us the target proportion
-float PIXEL_SIZE = targetPixelRatio * max(iImageResolution.x, iImageResolution.y);
+    // Replace your current scaling lines with this:
+    float targetPixelRatio = BASE_PIXEL_SIZE / BASELINE_SIZE; // This gives us the target proportion
+    float PIXEL_SIZE = targetPixelRatio * max(iImageResolution.x, iImageResolution.y);
     
     // 2. Map fragment coordinate to input image coordinate space
     float2 renderingScale = iImageResolution.xy / iResolution.xy;
@@ -47,7 +68,10 @@ float PIXEL_SIZE = targetPixelRatio * max(iImageResolution.x, iImageResolution.y
     half luminance = dot(quantized, half3(0.299, 0.587, 0.114));
     quantized = mix(half3(luminance), quantized, RETRO_SATURATION);
     
-    // 9. Add subtle "retro game" edge definition
+    // 9. Apply blacks and whites adjustments
+    quantized = adjustWhitesBlacks(quantized, iWhites, iBlacks);
+    
+    // 10. Add subtle "retro game" edge definition
     float edgeOffset = PIXEL_SIZE * 0.5;
     half4 rightPixel = iImage1.eval(pixelCenter + float2(edgeOffset, 0));
     half4 bottomPixel = iImage1.eval(pixelCenter + float2(0, edgeOffset));
@@ -55,15 +79,6 @@ float PIXEL_SIZE = targetPixelRatio * max(iImageResolution.x, iImageResolution.y
     half edgeDetection = length(color.rgb - rightPixel.rgb) + length(color.rgb - bottomPixel.rgb);
     half edgeEnhance = clamp(edgeDetection * 3.0, 0.0, 0.15);
     quantized = mix(quantized, quantized * 1.1, edgeEnhance);
-    
-    // 10. Add subtle animated "digital" sparkle effect for fun
-    float2 sparkleCoord = floor(fragCoord / 8.0);
-    float sparkleNoise = fract(sin(dot(sparkleCoord, float2(12.9898, 78.233)) + iTime * 0.5) * 43758.5453);
-    if (sparkleNoise > 0.98 && luminance > 0.7) {
-        quantized += 0.1; // Subtle highlight sparkle on bright areas
-    }
-    
-    // 11. Final touch - ensure colors stay appealing
     quantized = clamp(quantized, 0.0, 1.0);
     
     return half4(quantized, color.a);

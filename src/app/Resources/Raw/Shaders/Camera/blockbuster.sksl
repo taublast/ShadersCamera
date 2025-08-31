@@ -30,7 +30,7 @@ half3 tealOrangeGrade(half3 color) {
     gradedColor *= luminance / max(newLuminance, 0.001);
     
     // Boost contrast slightly
-    gradedColor = (gradedColor - 0.5) * 1.15 + 0.5;
+    gradedColor = (gradedColor - 0.5) * 1.2 + 0.5;
     
     // Slight saturation boost
     half3 finalColor = mix(half3(luminance), gradedColor, 1.3);

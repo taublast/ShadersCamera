@@ -1,0 +1,176 @@
+﻿uniform float4 iMouse;            
+uniform float  iTime;             
+uniform float2 iResolution;      
+uniform float2 iImageResolution;  
+uniform shader iImage1;  
+uniform float2 iOffset;  
+uniform float2 iOrigin;  
+
+// Debug switches - set to control what to render
+const int DEBUG_MODE = 2; // 0=sketch only, 1=color only, 2=combined
+
+// Sketch mixing parameters
+const float SKETCH_THRESHOLD = 0.94; // Values above this = alpha 0 (0xF0F0F0 ≈ 0.94)
+const int BLEND_MODE = 3; // 0=linear mix, 1=multiply, 2=darken, 3=color burn, 4=overlay
+
+// NEW sketch parameters (from noise-free version)
+const float iLineWidth = 4.5;
+const float eraseNoise = 1.045;
+const float contrast = 9.0;
+
+// Retro color enhancement parameters (from original retro shader)
+const float COLOR_LEVELS = 32.0;
+const float WARMTH_BOOST = 1.08;
+const float RETRO_SATURATION = 1.25;
+const float CONTRAST_ENHANCE = 1.5;
+
+/// Color dodge blend mode (from sketch shader)
+half3 colorDodge(in half3 src, in half3 dst) {
+    return step(0.0, dst) * mix(min(half3(1.0), dst / (1.0 - src)), half3(1.0), step(1.0, src)); 
+}
+
+/// Converts color to grayscale (from sketch shader)
+float greyScale(in half3 col) {
+    return dot(col, half3(0.3, 0.59, 0.11));
+}
+
+/// Blend mode functions for mixing lines with colors
+half3 blendMultiply(half3 base, half3 blend) {
+    return base * blend;
+}
+
+half3 blendDarken(half3 base, half3 blend) {
+    return min(base, blend);
+}
+
+half3 blendColorBurn(half3 base, half3 blend) {
+    return half3(1.0) - (half3(1.0) - base) / blend;
+}
+
+half3 blendOverlay(half3 base, half3 blend) {
+    return mix(
+        2.0 * base * blend,
+        half3(1.0) - 2.0 * (half3(1.0) - base) * (half3(1.0) - blend),
+        step(0.5, base)
+    );
+}
+
+/// Apply line blending with threshold
+half3 applyLineBlending(half3 colors, float sketchIntensity) {
+    // Apply threshold - values above SKETCH_THRESHOLD become completely transparent
+    if (sketchIntensity >= SKETCH_THRESHOLD) {
+        return colors; // No line effect
+    }
+    
+    // Convert to alpha with threshold consideration
+    float lineAlpha = 1.0 - (sketchIntensity / SKETCH_THRESHOLD);
+    lineAlpha = clamp(lineAlpha, 0.0, 1.0);
+    
+    if (BLEND_MODE == 0) {
+        // Linear mix (original)
+        return mix(colors, half3(0.0, 0.0, 0.0), lineAlpha);
+    } else if (BLEND_MODE == 1) {
+        // Multiply blend
+        half3 lineColor = half3(sketchIntensity / SKETCH_THRESHOLD);
+        return blendMultiply(colors, lineColor);
+    } else if (BLEND_MODE == 2) {
+        // Darken blend
+        half3 lineColor = half3(sketchIntensity / SKETCH_THRESHOLD);
+        return blendDarken(colors, lineColor);
+    } else if (BLEND_MODE == 3) {
+        // Color burn blend
+        half3 lineColor = max(half3(sketchIntensity / SKETCH_THRESHOLD), half3(0.001)); // Avoid division by zero
+        return blendColorBurn(colors, lineColor);
+    } else if (BLEND_MODE == 4) {
+        // Overlay blend
+        half3 lineColor = half3(sketchIntensity / SKETCH_THRESHOLD);
+        return blendOverlay(colors, lineColor);
+    }
+    
+    return colors; // Fallback
+}
+
+/// Apply retro color enhancements  
+half3 enhanceColors(half3 color) {
+    // Enhance contrast gently
+    half3 contrastedColor = mix(color, (color - 0.5) * CONTRAST_ENHANCE + 0.5, 0.7);
+    
+    // Add warm, appealing tint
+    contrastedColor.r *= WARMTH_BOOST;
+    contrastedColor.g *= (WARMTH_BOOST * 0.98);
+    
+    // Smart color quantization
+    half3 quantized = floor(contrastedColor * COLOR_LEVELS + 0.5) / COLOR_LEVELS;
+    
+    // Boost saturation but keep it natural
+    half luminance = dot(quantized, half3(0.299, 0.587, 0.114));
+    quantized = mix(half3(luminance), quantized, RETRO_SATURATION);
+    
+    return clamp(quantized, 0.0, 1.0);
+}
+
+/// Process retro colors 
+half3 processRetroColors(float2 inputCoord, float2 fragCoord) {
+    half3 col = iImage1.eval(inputCoord).rgb;
+    half3 enhancedCol = enhanceColors(col);
+        
+    return enhancedCol;
+}
+
+/// Process sketch lines (NEW clean version from sketch shader)
+float processSketchLines(float2 inputCoord, float scaleFactor) {
+    half3 col = iImage1.eval(inputCoord).rgb;
+    
+    half3 blurred = half3(0.0);
+    float totalWeight = 0.0;
+    
+    for (int i = -2; i <= 2; i++) {
+        for (int j = -2; j <= 2; j++) {
+            float weight = exp(-float(i*i + j*j) * 0.2);
+            float2 sampleCoord = inputCoord + float2(float(i), float(j)) * 1.5 * scaleFactor * iLineWidth;
+            blurred += iImage1.eval(sampleCoord).rgb * weight;
+            totalWeight += weight;
+        }
+    }
+    blurred = blurred / totalWeight;
+    
+    float2 texelSize = (1.0 / iImageResolution.xy) * scaleFactor * iLineWidth;
+    float gradX = greyScale(iImage1.eval(inputCoord + float2(texelSize.x, 0.0)).rgb) - 
+                  greyScale(iImage1.eval(inputCoord - float2(texelSize.x, 0.0)).rgb);
+    float gradY = greyScale(iImage1.eval(inputCoord + float2(0.0, texelSize.y)).rgb) - 
+                  greyScale(iImage1.eval(inputCoord - float2(0.0, texelSize.y)).rgb);
+ 
+    half3 inv = half3(1.0) - blurred; 
+    half3 lighten = colorDodge(col, inv) * eraseNoise;
+    half3 res = half3(greyScale(lighten));
+    res = half3(pow(res.x, contrast)); 
+    
+    return res.x; // Return sketch intensity (0=black line, 1=white/no line)
+}
+
+half4 main(float2 fragCoord) {
+    float REFERENCE_SIZE = 1000.0;
+    
+    float2 renderingScale = iImageResolution.xy / iResolution.xy;
+    float2 inputCoord = (fragCoord - iOffset) * renderingScale;
+    
+    float imageSize = min(iImageResolution.x, iImageResolution.y);
+    float scaleFactor = imageSize / REFERENCE_SIZE;
+    
+    // Process both color and sketch
+    half3 retroColors = processRetroColors(inputCoord, fragCoord);
+    float sketchIntensity = processSketchLines(inputCoord, scaleFactor);
+    
+    // Debug mode switching
+    if (DEBUG_MODE == 0) {
+        // Sketch only
+        return half4(half3(sketchIntensity), 1.0);
+    } else if (DEBUG_MODE == 1) {
+        // Color only
+        return half4(retroColors, 1.0);
+    } else {
+        // Combined: apply line blending with threshold and blend modes
+        half3 finalColor = applyLineBlending(retroColors, sketchIntensity);
+        return half4(clamp(finalColor, 0.0, 1.0), 1.0);
+    }
+}

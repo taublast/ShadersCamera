@@ -9,7 +9,10 @@ uniform float2 iOrigin;
 uniform float4 iMargins;
 
 // pixel independent, width is in points!
-const float iLineWidth = 3.0;
+
+const float iLineWidth = 4.5;
+const float eraseNoise = 1.045;
+const float contrast = 9.0;
 
 // Color dodge blend mode
 half3 colorDodge(in half3 src, in half3 dst) {
@@ -86,26 +89,20 @@ half4 main(float2 fragCoord) {
     }
     blurred = blurred / totalWeight;
     
-    float edgeStrength = detectEdges(inputCoord, scaleFactor, iLineWidth);
-    
+   
     float2 texelSize = (1.0 / iImageResolution.xy) * scaleFactor * iLineWidth;
+
     float gradX = greyScale(iImage1.eval(inputCoord + float2(texelSize.x, 0.0)).rgb) - 
                   greyScale(iImage1.eval(inputCoord - float2(texelSize.x, 0.0)).rgb);
     float gradY = greyScale(iImage1.eval(inputCoord + float2(0.0, texelSize.y)).rgb) - 
                   greyScale(iImage1.eval(inputCoord - float2(0.0, texelSize.y)).rgb);
-    
-    float2 edgeDirection = normalize(float2(-gradY, gradX));
-    half3 directionalBlurred = directionalBlur(inputCoord, edgeDirection, scaleFactor, iLineWidth);
-    
-    blurred = mix(blurred, directionalBlurred, edgeStrength * 0.7);
-    
+ 
+      
     half3 inv = half3(1.0) - blurred; 
-    half3 lighten = colorDodge(col, inv);
+    half3 lighten = colorDodge(col, inv) * eraseNoise;
     half3 res = half3(greyScale(lighten));
     
-    res = half3(pow(res.x, 6.0)); 
-    
-    res *= 0.3 + 0.7 * pow(16.0 * q.x * q.y * (1.0 - q.x) * (1.0 - q.y), 0.2);
+    res = half3(pow(res.x, contrast)); 
     
     return half4(res, 1.0); 
 }

@@ -1,0 +1,284 @@
+﻿uniform float4 iMouse;           
+uniform float  iTime;            
+uniform float2 iResolution;      
+uniform float2 iImageResolution; 
+uniform shader iImage1;          
+uniform float2 iOffset;          
+uniform float2 iOrigin;          
+
+// Debug switches - set to control what to render
+const int DEBUG_MODE = 2; // 0=sketch only, 1=color only, 2=combined
+
+// Sketch mixing parameters
+const float SKETCH_THRESHOLD = 0.8; // Values above this = alpha 0 (0xF0F0F0 ≈ 0.94)
+const int BLEND_MODE =3; // 0=linear mix, 1=multiply, 2=darken, 3=color burn, 4=overlay
+
+// NEW sketch parameters (from noise-free version)
+const float iLineWidth = 4.5;
+const float eraseNoise = 1.045;
+const float contrast = 9.0;
+
+// Cartoon color parameters (from original colored shader)
+const float COLOR_LEVELS = 16.0;
+const float iColorAlpha = 0.2;
+const float iHueShift = 0.0;
+const float iSaturation = 1.5;
+const float iLightness = 1.0;
+const float iShadows = -0.1;
+const float iHighlights = 0.8;
+
+/// Color dodge blend mode (from sketch shader)
+half3 colorDodge(in half3 src, in half3 dst) {
+    return step(0.0, dst) * mix(min(half3(1.0), dst / (1.0 - src)), half3(1.0), step(1.0, src)); 
+}
+
+/// Converts color to grayscale (from sketch shader)
+float greyScale(in half3 col) {
+    return dot(col, half3(0.3, 0.59, 0.11));
+}
+
+/// Posterizes colors to create flat cartoon areas (from color shader)
+half3 posterizeColor(half3 color) {
+    return floor(color * COLOR_LEVELS + 0.5) / COLOR_LEVELS;
+}
+
+/// Convert RGB to HSL (from color shader)
+half3 rgbToHsl(half3 rgb) {
+    float maxVal = max(max(rgb.r, rgb.g), rgb.b);
+    float minVal = min(min(rgb.r, rgb.g), rgb.b);
+    float delta = maxVal - minVal;
+    
+    float l = (maxVal + minVal) * 0.5;
+    
+    if (delta == 0.0) {
+        return half3(0.0, 0.0, l);
+    }
+    
+    float s = l > 0.5 ? delta / (2.0 - maxVal - minVal) : delta / (maxVal + minVal);
+    
+    float h;
+    if (maxVal == rgb.r) {
+        h = (rgb.g - rgb.b) / delta + (rgb.g < rgb.b ? 6.0 : 0.0);
+    } else if (maxVal == rgb.g) {
+        h = (rgb.b - rgb.r) / delta + 2.0;
+    } else {
+        h = (rgb.r - rgb.g) / delta + 4.0;
+    }
+    h /= 6.0;
+    
+    return half3(h, s, l);
+}
+
+/// Convert HSL to RGB (from color shader)
+half3 hslToRgb(half3 hsl) {
+    float h = hsl.x;
+    float s = hsl.y;
+    float l = hsl.z;
+    
+    if (s == 0.0) {
+        return half3(l, l, l);
+    }
+    
+    float q = l < 0.5 ? l * (1.0 + s) : l + s - l * s;
+    float p = 2.0 * l - q;
+    
+    float tr = h + 1.0/3.0;
+    float tg = h;
+    float tb = h - 1.0/3.0;
+    
+    if (tr < 0.0) tr += 1.0;
+    if (tr > 1.0) tr -= 1.0;
+    if (tb < 0.0) tb += 1.0;
+    if (tb > 1.0) tb -= 1.0;
+    
+    float r, g, b;
+    
+    if (tr < 1.0/6.0) r = p + (q - p) * 6.0 * tr;
+    else if (tr < 1.0/2.0) r = q;
+    else if (tr < 2.0/3.0) r = p + (q - p) * (2.0/3.0 - tr) * 6.0;
+    else r = p;
+    
+    if (tg < 1.0/6.0) g = p + (q - p) * 6.0 * tg;
+    else if (tg < 1.0/2.0) g = q;
+    else if (tg < 2.0/3.0) g = p + (q - p) * (2.0/3.0 - tg) * 6.0;
+    else g = p;
+    
+    if (tb < 1.0/6.0) b = p + (q - p) * 6.0 * tb;
+    else if (tb < 1.0/2.0) b = q;
+    else if (tb < 2.0/3.0) b = p + (q - p) * (2.0/3.0 - tb) * 6.0;
+    else b = p;
+    
+    return half3(r, g, b);
+}
+
+/// Apply HSL adjustments to color (from color shader)
+half3 adjustHSL(half3 rgb, float hueShift, float satMult, float lightMult) {
+    half3 hsl = rgbToHsl(rgb);
+    hsl.x = fract(hsl.x + hueShift);
+    hsl.y = clamp(hsl.y * satMult, 0.0, 1.0);
+    hsl.z = clamp(hsl.z * lightMult, 0.0, 1.0);
+    return hslToRgb(hsl);
+}
+
+/// Apply shadows and highlights adjustments (from color shader)
+half3 adjustShadowsHighlights(half3 rgb, float shadowsAdj, float highlightsAdj) {
+    float luminance = dot(rgb, half3(0.299, 0.587, 0.114));
+    float shadowMask = 1.0 - smoothstep(0.0, 0.5, luminance);
+    float highlightMask = smoothstep(0.5, 1.0, luminance);
+    float shadowAdjustment = shadowsAdj * shadowMask;
+    float highlightAdjustment = highlightsAdj * highlightMask;
+    half3 adjustedRgb = rgb + half3(shadowAdjustment + highlightAdjustment);
+    return clamp(adjustedRgb, 0.0, 1.0);
+}
+
+/// Fast 3x3 cartoon color blur (from color shader)
+half3 fastCartoonBlur(float2 inputCoord, float scaleFactor) {
+    half3 result = half3(0.0);
+    float totalWeight = 0.0;
+    
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            float weight = exp(-float(i*i + j*j) * 0.5);
+            float2 sampleCoord = inputCoord + float2(float(i), float(j)) * scaleFactor * 2.0;
+            
+            half3 sampleCol = iImage1.eval(sampleCoord).rgb;
+            half3 samplePosterized = posterizeColor(sampleCol);
+            float sampleLuminance = dot(samplePosterized, half3(0.299, 0.587, 0.114));
+            half3 sampleCartoonColor = mix(half3(sampleLuminance), samplePosterized, 1.3) * 1.1;
+            
+            result += sampleCartoonColor * weight;
+            totalWeight += weight;
+        }
+    }
+    
+    return result / totalWeight;
+}
+
+/// Blend mode functions for mixing lines with colors
+half3 blendMultiply(half3 base, half3 blend) {
+    return base * blend;
+}
+
+half3 blendDarken(half3 base, half3 blend) {
+    return min(base, blend);
+}
+
+half3 blendColorBurn(half3 base, half3 blend) {
+    return half3(1.0) - (half3(1.0) - base) / blend;
+}
+
+half3 blendOverlay(half3 base, half3 blend) {
+    return mix(
+        2.0 * base * blend,
+        half3(1.0) - 2.0 * (half3(1.0) - base) * (half3(1.0) - blend),
+        step(0.5, base)
+    );
+}
+
+/// Apply line blending with threshold
+half3 applyLineBlending(half3 colors, float sketchIntensity) {
+    // Apply threshold - values above SKETCH_THRESHOLD become completely transparent
+    if (sketchIntensity >= SKETCH_THRESHOLD) {
+        return colors; // No line effect
+    }
+    
+    // Convert to alpha with threshold consideration
+    float lineAlpha = 1.0 - (sketchIntensity / SKETCH_THRESHOLD);
+    lineAlpha = clamp(lineAlpha, 0.0, 1.0);
+    
+    if (BLEND_MODE == 0) {
+        // Linear mix (original)
+        return mix(colors, half3(0.0, 0.0, 0.0), lineAlpha);
+    } else if (BLEND_MODE == 1) {
+        // Multiply blend
+        half3 lineColor = half3(sketchIntensity / SKETCH_THRESHOLD);
+        return blendMultiply(colors, lineColor);
+    } else if (BLEND_MODE == 2) {
+        // Darken blend
+        half3 lineColor = half3(sketchIntensity / SKETCH_THRESHOLD);
+        return blendDarken(colors, lineColor);
+    } else if (BLEND_MODE == 3) {
+        // Color burn blend
+        half3 lineColor = max(half3(sketchIntensity / SKETCH_THRESHOLD), half3(0.001)); // Avoid division by zero
+        return blendColorBurn(colors, lineColor);
+    } else if (BLEND_MODE == 4) {
+        // Overlay blend
+        half3 lineColor = half3(sketchIntensity / SKETCH_THRESHOLD);
+        return blendOverlay(colors, lineColor);
+    }
+    
+    return colors; // Fallback
+}
+
+/// Process cartoon colors (from color shader)
+half3 processCartoonColors(float2 inputCoord, float scaleFactor) {
+    half4 originalColor = iImage1.eval(inputCoord);
+    half3 col = originalColor.rgb;
+    
+    half3 adjustedOriginalColor = adjustHSL(col, iHueShift, iSaturation, iLightness);
+    adjustedOriginalColor = adjustShadowsHighlights(adjustedOriginalColor, iShadows, iHighlights);
+    
+    half3 blurredCartoonColor = fastCartoonBlur(inputCoord, scaleFactor);
+    half3 adjustedCartoonColor = adjustHSL(blurredCartoonColor, iHueShift, iSaturation, iLightness);
+    adjustedCartoonColor = adjustShadowsHighlights(adjustedCartoonColor, iShadows, iHighlights);
+    
+    return mix(adjustedOriginalColor, adjustedCartoonColor, iColorAlpha);
+}
+
+/// Process sketch lines 
+float processSketchLines(float2 inputCoord, float scaleFactor) {
+    half3 col = iImage1.eval(inputCoord).rgb;
+    
+    half3 blurred = half3(0.0);
+    float totalWeight = 0.0;
+    
+    for (int i = -2; i <= 2; i++) {
+        for (int j = -2; j <= 2; j++) {
+            float weight = exp(-float(i*i + j*j) * 0.2);
+            float2 sampleCoord = inputCoord + float2(float(i), float(j)) * 1.5 * scaleFactor * iLineWidth;
+            blurred += iImage1.eval(sampleCoord).rgb * weight;
+            totalWeight += weight;
+        }
+    }
+    blurred = blurred / totalWeight;
+    
+    float2 texelSize = (1.0 / iImageResolution.xy) * scaleFactor * iLineWidth;
+    float gradX = greyScale(iImage1.eval(inputCoord + float2(texelSize.x, 0.0)).rgb) - 
+                  greyScale(iImage1.eval(inputCoord - float2(texelSize.x, 0.0)).rgb);
+    float gradY = greyScale(iImage1.eval(inputCoord + float2(0.0, texelSize.y)).rgb) - 
+                  greyScale(iImage1.eval(inputCoord - float2(0.0, texelSize.y)).rgb);
+ 
+    half3 inv = half3(1.0) - blurred; 
+    half3 lighten = colorDodge(col, inv) * eraseNoise;
+    half3 res = half3(greyScale(lighten));
+    res = half3(pow(res.x, contrast)); 
+    
+    return res.x; // Return sketch intensity (0=black line, 1=white/no line)
+}
+
+half4 main(float2 fragCoord) {
+    float REFERENCE_SIZE = 1000.0;
+    
+    float2 renderingScale = iImageResolution.xy / iResolution.xy;
+    float2 inputCoord = (fragCoord - iOffset) * renderingScale;
+    
+    float imageSize = min(iImageResolution.x, iImageResolution.y);
+    float scaleFactor = imageSize / REFERENCE_SIZE;
+    
+    // Process both color and sketch
+    half3 cartoonColors = processCartoonColors(inputCoord, scaleFactor);
+    float sketchIntensity = processSketchLines(inputCoord, scaleFactor);
+    
+    // Debug mode switching
+    if (DEBUG_MODE == 0) {
+        // Sketch only
+        return half4(half3(sketchIntensity), 1.0);
+    } else if (DEBUG_MODE == 1) {
+        // Color only
+        return half4(cartoonColors, 1.0);
+    } else {
+        // Combined: apply line blending with threshold and blend modes
+        half3 finalColor = applyLineBlending(cartoonColors, sketchIntensity);
+        return half4(clamp(finalColor, 0.0, 1.0), 1.0);
+    }
+}

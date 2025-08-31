@@ -24,6 +24,7 @@ namespace ShadersCamera.Views
         SkiaSvg SvgFlashLight;
         SkiaDrawer ShaderDrawer;
         SkiaImage ImagePreview;
+        SkiaScroll MainScroll;
 
         //will be called by page constructor and hotreload
         public override void Build()
@@ -140,6 +141,7 @@ namespace ShadersCamera.Views
                                                     },
                                                     Content = CreateShaderItemsLayout()
                                                 }
+                                                .Assign(out MainScroll)
                                                 .ObserveProperty(() => ShaderDrawer, nameof(ShaderDrawer.IsOpen),
                                                     me => { me.RespondsToGestures = ShaderDrawer.IsOpen; }),
 
