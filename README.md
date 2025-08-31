@@ -3,9 +3,11 @@
 Open-source app for iOS, Mac Catalyst, Android and Windows applying hardware-accelerated shaders in real-time to camera preview and saved photos. 
 Comes with built-in desktop [SKSL](https://skia.org/docs/user/sksl) editor.
 
-SKSL shaders demonstrate: film grain, cubic splines, various image adjustments, lens distortion effects, edge detection and more.
+SKSL shaders demonstrate: film grain, cubic splines, various image adjustments, lens distortion effects, edge detection and much more.
 
 Made with [DrawnUI for .NET MAUI](https://drawnui.net).
+
+![banner](https://github.com/user-attachments/assets/8d04fb95-ee36-476e-b8c7-94db84ce3db2)
 
 * Applying shaders to camera preview in real-time
 * Switch mirror preview
