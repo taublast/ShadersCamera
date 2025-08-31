@@ -58,3 +58,8 @@ For Windows users best with Photo Link app to instantly view your taken photos!
 ### Contributing
 
 Contributing to repository is very welcome. Many other nifty shaders could be added, the current UI is also not something fixed.
+
+### Credits
+
+* **App Screenshots** - created with [Hotpot](https://hotpot.ai/)
+
