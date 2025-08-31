@@ -1,4 +1,4 @@
-# Filters Camera
+﻿# Filters Camera
 
 Open-source app for iOS, Mac Catalyst, Android and Windows applying hardware-accelerated shaders in real-time to camera preview and saved photos. 
 Comes with built-in desktop [SKSL](https://skia.org/docs/user/sksl) editor.
@@ -6,6 +6,8 @@ Comes with built-in desktop [SKSL](https://skia.org/docs/user/sksl) editor.
 SKSL shaders demonstrate: film grain, cubic splines, various image adjustments, lens distortion effects, edge detection and much more.
 
 Made with [DrawnUI for .NET MAUI](https://drawnui.net).
+
+Please star ⭐ if you like it!
 
 ![banner](https://github.com/user-attachments/assets/8d04fb95-ee36-476e-b8c7-94db84ce3db2)
 
@@ -16,6 +18,13 @@ Made with [DrawnUI for .NET MAUI](https://drawnui.net).
 * Saving EXIF and injecting custom metadata
 * Select camera and photo quality/format
 * Edit shaders code in standalone window when running on desktop
+
+### Install
+
+* AppStore - in review..
+
+* Google Play - in review..
+
 
 ### How To Use
 
