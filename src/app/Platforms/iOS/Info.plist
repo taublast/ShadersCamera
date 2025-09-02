@@ -3,7 +3,7 @@
 <plist version="1.0">
   <dict>
     <key>CFBundleVersion</key>
-    <string>100107</string>
+    <string>100109</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>UIDeviceFamily</key>
@@ -19,6 +19,8 @@
     <string>This app saves photos you take to library.</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>This app saves photos you take to library.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>This app allows you to save geolocation data to photo metadata.</string>
     <key>UIRequiredDeviceCapabilities</key>
     <array>
       <string>arm64</string>
