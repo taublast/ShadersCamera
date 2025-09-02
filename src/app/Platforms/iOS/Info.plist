@@ -3,7 +3,7 @@
 <plist version="1.0">
   <dict>
     <key>CFBundleVersion</key>
-    <string>100106</string>
+    <string>100107</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>UIDeviceFamily</key>
@@ -14,11 +14,11 @@
     <key>XSAppIconAssets</key>
     <string>Assets.xcassets/icon.appiconset</string>
     <key>NSCameraUsageDescription</key>
-    <string>Allow access to the camera</string>
+    <string>This app uses the camera to capture and process photos.</string>
     <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>Allow access to the library to save photos</string>
+    <string>This app saves photos you take to library.</string>
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>Allow access to the library to save photos</string>
+    <string>This app saves photos you take to library.</string>
     <key>UIRequiredDeviceCapabilities</key>
     <array>
       <string>arm64</string>
