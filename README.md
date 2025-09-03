@@ -19,12 +19,15 @@ Please star ⭐ if you like it!
 * Select camera and photo quality/format
 * Edit shaders code in standalone window when running on desktop
 
+![Coming Soon](https://img.shields.io/badge/Coming-Soon-orange?style=flat-square) Read the blog article 👈
+
 ### Install
 
 * AppStore - in review..
 
 * Google Play - in review..
 
+* Run on Windows and MacCatalyst compiling from source code
 
 ### How To Use
 
@@ -32,7 +35,7 @@ Please star ⭐ if you like it!
 - Choose your real-time filter from previews in drawer menu!
 - Open settings for more!
 
-For Windows users best with Photo Link app to instantly view your taken photos!
+For Windows/Android users best with Photo Link app to instantly view your taken mobile photos!
 
 ### Interaction:
 
