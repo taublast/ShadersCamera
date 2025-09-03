@@ -25,7 +25,7 @@ Please star ⭐ if you like it!
 
 * AppStore - in review..
 
-* Google Play - in review..
+* [Google Play](https://play.google.com/store/apps/details?id=com.appomobi.drawnui.shaderscam)
 
 * Run on Windows and MacCatalyst compiling from source code
 
