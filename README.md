@@ -42,6 +42,9 @@ For Windows users best with Photo Link app to instantly view your taken photos!
 - Zoom with fingers
 - On desktop long pressing shader preview opens SKSL editor
 
+<img src="./art/drawn.jpg" width="350" alt="Sketch Shader"
+style="margin-top: 16px;" />
+
 ### On The Roadmap
 
 * Rotate saved photo on iOS if taken while rotated even if rotation turned off for app
