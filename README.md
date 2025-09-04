@@ -5,8 +5,6 @@ Comes with built-in desktop [SKSL](https://skia.org/docs/user/sksl) editor.
 
 SKSL shaders demonstrate: film grain, cubic splines, various image adjustments, lens distortion effects, edge detection and much more.
 
-Made with [DrawnUI for .NET MAUI](https://drawnui.net).
-
 Please star ⭐ if you like it!
 
 Support: [ask your question here](https://github.com/taublast/ShadersCamera/discussions)
@@ -21,7 +19,7 @@ Support: [ask your question here](https://github.com/taublast/ShadersCamera/disc
 * Select camera and photo quality/format
 * Edit shaders code in standalone window when running on desktop
 
-![Coming Soon](https://img.shields.io/badge/Coming-Soon-orange?style=flat-square) Read the blog article 👈
+Read [the blog article](https://taublast.github.io/posts/FiltersCamera/) 👈
 
 ### Install
 
@@ -81,4 +79,11 @@ Contributing to repository is very welcome. Many other nifty shaders could be ad
 ### Credits
 
 * **App Screenshots** - created with [Hotpot](https://hotpot.ai/)
+
+---
+
+Made with [DrawnUI for .NET MAUI](https://drawnui.net)
+
+---
+
 
