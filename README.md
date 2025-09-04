@@ -9,6 +9,8 @@ Made with [DrawnUI for .NET MAUI](https://drawnui.net).
 
 Please star ⭐ if you like it!
 
+Support: [ask your question here](/discussions)
+
 ![banner](https://github.com/user-attachments/assets/8d04fb95-ee36-476e-b8c7-94db84ce3db2)
 
 * Applying shaders to camera preview in real-time
