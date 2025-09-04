@@ -25,7 +25,7 @@ Support: [ask your question here](https://github.com/taublast/ShadersCamera/disc
 
 ### Install
 
-* AppStore - in review..
+* [AppStore](https://apps.apple.com/us/app/filters-camera/id6749823005)
 
 * [Google Play](https://play.google.com/store/apps/details?id=com.appomobi.drawnui.shaderscam)
 
