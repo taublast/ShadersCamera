@@ -80,6 +80,12 @@ Contributing to repository is very welcome. Many other nifty shaders could be ad
 
 * **App Screenshots** - created with [Hotpot](https://hotpot.ai/)
 
+### Related
+
+* Playing with shaders: [ShadersCarousel](https://github.com/taublast/ShadersCarousel)
+
+* Another `SkiaCamera` usage example: [DrawnUI Demo](https://github.com/taublast/DrawnUi.Maui.Demo)
+
 ---
 
 Made with [DrawnUI for .NET MAUI](https://drawnui.net)
