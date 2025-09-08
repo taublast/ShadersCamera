@@ -5,9 +5,9 @@ Comes with built-in desktop [SKSL](https://skia.org/docs/user/sksl) editor.
 
 SKSL shaders demonstrate: film grain, cubic splines, various image adjustments, lens distortion effects, edge detection and much more.
 
-Made with [DrawnUI for .NET MAUI](https://drawnui.net).
-
 Please star ⭐ if you like it!
+
+Support: [ask your question here](https://github.com/taublast/ShadersCamera/discussions)
 
 ![banner](https://github.com/user-attachments/assets/8d04fb95-ee36-476e-b8c7-94db84ce3db2)
 
@@ -19,13 +19,13 @@ Please star ⭐ if you like it!
 * Select camera and photo quality/format
 * Edit shaders code in standalone window when running on desktop
 
-![Coming Soon](https://img.shields.io/badge/Coming-Soon-orange?style=flat-square) Read the blog article 👈
+Read [the blog article](https://taublast.github.io/posts/FiltersCamera/) 👈
 
 ### Install
 
-* AppStore - in review..
+* [AppStore](https://apps.apple.com/us/app/filters-camera/id6749823005?platform=iphone)
 
-* Google Play - in review..
+* [Google Play](https://play.google.com/store/apps/details?id=com.appomobi.drawnui.shaderscam)
 
 * Run on Windows and MacCatalyst compiling from source code
 
@@ -79,4 +79,17 @@ Contributing to repository is very welcome. Many other nifty shaders could be ad
 ### Credits
 
 * **App Screenshots** - created with [Hotpot](https://hotpot.ai/)
+
+### Related
+
+* Playing with shaders: [ShadersCarousel](https://github.com/taublast/ShadersCarousel)
+
+* Another `SkiaCamera` usage example: [DrawnUI Demo](https://github.com/taublast/DrawnUi.Maui.Demo)
+
+---
+
+Made with [DrawnUI for .NET MAUI](https://drawnui.net)
+
+---
+
 
