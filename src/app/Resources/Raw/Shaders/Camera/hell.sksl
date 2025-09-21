@@ -6,21 +6,17 @@ uniform shader iImage1;
 uniform float2 iOffset;  
 uniform float2 iOrigin; 
 
-// Neon effect parameters with scaling support
-const float COLOR_LEVELS = 16.0;         // Increased for smoother gradients
-const float BASE_GLOW_RADIUS = 3.0;      // Glow radius for 1000x1000 baseline image
-const float BASELINE_SIZE = 1000.0;      // Baseline image size
-const float MAX_GLOW_RADIUS = 4.0;      // Maximum possible glow radius for loop bounds
+const float COLOR_LEVELS = 16.0;
+const float BASE_GLOW_RADIUS = 3.0;
+const float BASELINE_SIZE = 1000.0;
 
 /// Maps luminance to vibrant neon colors with smooth transitions
 half3 neonColorMap(float luminance) {
-    // Use smooth interpolation instead of hard thresholds for solid colors
-    half3 color1 = half3(1.0, 0.2, 0.2);  // blacks
-    half3 color2 = half3(0.2, 0.2, 0.2);   //skin
-    half3 color3 = half3(0.1, 0.1, 0.1);  // back
-    half3 color4 = half3(1.0, 0.0, 0.1);  // Hot pink
+    half3 color1 = half3(1.0, 0.2, 0.2);
+    half3 color2 = half3(0.2, 0.2, 0.2);
+    half3 color3 = half3(0.1, 0.1, 0.1);
+    half3 color4 = half3(1.0, 0.0, 0.1);
     
-    // Smooth color blending instead of hard bands
     if (luminance <= 0.33) {
         float t = luminance / 0.33;
         return mix(color1, color2, smoothstep(0.0, 1.0, t));
@@ -35,63 +31,55 @@ half3 neonColorMap(float luminance) {
 
 /// Creates smooth posterized color effect with anti-aliasing
 half3 posterize(half3 color) {
-    // Smoother posterization with anti-aliasing
     half3 quantized = floor(color * COLOR_LEVELS + 0.5) / COLOR_LEVELS;
-    // Blend between original and quantized for smoother transitions
     return mix(quantized, color, 0.1);
 }
 
-/// Creates neon glow effect around edges with size-independent radius
-float neonGlow(float2 coord, float glowRadius) {
+/// Optimized neon glow using cross-pattern sampling (5 samples instead of 81)
+float neonGlowFast(float2 coord, float glowRadius) {
     float2 renderingScale = iImageResolution.xy / iResolution.xy;
     float2 inputCoord = (coord - iOffset) * renderingScale;
     float2 texelSize = 1.0 / iImageResolution.xy;
     
     float glow = 0.0;
-    // Use constant loop bounds but conditionally process based on actual glowRadius
-    for (float x = -MAX_GLOW_RADIUS; x <= MAX_GLOW_RADIUS; x++) {
-        for (float y = -MAX_GLOW_RADIUS; y <= MAX_GLOW_RADIUS; y++) {
-            float distance = length(float2(x, y));
-            // Skip samples outside the actual glow radius
-            if (distance > glowRadius) continue;
-            
-            float2 offset = float2(x, y) * texelSize;
-            half4 sample = iImage1.eval(inputCoord + offset);
-            float sampleLum = dot(sample.rgb, half3(0.299, 0.587, 0.114));
-            
-            float weight = exp(-distance * distance * 0.1);
-            
-            glow += sampleLum * weight;
-        }
-    }
     
-    return glow * 0.02;
+    half4 center = iImage1.eval(inputCoord);
+    float centerLum = dot(center.rgb, half3(0.299, 0.587, 0.114));
+    glow += centerLum * 2.0;
+    
+    half4 sample1 = iImage1.eval(inputCoord + float2(glowRadius, 0.0) * texelSize);
+    glow += dot(sample1.rgb, half3(0.299, 0.587, 0.114));
+    
+    half4 sample2 = iImage1.eval(inputCoord + float2(-glowRadius, 0.0) * texelSize);
+    glow += dot(sample2.rgb, half3(0.299, 0.587, 0.114));
+    
+    half4 sample3 = iImage1.eval(inputCoord + float2(0.0, glowRadius) * texelSize);
+    glow += dot(sample3.rgb, half3(0.299, 0.587, 0.114));
+    
+    half4 sample4 = iImage1.eval(inputCoord + float2(0.0, -glowRadius) * texelSize);
+    glow += dot(sample4.rgb, half3(0.299, 0.587, 0.114));
+    
+    return glow * 0.05;
 }
 
 half4 main(float2 fragCoord) {
-    // Calculate dynamic glow radius based on image dimensions
     float imageScale = max(iImageResolution.x, iImageResolution.y) / BASELINE_SIZE;
     float GLOW_RADIUS = BASE_GLOW_RADIUS * imageScale;
     
     float2 renderingScale = iImageResolution.xy / iResolution.xy;
     float2 inputCoord = (fragCoord - iOffset) * renderingScale;
     
-    // Sample with slight blur for smoother results
     half4 originalColor = iImage1.eval(inputCoord);
-    float2 texelSize = 1.0 / iImageResolution.xy;
-    half4 blurSample1 = iImage1.eval(inputCoord + texelSize * float2(0.5, 0.5));
-    half4 blurSample2 = iImage1.eval(inputCoord - texelSize * float2(0.5, 0.5));
-    originalColor = mix(originalColor, (blurSample1 + blurSample2) * 0.5, 0.15);
     
     half3 posterizedColor = posterize(originalColor.rgb);
     float luminance = dot(posterizedColor, half3(0.299, 0.587, 0.114));
     
     half3 neonColor = neonColorMap(luminance);
     
-    float glowEffect = neonGlow(fragCoord, GLOW_RADIUS);
+    float glowEffect = neonGlowFast(fragCoord, GLOW_RADIUS);
     neonColor += glowEffect * half3(1.0, 0.5, 1.0);
     
-    float contrast = 1.2; // Reduced contrast for smoother look
+    float contrast = 1.2;
     neonColor = (neonColor - 0.5) * contrast + 0.5;
     
     neonColor = clamp(neonColor, 0.0, 1.0);
