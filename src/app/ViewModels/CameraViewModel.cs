@@ -54,7 +54,7 @@ namespace ShadersCamera.ViewModels
 
                 //new ShaderItem { Title = "Palette", Filename = "Shaders/Camera/old-palette.sksl" },
                 new ShaderItem { Title = "TV", Filename = "Shaders/Camera/retrotv.sksl" },
-                new ShaderItem { Title = "Liquid Glass", Filename = "Shaders/Camera/liquidglass.sksl" },
+                new ShaderItem { Title = "Gel", Filename = "Shaders/Camera/liquidglass.sksl" },
                 new ShaderItem { Title = "Pixels", Filename = "Shaders/Camera/pixels.sksl" },
                 new ShaderItem { Title = "Sketch", Filename = "Shaders/Camera/sketch.sksl" },
                 new ShaderItem { Title = "Paint", Filename = "Shaders/Camera/sketchcolors.sksl" },
