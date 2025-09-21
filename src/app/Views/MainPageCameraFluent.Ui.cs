@@ -75,10 +75,10 @@ namespace ShadersCamera.Views
 
 #if IOS
             this.Content =
- new Grid() //using grid wrapper to take apply safe insets on ios, other platforms use different logic
-            {
-                Children = { Canvas }
-            };
+                new Grid() //using grid wrapper to take apply safe insets on ios, other platforms use different logic
+                {
+                    Children = { Canvas }
+                };
 #else
             this.Content = Canvas;
 #endif
@@ -151,8 +151,10 @@ namespace ShadersCamera.Views
                                 }
                             }
                         }
-                        .Assign(out ShaderDrawer)
-                    //CreateDebugFps()
+                        .Assign(out ShaderDrawer),
+#if DEBUG
+                    CreateDebugFps()
+#endif
                 }
             };
         }
@@ -178,7 +180,7 @@ namespace ShadersCamera.Views
             return new CameraWithEffects()
                 {
                     BackgroundColor = Colors.Black,
-                    CapturePhotoQuality = CaptureQuality.Medium,
+                    PhotoQuality = CaptureQuality.Medium,
                     Facing = CameraPosition.Default,
                     HorizontalOptions = LayoutOptions.Fill,
                     VerticalOptions = LayoutOptions.Fill,
@@ -348,7 +350,7 @@ namespace ShadersCamera.Views
                                     await DisplayAlert("Error", $"No permissions", "OK");
 
 #if ANDROID || IOS
-                            NativeTasks.OpenSystemSettings();
+                                    NativeTasks.OpenSystemSettings();
 #endif
                                 });
                             }
@@ -567,7 +569,7 @@ namespace ShadersCamera.Views
                 }
                 .Initialize(hotspot => { hotspot.Zoomed += OnZoomed; });
         }
- 
+
         SkiaLayoutWithSelector CreateShaderItemsLayout()
         {
             return new SkiaLayoutWithSelector()

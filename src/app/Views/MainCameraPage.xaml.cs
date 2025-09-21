@@ -84,12 +84,12 @@ public partial class MainCameraPage : IPageWIthCamera, IDisposable
 
             if (UserSettings.Current.Formats.TryGetValue(CameraControl.CameraDevice.Id, out var format))
             {
-                CameraControl.CaptureFormatIndex = format;
-                CameraControl.CapturePhotoQuality = CaptureQuality.Manual;
+                CameraControl.PhotoFormatIndex = format;
+                CameraControl.PhotoQuality = CaptureQuality.Manual;
             }
             else
             {
-                CameraControl.CapturePhotoQuality = CaptureQuality.Medium;
+                CameraControl.PhotoQuality = CaptureQuality.Medium;
             }
         }
     }
@@ -384,8 +384,8 @@ public partial class MainCameraPage : IPageWIthCamera, IDisposable
                         if (selectedIndex >= 0)
                         {
                             // Set manual capture mode with selected format
-                            CameraControl.CaptureFormatIndex = selectedIndex;
-                            CameraControl.CapturePhotoQuality = CaptureQuality.Manual;
+                            CameraControl.PhotoFormatIndex = selectedIndex;
+                            CameraControl.PhotoQuality = CaptureQuality.Manual;
                             OnPropertyChanged(nameof(SelectedFormat));
                             changed?.Invoke(result);
 
