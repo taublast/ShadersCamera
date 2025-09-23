@@ -39,7 +39,6 @@ namespace ShadersCamera.ViewModels
                 new ShaderItem { Title = "Soft", Filename = "Shaders/Camera/orange.sksl" },
                 new ShaderItem { Title = "Wes", Filename = "Shaders/Camera/wes.sksl" },
 
-
                 new ShaderItem { Title = "Action", Filename = "Shaders/Camera/action.sksl" },
                 new ShaderItem { Title = "Movie", Filename = "Shaders/Camera/film.sksl" },
 
@@ -54,12 +53,13 @@ namespace ShadersCamera.ViewModels
 
                 //new ShaderItem { Title = "Palette", Filename = "Shaders/Camera/old-palette.sksl" },
                 new ShaderItem { Title = "TV", Filename = "Shaders/Camera/retrotv.sksl" },
-                new ShaderItem { Title = "Gel", Filename = "Shaders/Camera/liquidglass.sksl" },
                 new ShaderItem { Title = "Pixels", Filename = "Shaders/Camera/pixels.sksl" },
+                new ShaderItem { Title = "Gel", Filename = "Shaders/Camera/liquidglass.sksl" },
+
                 new ShaderItem { Title = "Sketch", Filename = "Shaders/Camera/sketch.sksl" },
                 new ShaderItem { Title = "Paint", Filename = "Shaders/Camera/sketchcolors.sksl" },
-                //new ShaderItem { Title = "Draw", Filename = "Shaders/Camera/sketchcomics3.sksl" },
                 new ShaderItem { Title = "Poster", Filename = "Shaders/Camera/sketchcomics4.sksl" },
+                
                 new ShaderItem { Title = "Mars", Filename = "Shaders/Camera/hell.sksl" },
                 new ShaderItem { Title = "Invert", Filename = "Shaders/Camera/invert.sksl" },
                 new ShaderItem { Title = "Negative", Filename = "Shaders/Camera/negative.sksl" },

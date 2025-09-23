@@ -12,7 +12,7 @@ namespace ShadersCamera.Helpers
         public UserSettings()
         {
             Formats = new();
-            Fill = true;
+            Fill = false;
             Lang = "en";
         }
 

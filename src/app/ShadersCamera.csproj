@@ -69,24 +69,8 @@
   <ItemGroup>
 
     <None Remove="Platforms\Android\Resources\values\styles.xml" />
-
     <None Remove="Resources\Images\" />
-
-    <None Remove="Resources\Raw\dotnet_bot.png" />
-
     <None Remove="Resources\Raw\Images\8.jpg" />
-
-    <None Remove="Resources\Raw\Lottie\cross.json" />
-
-    <None Remove="Resources\Raw\Lottie\Loader.json" />
-
-    <None Remove="Resources\Raw\Lottie\robot.json" />
-
-    <None Remove="Resources\Raw\Shaders\invert.sksl" />
-
-    <None Remove="Resources\Raw\Shaders\transdoorway.sksl" />
-
-    <None Remove="Resources\Raw\Shaders\transfade.sksl" />
 
     <!-- App Icon, ios and android will override this with our custom icons -->
     <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" ForegroundScale="0.8" Color="#212529" />
@@ -110,8 +94,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DrawnUi.Maui.Camera" Version="1.6.2.30" />
-    <PackageReference Include="AppoMobi.Maui.FastPopups" Version="1.0.0.6" />
+    <PackageReference Include="DrawnUi.Maui.Camera" Version="1.6.3.10" />
+    <PackageReference Include="AppoMobi.Maui.FastPopups" Version="1.0.0.7" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
     <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.70" />
   </ItemGroup>
@@ -177,8 +161,6 @@
     </Compile>
  
   </ItemGroup>
-
- 
 
 
 </Project>
