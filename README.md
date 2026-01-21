@@ -21,6 +21,11 @@ Please star ⭐ if you like it!
 
 Read [the blog article](https://taublast.github.io/posts/FiltersCamera/) 👈
 
+### Latest Changes
+
+* Fixed camera album creation/permission on iOS 26+
+* Use latest camera nuget with much better performance and bug fixes
+
 ### Install
 
 * [AppStore](https://apps.apple.com/us/app/filters-camera/id6749823005?platform=iphone)

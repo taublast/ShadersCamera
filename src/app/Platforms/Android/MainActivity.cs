@@ -5,12 +5,13 @@ namespace ShadersCamera
 {
     [Activity(Theme = "@style/MainTheme", MainLauncher = true,
         LaunchMode = LaunchMode.SingleTask,
-        ConfigurationChanges = ConfigChanges.ScreenSize |
-                               ConfigChanges.Orientation
-                               | ConfigChanges.UiMode | ConfigChanges.ScreenLayout |
-                               ConfigChanges.SmallestScreenSize | ConfigChanges.Density,
+        ConfigurationChanges = ConfigChanges.ScreenSize
+                               | ConfigChanges.Orientation
+                               | ConfigChanges.UiMode
+                               | ConfigChanges.ScreenLayout
+                               | ConfigChanges.SmallestScreenSize
+                               | ConfigChanges.Density,
         ScreenOrientation = ScreenOrientation.SensorPortrait)]
-
     public class MainActivity : MauiAppCompatActivity
     {
 

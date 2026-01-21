@@ -1,9 +1,10 @@
 ﻿using AppoMobi.Maui.Gestures;
 using DrawnUi.Camera;
- using ShadersCamera.Models;
+using ShadersCamera.Helpers;
+using ShadersCamera.Models;
+using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using ShadersCamera.Helpers;
 
 namespace ShadersCamera.ViewModels
 {
@@ -27,7 +28,6 @@ namespace ShadersCamera.ViewModels
                 new ShaderItem { Title = "Ilford", Filename = "Shaders/Camera/ilford.sksl" },
                 new ShaderItem { Title = "Newspaper", Filename = "Shaders/Camera/bwprint.sksl" },
                 new ShaderItem { Title = "Sin City", Filename = "Shaders/Camera/selective.sksl" },
-
 
                 new ShaderItem { Title = "Raw", Filename = "Shaders/Camera/blit.sksl" },
                 new ShaderItem { Title = "Zoom", Filename = "Shaders/Camera/photozoom.sksl" },
@@ -54,12 +54,16 @@ namespace ShadersCamera.ViewModels
                 //new ShaderItem { Title = "Palette", Filename = "Shaders/Camera/old-palette.sksl" },
                 new ShaderItem { Title = "TV", Filename = "Shaders/Camera/retrotv.sksl" },
                 new ShaderItem { Title = "Pixels", Filename = "Shaders/Camera/pixels.sksl" },
-                new ShaderItem { Title = "Gel", Filename = "Shaders/Camera/liquidglass.sksl" },
+
+                //new ShaderItem { Title = "Gel", Filename = "Shaders/Camera/liquidglass.sksl" },
 
                 new ShaderItem { Title = "Sketch", Filename = "Shaders/Camera/sketch.sksl" },
                 new ShaderItem { Title = "Paint", Filename = "Shaders/Camera/sketchcolors.sksl" },
+
+#if !ANDROID
                 new ShaderItem { Title = "Poster", Filename = "Shaders/Camera/sketchcomics4.sksl" },
-                
+#endif
+
                 new ShaderItem { Title = "Mars", Filename = "Shaders/Camera/hell.sksl" },
                 new ShaderItem { Title = "Invert", Filename = "Shaders/Camera/invert.sksl" },
                 new ShaderItem { Title = "Negative", Filename = "Shaders/Camera/negative.sksl" },
@@ -75,10 +79,40 @@ namespace ShadersCamera.ViewModels
                     {
                         index = shaderNb;
                     }
+
                     shaderNb++;
                 }
             }
-            SelectedShader = ShaderItems[index];
+
+            SelectedShaderIndex = index;
+            
+            InitialIndex = index; //initial scroll position
+        }
+
+        public int InitialIndex 
+        {
+            get => _initialIndex;
+            set
+            {
+                if (value == _initialIndex) return;
+                _initialIndex = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int SelectedShaderIndex  
+        {
+            get => _selectedShaderIndex;
+            set
+            {
+                if (value == _selectedShaderIndex) return;
+                _selectedShaderIndex = value;
+                OnPropertyChanged();
+                if (value >= 0)
+                {
+                    SelectedShader = ShaderItems[value];
+                }
+            }
         }
 
         public void ApplyQueryAttributes(IDictionary<string, object> query)
@@ -129,6 +163,7 @@ namespace ShadersCamera.ViewModels
                     {
                         UserSettings.Current.Filter = value.Title;
                     }
+
                     UserSettings.Save();
                 }
             }
@@ -147,6 +182,7 @@ namespace ShadersCamera.ViewModels
                     if (context is ShaderItem shader)
                     {
                         SelectedShader = shader;
+                        SelectedShaderIndex = ShaderItems.IndexOf(shader);
                     }
                 });
             }
@@ -157,7 +193,7 @@ namespace ShadersCamera.ViewModels
         {
             get
             {
-                return new Command( (object context) =>
+                return new Command((object context) =>
                 {
                     if (TouchEffect.CheckLockAndSet())
                         return;
@@ -176,10 +212,7 @@ namespace ShadersCamera.ViewModels
             if (TouchEffect.CheckLockAndSet() || string.IsNullOrEmpty(_lastSavedPath))
                 return;
 
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                SkiaCamera.OpenFileInGallery(_lastSavedPath);
-            });
+            MainThread.BeginInvokeOnMainThread(() => { SkiaCamera.OpenFileInGallery(_lastSavedPath); });
         });
 
         #endregion
@@ -294,12 +327,13 @@ namespace ShadersCamera.ViewModels
         }
 
         bool _loadOnce;
+        private int _selectedShaderIndex = -1;
+        private int _initialIndex;
 
         protected SkiaCamera Camera { get; set; }
 
         private async void OnCaptureSuccess(object sender, CapturedImage captured)
         {
-
             captured.SolveExifOrientation();
 
             var imageWithOverlay = await Camera.RenderCapturedPhotoAsync(captured, null, image =>
@@ -313,7 +347,7 @@ namespace ShadersCamera.ViewModels
                     };
                     image.VisualEffects.Add(shaderEffect);
                 }
-            }, true); 
+            }, true);
 
             //going to use the newly created bitmap with effects 
             //to save to gallery, so need to dispose the original one
@@ -324,7 +358,7 @@ namespace ShadersCamera.ViewModels
             captured.Meta.Model = MauiProgram.ExifCameraModel;
 
             //save to device, can use custom album name if needed
-            await Camera.SaveToGalleryAsync(captured, false); 
+            await Camera.SaveToGalleryAsync(captured);
 
             //display preview
             //captured.Bitmap will be disposed by image ImagePreview when it
@@ -346,7 +380,5 @@ namespace ShadersCamera.ViewModels
                 Camera?.DisposeObject(dispose);
             }
         }
-
- 
     }
 }

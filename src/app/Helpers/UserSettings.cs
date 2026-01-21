@@ -14,6 +14,7 @@ namespace ShadersCamera.Helpers
             Formats = new();
             Fill = false;
             Lang = "en";
+            Filter = "Movie";
         }
 
         public string Lang { get; set; }

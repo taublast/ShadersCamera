@@ -1,46 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-  <dict>
-    <key>CFBundleVersion</key>
-    <string>101001</string>
-    <key>LSRequiresIPhoneOS</key>
-    <true/>
-    <key>UIDeviceFamily</key>
-    <array>
-      <integer>1</integer>
-      <integer>2</integer>
-    </array>
-    <key>XSAppIconAssets</key>
-    <string>Assets.xcassets/icon.appiconset</string>
-    <key>NSCameraUsageDescription</key>
-    <string>This app uses the camera to capture and process photos.</string>
-    <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>This app saves photos you take to library.</string>
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>This app saves photos you take to library.</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>This app allows you to save geolocation data to photo metadata.</string>
-    <key>UIRequiredDeviceCapabilities</key>
-    <array>
-      <string>arm64</string>
-    </array>
-    <key>UISupportedInterfaceOrientations</key>
-    <array>
-      <string>UIInterfaceOrientationPortrait</string>
-    </array>
-    <key>UISupportedInterfaceOrientations~ipad</key>
-    <array>
-      <string>UIInterfaceOrientationPortrait</string>
-      <string>UIInterfaceOrientationPortraitUpsideDown</string>
-      <string>UIInterfaceOrientationLandscapeLeft</string>
-      <string>UIInterfaceOrientationLandscapeRight</string>
-    </array>
-    <key>UIViewControllerBasedStatusBarAppearance</key>
-    <false/>
-    <key>UIStatusBarStyle</key>
-    <string>UIStatusBarStyleLightContent</string>
-    <key>ITSAppUsesNonExemptEncryption</key>
-    <false/>
-	</dict>
+<dict>
+	<key>CFBundleVersion</key>
+	<string>104001</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>UIDeviceFamily</key>
+	<array>
+		<integer>1</integer>
+		<integer>2</integer>
+	</array>
+	<key>XSAppIconAssets</key>
+	<string>Assets.xcassets/icon.appiconset</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app uses the camera to capture and process photos.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>This app saves photos you take to library.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app saves photos you take to library.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app allows you to save geolocation data to photo metadata.</string>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>arm64</string>
+	</array>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleLightContent</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>CFBundleIdentifier</key>
+	<string></string>
+</dict>
 </plist>

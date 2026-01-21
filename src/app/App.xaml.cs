@@ -16,6 +16,7 @@ namespace ShadersCamera
             Super.SetNavigationBarColor(Colors.Black, Colors.Black, false);
 #endif
 
+            //MainPage = new MainCameraPage();
             MainPage = new MainCameraPageFluent();
         }
 

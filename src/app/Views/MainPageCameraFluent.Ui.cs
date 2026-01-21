@@ -73,15 +73,11 @@ namespace ShadersCamera.Views
                 }.Fill()
             };
 
-#if IOS
             this.Content =
-                new Grid() //using grid wrapper to take apply safe insets on ios, other platforms use different logic
+                new Grid()
                 {
                     Children = { Canvas }
                 };
-#else
-            this.Content = Canvas;
-#endif
 
             Subscribe(true);
         }
@@ -98,6 +94,7 @@ namespace ShadersCamera.Views
 
                     new SkiaDrawer()
                         {
+                            AutoCache = true,
                             Margin = new Thickness(0, 0, 0, 100),
                             HeaderSize = 40,
                             Direction = DrawerDirection.FromLeft,
@@ -113,6 +110,8 @@ namespace ShadersCamera.Views
                                 CornerRadius = new CornerRadius(0, 12, 12, 0),
                                 HorizontalOptions = LayoutOptions.Fill,
                                 VerticalOptions = LayoutOptions.Fill,
+                                StrokeWidth = 1,
+                                StrokeColor = Color.Parse("#22000000"),
                                 Children =
                                 {
                                     new SkiaLayout()
@@ -123,12 +122,15 @@ namespace ShadersCamera.Views
                                         {
                                             new SkiaScroll()
                                                 {
+                                                    //AutoCache = true,
                                                     BackgroundColor = Colors.WhiteSmoke,
                                                     Margin = new Thickness(0, 0, 20, 0),
                                                     Orientation = ScrollOrientation.Horizontal,
                                                     HorizontalOptions = LayoutOptions.Fill,
                                                     VerticalOptions = LayoutOptions.Fill,
                                                     Padding = new Thickness(8),
+                                                    OrderedScrollIsAnimated = false,
+                                                    SkipRenderingOutOfBounds = true,
                                                     Header = new SkiaLayout()
                                                     {
                                                         VerticalOptions = LayoutOptions.Fill,
@@ -139,9 +141,42 @@ namespace ShadersCamera.Views
                                                         VerticalOptions = LayoutOptions.Fill,
                                                         WidthRequest = 8
                                                     },
-                                                    Content = CreateShaderItemsLayout()
+                                                    Content = new SkiaLayoutWithSelector()
+                                                        {
+                                                            //UseCache = SkiaCacheType.Image,
+                                                            Type = LayoutType.Row,
+                                                            VerticalOptions = LayoutOptions.Center,
+                                                            Spacing = 8,
+                                                            RecyclingTemplate = RecyclingTemplate.Disabled,
+                                                            VirtualisationInflated = 50,
+                                                            ItemTemplate = CreateShaderItemTemplate(),
+                                                            Selector = new SkiaShape()
+                                                            {
+                                                                UseCache = SkiaCacheType.Operations,
+                                                                HorizontalOptions = LayoutOptions.Fill,
+                                                                VerticalOptions = LayoutOptions.Fill,
+                                                                StrokeColor = Color.Parse("#CB230D"),
+                                                                StrokeWidth = 3
+                                                            }
+                                                        }
+                                                        .ObserveProperty(()=>_vm, nameof(_vm.SelectedShaderIndex), me =>
+                                                        {
+                                                            me.SelectedIndex = _vm.SelectedShaderIndex;
+                                                        })
+                                                        .ObserveBindingContext<SkiaLayoutWithSelector, CameraViewModel>((me, vm, prop) =>
+                                                        {
+                                                            bool attached = prop == nameof(BindingContext);
+                                                            if (attached || prop == nameof(vm.ShaderItems))
+                                                            {
+                                                                me.ItemsSource = vm.ShaderItems;
+                                                            }
+                                                        })
                                                 }
                                                 .Assign(out MainScroll)
+                                                .ObserveProperty(()=>_vm, nameof(_vm.InitialIndex), me =>
+                                                {
+                                                    me.OrderedScroll = _vm.InitialIndex;
+                                                })
                                                 .ObserveProperty(() => ShaderDrawer, nameof(ShaderDrawer.IsOpen),
                                                     me => { me.RespondsToGestures = ShaderDrawer.IsOpen; }),
 
@@ -162,34 +197,34 @@ namespace ShadersCamera.Views
         SkiaLayer CreateCameraLayer()
         {
             return new SkiaLayer()
-                {
-                    HorizontalOptions = LayoutOptions.Fill,
-                    VerticalOptions = LayoutOptions.Fill,
-                    Children =
+            {
+                HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.Fill,
+                Children =
                     {
                         CreateCameraControl(),
                         CreateControlsLayer(),
                         CreateZoomHotspot()
                     }
-                }
+            }
                 .OnTapped(me => { TriggerUpdateSmallPreview = true; });
         }
 
         CameraWithEffects CreateCameraControl()
         {
             return new CameraWithEffects()
-                {
-                    BackgroundColor = Colors.Black,
-                    PhotoQuality = CaptureQuality.Medium,
-                    Facing = CameraPosition.Default,
-                    HorizontalOptions = LayoutOptions.Fill,
-                    VerticalOptions = LayoutOptions.Fill,
-                    ZIndex = -1,
-                    ZoomLimitMax = 10,
-                    ZoomLimitMin = 1,
-                    ConstantUpdate = false,
-                    Tag = "Camera"
-                }
+            {
+                BackgroundColor = Colors.Black,
+                PhotoQuality = CaptureQuality.Medium,
+                Facing = CameraPosition.Default,
+                HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.Fill,
+                ZIndex = -1,
+                ZoomLimitMax = 10,
+                ZoomLimitMin = 1,
+                ConstantUpdate = false,
+                Tag = "Camera"
+            }
                 .Assign(out CameraControl)
                 .ObserveBindingContext<CameraWithEffects, CameraViewModel>((me, vm, prop) =>
                 {
@@ -261,18 +296,18 @@ namespace ShadersCamera.Views
         SkiaShape CreatePreviewButton()
         {
             return new SkiaShape()
-                {
-                    StrokeColor = Color.Parse("#66CECECE"),
-                    StrokeWidth = 1,
-                    Type = ShapeType.Circle,
-                    HeightRequest = 46,
-                    LockRatio = 1,
-                    BackgroundColor = Color.Parse("#66000000"),
-                    IsClippedToBounds = true,
-                    UseCache = SkiaCacheType.Image,
-                    VerticalOptions = LayoutOptions.Start,
-                    WidthRequest = 46,
-                    Children =
+            {
+                StrokeColor = Color.Parse("#66CECECE"),
+                StrokeWidth = 1,
+                Type = ShapeType.Circle,
+                HeightRequest = 46,
+                LockRatio = 1,
+                BackgroundColor = Color.Parse("#66000000"),
+                IsClippedToBounds = true,
+                UseCache = SkiaCacheType.Image,
+                VerticalOptions = LayoutOptions.Start,
+                WidthRequest = 46,
+                Children =
                     {
                         new SkiaImage()
                             {
@@ -292,7 +327,7 @@ namespace ShadersCamera.Views
                                 }
                             })
                     }
-                }
+            }
                 .ObserveBindingContext<SkiaShape, CameraViewModel>((me, vm, prop) =>
                 {
                     bool attached = prop == nameof(BindingContext);
@@ -306,15 +341,15 @@ namespace ShadersCamera.Views
         SkiaShape CreateSettingsButton()
         {
             return new SkiaShape()
-                {
-                    StrokeColor = Color.Parse("#66CECECE"),
-                    StrokeWidth = 1,
-                    UseCache = SkiaCacheType.Image,
-                    Type = ShapeType.Circle,
-                    HeightRequest = 46,
-                    LockRatio = 1,
-                    BackgroundColor = Colors.Black,
-                    Children =
+            {
+                StrokeColor = Color.Parse("#66CECECE"),
+                StrokeWidth = 1,
+                UseCache = SkiaCacheType.Image,
+                Type = ShapeType.Circle,
+                HeightRequest = 46,
+                LockRatio = 1,
+                BackgroundColor = Colors.Black,
+                Children =
                     {
                         new SkiaSvg()
                         {
@@ -326,7 +361,7 @@ namespace ShadersCamera.Views
                             VerticalOptions = LayoutOptions.Center
                         }
                     }
-                }
+            }
                 .OnTapped(me =>
                 {
                     if (SelectedFormat == null || CameraControl.PermissionsError)
@@ -369,14 +404,14 @@ namespace ShadersCamera.Views
         SkiaShape CreatePowerButton()
         {
             return new SkiaShape()
-                {
-                    UseCache = SkiaCacheType.Image,
-                    IsVisible = false,
-                    Type = ShapeType.Circle,
-                    HeightRequest = 46,
-                    LockRatio = 1,
-                    BackgroundColor = Colors.Black,
-                    Children =
+            {
+                UseCache = SkiaCacheType.Image,
+                IsVisible = false,
+                Type = ShapeType.Circle,
+                HeightRequest = 46,
+                LockRatio = 1,
+                BackgroundColor = Colors.Black,
+                Children =
                     {
                         new SkiaLabel("P")
                         {
@@ -385,21 +420,21 @@ namespace ShadersCamera.Views
                             TextColor = Colors.White
                         }
                     }
-                }
+            }
                 .OnTapped(me => TappedTurnCamera());
         }
 
         SkiaShape CreateEffectsButton()
         {
             return new SkiaShape()
-                {
-                    UseCache = SkiaCacheType.Image,
-                    IsVisible = false,
-                    Type = ShapeType.Circle,
-                    HeightRequest = 46,
-                    LockRatio = 1,
-                    BackgroundColor = Colors.Black,
-                    Children =
+            {
+                UseCache = SkiaCacheType.Image,
+                IsVisible = false,
+                Type = ShapeType.Circle,
+                HeightRequest = 46,
+                LockRatio = 1,
+                BackgroundColor = Colors.Black,
+                Children =
                     {
                         new SkiaLabel("E")
                         {
@@ -408,7 +443,7 @@ namespace ShadersCamera.Views
                             TextColor = Colors.White
                         }
                     }
-                }
+            }
                 .OnTapped(me =>
                 {
                     var current = CameraControl.Effect;
@@ -424,15 +459,15 @@ namespace ShadersCamera.Views
         SkiaShape CreateFlashCaptureButton()
         {
             return new SkiaShape()
-                {
-                    StrokeColor = Color.Parse("#66CECECE"),
-                    StrokeWidth = 1,
-                    UseCache = SkiaCacheType.Image,
-                    Type = ShapeType.Circle,
-                    HeightRequest = 46,
-                    LockRatio = 1,
-                    BackgroundColor = Colors.Black,
-                    Children =
+            {
+                StrokeColor = Color.Parse("#66CECECE"),
+                StrokeWidth = 1,
+                UseCache = SkiaCacheType.Image,
+                Type = ShapeType.Circle,
+                HeightRequest = 46,
+                LockRatio = 1,
+                BackgroundColor = Colors.Black,
+                Children =
                     {
                         new SkiaSvg()
                             {
@@ -445,23 +480,23 @@ namespace ShadersCamera.Views
                             }
                             .Assign(out SvgFlashCapture)
                     }
-                }
+            }
                 .OnTapped(me => OnFlashClicked(this, EventArgs.Empty));
         }
 
         SkiaShape CreateFlashLightButton()
         {
             return new SkiaShape()
-                {
-                    StrokeColor = Color.Parse("#CECECE"),
-                    StrokeWidth = 1,
-                    IsVisible = false,
-                    UseCache = SkiaCacheType.Image,
-                    Type = ShapeType.Circle,
-                    HeightRequest = 46,
-                    LockRatio = 1,
-                    BackgroundColor = Colors.Black,
-                    Children =
+            {
+                StrokeColor = Color.Parse("#CECECE"),
+                StrokeWidth = 1,
+                IsVisible = false,
+                UseCache = SkiaCacheType.Image,
+                Type = ShapeType.Circle,
+                HeightRequest = 46,
+                LockRatio = 1,
+                BackgroundColor = Colors.Black,
+                Children =
                     {
                         new SkiaSvg()
                             {
@@ -474,22 +509,22 @@ namespace ShadersCamera.Views
                             }
                             .Assign(out SvgFlashLight)
                     }
-                }
+            }
                 .OnTapped(me => TappedFlash());
         }
 
         SkiaShape CreateSwitchCameraButton()
         {
             return new SkiaShape()
-                {
-                    StrokeColor = Color.Parse("#66CECECE"),
-                    StrokeWidth = 1,
-                    UseCache = SkiaCacheType.Image,
-                    Type = ShapeType.Circle,
-                    HeightRequest = 46,
-                    LockRatio = 1,
-                    BackgroundColor = Colors.Black,
-                    Children =
+            {
+                StrokeColor = Color.Parse("#66CECECE"),
+                StrokeWidth = 1,
+                UseCache = SkiaCacheType.Image,
+                Type = ShapeType.Circle,
+                HeightRequest = 46,
+                LockRatio = 1,
+                BackgroundColor = Colors.Black,
+                Children =
                     {
                         new SkiaSvg()
                         {
@@ -501,23 +536,23 @@ namespace ShadersCamera.Views
                             VerticalOptions = LayoutOptions.Center
                         }
                     }
-                }
+            }
                 .OnTapped(me => TappedSwitchCamera());
         }
 
         SkiaShape CreateCaptureButton()
         {
             return new SkiaShape()
-                {
-                    UseCache = SkiaCacheType.Image,
-                    Type = ShapeType.Circle,
-                    HeightRequest = 46,
-                    LockRatio = 1,
-                    StrokeWidth = 2,
-                    StrokeColor = Color.Parse("#66CECECE"),
-                    BackgroundColor = Colors.Black,
-                    Padding = new Thickness(3),
-                    Children =
+            {
+                UseCache = SkiaCacheType.Image,
+                Type = ShapeType.Circle,
+                HeightRequest = 46,
+                LockRatio = 1,
+                StrokeWidth = 2,
+                StrokeColor = Color.Parse("#66CECECE"),
+                BackgroundColor = Colors.Black,
+                Padding = new Thickness(3),
+                Children =
                     {
                         new SkiaShape()
                             {
@@ -528,7 +563,7 @@ namespace ShadersCamera.Views
                             }
                             .Assign(out ButtonCapture)
                     }
-                }
+            }
                 .ObserveBindingContext<SkiaShape, CameraViewModel>((me, vm, prop) =>
                 {
                     bool attached = prop == nameof(BindingContext);
@@ -542,13 +577,13 @@ namespace ShadersCamera.Views
         SkiaHotspot CreateResumeHotspot()
         {
             return new SkiaHotspot()
-                {
-                    HorizontalOptions = LayoutOptions.Center,
-                    LockRatio = 1,
-                    VerticalOptions = LayoutOptions.Center,
-                    WidthRequest = 290,
-                    ZIndex = 110
-                }
+            {
+                HorizontalOptions = LayoutOptions.Center,
+                LockRatio = 1,
+                VerticalOptions = LayoutOptions.Center,
+                WidthRequest = 290,
+                ZIndex = 110
+            }
                 .OnTapped(me => TappedResume())
                 .ObserveBindingContext<SkiaHotspot, CameraViewModel>((me, vm, prop) =>
                 {
@@ -563,32 +598,11 @@ namespace ShadersCamera.Views
         SkiaHotspotZoom CreateZoomHotspot()
         {
             return new SkiaHotspotZoom()
-                {
-                    ZoomMax = 3,
-                    ZoomMin = 1
-                }
+            {
+                ZoomMax = 3,
+                ZoomMin = 1
+            }
                 .Initialize(hotspot => { hotspot.Zoomed += OnZoomed; });
-        }
-
-        SkiaLayoutWithSelector CreateShaderItemsLayout()
-        {
-            return new SkiaLayoutWithSelector()
-                {
-                    Type = LayoutType.Row,
-                    VerticalOptions = LayoutOptions.Center,
-                    Spacing = 8,
-                    RecyclingTemplate = RecyclingTemplate.Enabled,
-                    UseCache = SkiaCacheType.Operations,
-                    ItemTemplate = CreateShaderItemTemplate()
-                }
-                .ObserveBindingContext<SkiaLayoutWithSelector, CameraViewModel>((me, vm, prop) =>
-                {
-                    bool attached = prop == nameof(BindingContext);
-                    if (attached || prop == nameof(vm.ShaderItems))
-                    {
-                        me.ItemsSource = vm.ShaderItems;
-                    }
-                });
         }
 
         DataTemplate CreateShaderItemTemplate()
@@ -596,14 +610,14 @@ namespace ShadersCamera.Views
             return new DataTemplate(() =>
             {
                 return new SkiaShape()
-                    {
-                        Type = ShapeType.Rectangle,
-                        WidthRequest = 80,
-                        HeightRequest = 80,
-                        CornerRadius = new CornerRadius(8),
-                        BackgroundColor = Colors.White,
-                        UseCache = SkiaCacheType.Image,
-                        Children =
+                {
+                    Type = ShapeType.Rectangle,
+                    WidthRequest = 80,
+                    HeightRequest = 80,
+                    CornerRadius = new CornerRadius(8),
+                    BackgroundColor = Colors.White,
+                    UseCache = SkiaCacheType.Image,
+                    Children =
                         {
                             new SkiaLayout()
                             {
@@ -674,7 +688,7 @@ namespace ShadersCamera.Views
                                 }
                             }
                         }
-                    }
+                }
                     .OnTapped((sender, args) =>
                     {
                         if (sender.BindingContext is ShaderItem item && BindingContext is CameraViewModel vm)
@@ -695,15 +709,15 @@ namespace ShadersCamera.Views
         SkiaShape CreateDrawerHeader()
         {
             return new SkiaShape()
-                {
-                    UseCache = SkiaCacheType.Image,
-                    HorizontalOptions = LayoutOptions.End,
-                    Type = ShapeType.Rectangle,
-                    BackgroundColor = Colors.WhiteSmoke,
-                    CornerRadius = new CornerRadius(0, 16, 0, 0),
-                    VerticalOptions = LayoutOptions.Fill,
-                    WidthRequest = 41,
-                    Children =
+            {
+                UseCache = SkiaCacheType.Image,
+                HorizontalOptions = LayoutOptions.End,
+                Type = ShapeType.Rectangle,
+                BackgroundColor = Colors.WhiteSmoke,
+                CornerRadius = new CornerRadius(0, 16, 0, 0),
+                VerticalOptions = LayoutOptions.Fill,
+                WidthRequest = 41,
+                Children =
                     {
                         new SkiaLayout()
                         {
@@ -724,23 +738,23 @@ namespace ShadersCamera.Views
                             }
                         }
                     }
-                }
+            }
                 .OnTapped(me => TappedDrawerHeader());
         }
 
         SkiaLabelFps CreateDebugFps()
         {
             return new SkiaLabelFps()
-                {
-                    Margin = new Thickness(0, 0, 4, 24),
-                    BackgroundColor = Colors.Black,
-                    ForceRefresh = false,
-                    HorizontalOptions = LayoutOptions.End,
-                    Rotation = -45,
-                    TextColor = Colors.White,
-                    VerticalOptions = LayoutOptions.End,
-                    ZIndex = 100
-                }
+            {
+                Margin = new Thickness(0, 0, 4, 24),
+                BackgroundColor = Colors.Black,
+                ForceRefresh = false,
+                HorizontalOptions = LayoutOptions.End,
+                Rotation = -45,
+                TextColor = Colors.White,
+                VerticalOptions = LayoutOptions.End,
+                ZIndex = 100
+            }
                 .ObserveBindingContext<SkiaLabelFps, CameraViewModel>((me, vm, prop) =>
                 {
                     bool attached = prop == nameof(BindingContext);
@@ -759,28 +773,28 @@ namespace ShadersCamera.Views
             var currentMode = CameraControl.CaptureFlashMode;
             switch (currentMode)
             {
-                case CaptureFlashMode.Off:
-                    SvgFlashCapture.SvgString = App.Current.Resources.Get<string>("SvgFlashOff");
-                    break;
-                case CaptureFlashMode.Auto:
-                    SvgFlashCapture.SvgString = App.Current.Resources.Get<string>("SvgFlashAuto");
-                    break;
-                case CaptureFlashMode.On:
-                    SvgFlashCapture.SvgString = App.Current.Resources.Get<string>("SvgFlashOn");
-                    break;
+            case CaptureFlashMode.Off:
+            SvgFlashCapture.SvgString = App.Current.Resources.Get<string>("SvgFlashOff");
+            break;
+            case CaptureFlashMode.Auto:
+            SvgFlashCapture.SvgString = App.Current.Resources.Get<string>("SvgFlashAuto");
+            break;
+            case CaptureFlashMode.On:
+            SvgFlashCapture.SvgString = App.Current.Resources.Get<string>("SvgFlashOn");
+            break;
             }
 
             //FlashMode
             var torch = CameraControl.FlashMode;
             switch (torch)
             {
-                case FlashMode.On:
-                    SvgFlashLight.SvgString = App.Current.Resources.Get<string>("SvgLightOn");
-                    break;
-                case FlashMode.Off:
-                default:
-                    SvgFlashLight.SvgString = App.Current.Resources.Get<string>("SvgLightOff");
-                    break;
+            case FlashMode.On:
+            SvgFlashLight.SvgString = App.Current.Resources.Get<string>("SvgLightOn");
+            break;
+            case FlashMode.Off:
+            default:
+            SvgFlashLight.SvgString = App.Current.Resources.Get<string>("SvgLightOff");
+            break;
             }
         }
 

@@ -2,7 +2,10 @@
 
   <PropertyGroup>
 
+    <!--<TargetFrameworks>net9.0-ios;</TargetFrameworks>-->
 
+    <!--<TargetFrameworks>net9.0-android;</TargetFrameworks>-->
+    
     <TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
 
@@ -55,11 +58,6 @@
   <!--dev personal provisioning for iPhone-->
   <Import Project="../../../ShadersCam.targets" Condition="Exists('../../../ShadersCam.targets')" />
 
-  <!--DEBUG-->
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <ProvisioningType>manual</ProvisioningType>
-  </PropertyGroup>
-
   <!-- Custom Android icons: include webp resources-->
   <ItemGroup Condition="$(TargetFramework.Contains('android'))">
     <AndroidResource Include="Platforms\Android\Resources\*\*.webp" />
@@ -93,9 +91,15 @@
 
   </ItemGroup>
 
+
+  <!--<ItemGroup>
+    <ProjectReference Include="..\..\..\DrawnUi.Maui\src\Maui\Addons\DrawnUi.Maui.Camera\DrawnUi.Maui.Camera.csproj" />
+    <ProjectReference Include="..\..\..\DrawnUi.Maui\src\Maui\DrawnUi\DrawnUi.Maui.csproj" />
+  </ItemGroup>-->
+
   <ItemGroup>
-    <PackageReference Include="DrawnUi.Maui.Camera" Version="1.6.3.10" />
-    <PackageReference Include="AppoMobi.Maui.FastPopups" Version="1.0.0.7" />
+    <PackageReference Include="DrawnUi.Maui.Camera" Version="1.7.7.4" />
+    <PackageReference Include="AppoMobi.Maui.FastPopups" Version="1.2.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
     <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.70" />
   </ItemGroup>
@@ -147,6 +151,8 @@
   <ItemGroup>
     <None Include="..\..\README.md" Link="README.md" />
   </ItemGroup>
+
+
 
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">

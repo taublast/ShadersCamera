@@ -32,10 +32,10 @@
                 <!--  CAMERA PREVIEW ETC  -->
                 <controls:CameraWithEffects
                     ShaderSource="{Binding SelectedShader}"
+                    PhotoQuality="Medium"
                     ConstantUpdate="False"
                     x:Name="CameraControl"
                     BackgroundColor="Black"
-                    PhotoQuality="Medium"
                     Facing="Default"
                     HorizontalOptions="Fill"
                     Tag="Camera"
@@ -65,7 +65,7 @@
                             UseCache="GPU"
                             Padding="1"
                             Spacing="10"
-                            HorizontalOptions="Center" 
+                            HorizontalOptions="Center"
                             VerticalOptions="Center">
 
                             <!--last photo tappable preview-->
@@ -250,6 +250,8 @@
                 <!--  DRAWER CONTENT  -->
                 <draw:SkiaShape
                     Type="Rectangle"
+                    StrokeWidth="1"
+                    StrokeColor="#22000000"
                     CornerRadius="0,12,12,0"
                     HorizontalOptions="Fill"
                     VerticalOptions="Fill">
@@ -260,6 +262,7 @@
 
                         <!--  SHADER ITEMS SCROLL  -->
                         <draw:SkiaScroll
+                            OrderedScroll ="{Binding InitialIndex}"
                             SkipRenderingOutOfBounds="True"
                             RespondsToGestures="{Binding Source={x:Reference ShaderDrawer}, Path=IsOpen}"
                             BackgroundColor="WhiteSmoke"
@@ -271,15 +274,15 @@
 
                             <draw:SkiaScroll.Header>
 
-                                <draw:SkiaLayout 
-                                    VerticalOptions="Fill" WidthRequest="20"/>
+                                <draw:SkiaLayout
+                                    VerticalOptions="Fill" WidthRequest="20" />
 
                             </draw:SkiaScroll.Header>
 
                             <draw:SkiaScroll.Footer>
 
-                                <draw:SkiaLayout 
-                                    HeightRequest="8" WidthRequest="8"/>
+                                <draw:SkiaLayout
+                                    HeightRequest="8" WidthRequest="8" />
 
                             </draw:SkiaScroll.Footer>
 
@@ -288,9 +291,20 @@
                                 Type="Row"
                                 VerticalOptions="Center"
                                 Spacing="8"
-                                RecyclingTemplate="Enabled"
-                                UseCache="Operations"
+                                RecyclingTemplate="Disabled"
+                                UseCache="None"
+                                VirtualisationInflated="50"
+                                SelectedIndex="{Binding SelectedShaderIndex}"
                                 ItemsSource="{Binding ShaderItems}">
+
+                                <controls:SkiaLayoutWithSelector.Selector>
+                                    <draw:SkiaShape
+                                        UseCache ="Operations"
+                                        StrokeColor="#CB230D"
+                                        StrokeWidth="3"
+                                        VerticalOptions="Fill"
+                                        HorizontalOptions="Fill" />
+                                </controls:SkiaLayoutWithSelector.Selector>
 
                                 <draw:SkiaLayout.ItemTemplate>
                                     <DataTemplate x:DataType="models:ShaderItem">
