@@ -55,14 +55,6 @@
     <CodesignKey>iPhone Developer</CodesignKey>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net9.0-ios'">
-    <ProvisioningType>manual</ProvisioningType>
-    <CodesignKey>Apple Development: Created via API (R2DBJ49UL4)</CodesignKey>
-    <CodesignProvision>VS: com.appomobi.drawnui.shaderscam Development</CodesignProvision>
-    <!--<CodesignKey>Apple Development: Created via API (R2DBJ49UL4)</CodesignKey>
-    <CodesignProvision>VS: com.appomobi.drawnui.shaderscam Development</CodesignProvision>-->
-  </PropertyGroup>
-
   <!--dev personal provisioning for iPhone-->
   <Import Project="../../../ShadersCam.targets" Condition="Exists('../../../ShadersCam.targets')" />
 
@@ -99,14 +91,12 @@
 
   </ItemGroup>
 
-
-  <ItemGroup>
+  <!--<ItemGroup>
     <ProjectReference Include="..\..\..\DrawnUi.Maui\src\Maui\Addons\DrawnUi.Maui.Camera\DrawnUi.Maui.Camera.csproj" />
-  </ItemGroup>
-
+  </ItemGroup>-->
 
   <ItemGroup>
-    <!--<PackageReference Include="DrawnUi.Maui.Camera" Version="1.7.7.4" />-->
+    <PackageReference Include="DrawnUi.Maui.Camera" Version="1.9.1.1" />
     <PackageReference Include="AppoMobi.Maui.FastPopups" Version="1.2.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
     <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.70" />
