@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.0.11201.2 d18.0
+VisualStudioVersion = 18.0.11201.2
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Refs", "Refs", "{5B1CDC4F-5ED6-4662-8EC6-3DE3FF0B05BE}"
 EndProject
@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\.gitignore = ..\.gitignore
 		..\README.md = ..\README.md
 		..\..\DrawnUi.Maui\src\Maui\Addons\DrawnUi.Maui.Camera\README.md = ..\..\DrawnUi.Maui\src\Maui\Addons\DrawnUi.Maui.Camera\README.md
+		..\..\ShadersCam.targets = ..\..\ShadersCam.targets
 	EndProjectSection
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DrawnUi.Shared", "..\..\DrawnUi.Maui\src\Shared\DrawnUi.Shared.shproj", "{83974207-9636-48DD-BDB3-98EDECBB1107}"
@@ -23,6 +24,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShadersCarouselDemo", "..\..\ShadersCarousel\src\demo\ShadersCarouselDemo.csproj", "{A53734E6-1896-F775-5EEA-1A175FDA2B28}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastRepro", "..\..\DrawnUi.Maui\src\Maui\Samples\FastRepro\FastRepro.csproj", "{AF62CF62-A472-E87B-7225-8BD178AC3DF2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "..\..\DrawnUi.Maui\src\Maui\Samples\Sandbox\Sandbox.csproj", "{9E8CD945-AB2A-2FEF-D962-CBDC4A7248EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +46,7 @@ Global
 		{9F71E169-6D24-B132-9826-8A6DA9FFFBC8}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{9F71E169-6D24-B132-9826-8A6DA9FFFBC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F71E169-6D24-B132-9826-8A6DA9FFFBC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F71E169-6D24-B132-9826-8A6DA9FFFBC8}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{A53734E6-1896-F775-5EEA-1A175FDA2B28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A53734E6-1896-F775-5EEA-1A175FDA2B28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A53734E6-1896-F775-5EEA-1A175FDA2B28}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
@@ -54,6 +58,10 @@ Global
 		{AF62CF62-A472-E87B-7225-8BD178AC3DF2}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{AF62CF62-A472-E87B-7225-8BD178AC3DF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF62CF62-A472-E87B-7225-8BD178AC3DF2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E8CD945-AB2A-2FEF-D962-CBDC4A7248EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E8CD945-AB2A-2FEF-D962-CBDC4A7248EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E8CD945-AB2A-2FEF-D962-CBDC4A7248EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E8CD945-AB2A-2FEF-D962-CBDC4A7248EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -64,6 +72,7 @@ Global
 		{93E119B1-4378-87DF-2DD2-A818D1E6C2A2} = {5B1CDC4F-5ED6-4662-8EC6-3DE3FF0B05BE}
 		{A53734E6-1896-F775-5EEA-1A175FDA2B28} = {5B1CDC4F-5ED6-4662-8EC6-3DE3FF0B05BE}
 		{AF62CF62-A472-E87B-7225-8BD178AC3DF2} = {5B1CDC4F-5ED6-4662-8EC6-3DE3FF0B05BE}
+		{9E8CD945-AB2A-2FEF-D962-CBDC4A7248EF} = {5B1CDC4F-5ED6-4662-8EC6-3DE3FF0B05BE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {329E3D0C-A3F7-4A3E-B61C-6B2D1BD7F708}
