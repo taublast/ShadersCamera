@@ -14,7 +14,7 @@ namespace ShadersCamera.Helpers
             Formats = new();
             Fill = false;
             Lang = "en";
-            Filter = "Movie";
+            Filter = "Street Zoom";
         }
 
         public string Lang { get; set; }

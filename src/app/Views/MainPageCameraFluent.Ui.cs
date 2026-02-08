@@ -102,6 +102,7 @@ namespace ShadersCamera.Views
                             HorizontalOptions = LayoutOptions.Fill,
                             HeightRequest = 100,
                             IsOpen = false,
+                            BlockGesturesBelow=true,
                             IgnoreWrongDirection = true,
                             ZIndex = 50,
                             Content = new SkiaShape()
@@ -121,64 +122,64 @@ namespace ShadersCamera.Views
                                         Children =
                                         {
                                             new SkiaScroll()
+                                            {
+                                                //AutoCache = true,
+                                                BackgroundColor = Colors.WhiteSmoke,
+                                                Margin = new Thickness(0, 0, 20, 0),
+                                                Orientation = ScrollOrientation.Horizontal,
+                                                HorizontalOptions = LayoutOptions.Fill,
+                                                VerticalOptions = LayoutOptions.Fill,
+                                                Padding = new Thickness(8),
+                                                OrderedScrollIsAnimated = false,
+                                                SkipRenderingOutOfBounds = true,
+                                                Header = new SkiaLayout()
                                                 {
-                                                    //AutoCache = true,
-                                                    BackgroundColor = Colors.WhiteSmoke,
-                                                    Margin = new Thickness(0, 0, 20, 0),
-                                                    Orientation = ScrollOrientation.Horizontal,
-                                                    HorizontalOptions = LayoutOptions.Fill,
                                                     VerticalOptions = LayoutOptions.Fill,
-                                                    Padding = new Thickness(8),
-                                                    OrderedScrollIsAnimated = false,
-                                                    SkipRenderingOutOfBounds = true,
-                                                    Header = new SkiaLayout()
-                                                    {
-                                                        VerticalOptions = LayoutOptions.Fill,
-                                                        WidthRequest = 8
-                                                    },
-                                                    Footer = new SkiaLayout()
-                                                    {
-                                                        VerticalOptions = LayoutOptions.Fill,
-                                                        WidthRequest = 8
-                                                    },
-                                                    Content = new SkiaLayoutWithSelector()
-                                                        {
-                                                            //UseCache = SkiaCacheType.Image,
-                                                            Type = LayoutType.Row,
-                                                            VerticalOptions = LayoutOptions.Center,
-                                                            Spacing = 8,
-                                                            RecyclingTemplate = RecyclingTemplate.Disabled,
-                                                            VirtualisationInflated = 50,
-                                                            ItemTemplate = CreateShaderItemTemplate(),
-                                                            Selector = new SkiaShape()
-                                                            {
-                                                                UseCache = SkiaCacheType.Operations,
-                                                                HorizontalOptions = LayoutOptions.Fill,
-                                                                VerticalOptions = LayoutOptions.Fill,
-                                                                StrokeColor = Color.Parse("#CB230D"),
-                                                                StrokeWidth = 3
-                                                            }
-                                                        }
-                                                        .ObserveProperty(()=>_vm, nameof(_vm.SelectedShaderIndex), me =>
-                                                        {
-                                                            me.SelectedIndex = _vm.SelectedShaderIndex;
-                                                        })
-                                                        .ObserveBindingContext<SkiaLayoutWithSelector, CameraViewModel>((me, vm, prop) =>
-                                                        {
-                                                            bool attached = prop == nameof(BindingContext);
-                                                            if (attached || prop == nameof(vm.ShaderItems))
-                                                            {
-                                                                me.ItemsSource = vm.ShaderItems;
-                                                            }
-                                                        })
-                                                }
-                                                .Assign(out MainScroll)
-                                                .ObserveProperty(()=>_vm, nameof(_vm.InitialIndex), me =>
+                                                    WidthRequest = 8
+                                                },
+                                                Footer = new SkiaLayout()
                                                 {
-                                                    me.OrderedScroll = _vm.InitialIndex;
+                                                    VerticalOptions = LayoutOptions.Fill,
+                                                    WidthRequest = 8 + 41 //drawer header
+                                                },
+                                                Content = new SkiaLayoutWithSelector()
+                                                {
+                                                    UseCache = SkiaCacheType.Operations,
+                                                    Type = LayoutType.Row,
+                                                    VerticalOptions = LayoutOptions.Center,
+                                                    Spacing = 8,
+                                                    RecyclingTemplate = RecyclingTemplate.Disabled,
+                                                    VirtualisationInflated = 50,
+                                                    ItemTemplate = CreateShaderItemTemplate(),
+                                                    Selector = new SkiaShape()
+                                                    {
+                                                        UseCache = SkiaCacheType.Operations,
+                                                        HorizontalOptions = LayoutOptions.Fill,
+                                                        VerticalOptions = LayoutOptions.Fill,
+                                                        StrokeColor = Color.Parse("#CB230D"),
+                                                        StrokeWidth = 5
+                                                    }
+                                                }
+                                                .ObserveProperty(()=>_vm, nameof(_vm.SelectedShaderIndex), me =>
+                                                {
+                                                    me.SelectedIndex = _vm.SelectedShaderIndex;
                                                 })
-                                                .ObserveProperty(() => ShaderDrawer, nameof(ShaderDrawer.IsOpen),
-                                                    me => { me.RespondsToGestures = ShaderDrawer.IsOpen; }),
+                                                .ObserveBindingContext<SkiaLayoutWithSelector, CameraViewModel>((me, vm, prop) =>
+                                                {
+                                                    bool attached = prop == nameof(BindingContext);
+                                                    if (attached || prop == nameof(vm.ShaderItems))
+                                                    {
+                                                        me.ItemsSource = vm.ShaderItems;
+                                                    }
+                                                })
+                                            }
+                                            .Assign(out MainScroll)
+                                            .ObserveProperty(()=>_vm, nameof(_vm.InitialIndex), me =>
+                                            {
+                                                me.OrderedScroll = _vm.InitialIndex;
+                                            })
+                                            .ObserveProperty(() => ShaderDrawer, nameof(ShaderDrawer.IsOpen),
+                                                me => { me.RespondsToGestures = ShaderDrawer.IsOpen; }),
 
                                             CreateDrawerHeader()
                                         }
@@ -616,7 +617,7 @@ namespace ShadersCamera.Views
                     HeightRequest = 80,
                     CornerRadius = new CornerRadius(8),
                     BackgroundColor = Colors.White,
-                    UseCache = SkiaCacheType.Image,
+                    UseCache = SkiaCacheType.ImageDoubleBuffered,
                     Children =
                         {
                             new SkiaLayout()
@@ -635,7 +636,7 @@ namespace ShadersCamera.Views
                                             UseCache = SkiaCacheType.Image,
                                             VisualEffects =
                                             {
-                                                new SkiaShaderEffect()
+                                                new SkiaShaderEffect(),
                                             }
                                         }
                                         .ObserveBindingContext<SkiaImage, ShaderItem>((me, item, prop) =>

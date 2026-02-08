@@ -3,7 +3,6 @@
   <PropertyGroup>
 
     <!--<TargetFrameworks>net9.0-ios;</TargetFrameworks>-->
-
     <!--<TargetFrameworks>net9.0-android;</TargetFrameworks>-->
     
     <TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
@@ -37,11 +36,6 @@
     <Warning Text="------ Building $(TargetFramework) with DrawnUi project reference ------" />
   </Target>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net*-ios|AnyCPU'">
-    <CreatePackage>false</CreatePackage>
-    <CodesignKey>iPhone Developer</CodesignKey>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <Optimize>True</Optimize>
     <AndroidEnableSGenConcurrent>True</AndroidEnableSGenConcurrent>
@@ -53,6 +47,20 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net*-android|AnyCPU'">
     <AndroidEnableMultiDex>True</AndroidEnableMultiDex>
+  </PropertyGroup>
+
+  <!--DEBUG-->
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net*-ios|AnyCPU'">
+    <CreatePackage>false</CreatePackage>
+    <CodesignKey>iPhone Developer</CodesignKey>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='net9.0-ios'">
+    <ProvisioningType>manual</ProvisioningType>
+    <CodesignKey>Apple Development: Created via API (R2DBJ49UL4)</CodesignKey>
+    <CodesignProvision>VS: com.appomobi.drawnui.shaderscam Development</CodesignProvision>
+    <!--<CodesignKey>Apple Development: Created via API (R2DBJ49UL4)</CodesignKey>
+    <CodesignProvision>VS: com.appomobi.drawnui.shaderscam Development</CodesignProvision>-->
   </PropertyGroup>
 
   <!--dev personal provisioning for iPhone-->
@@ -92,13 +100,13 @@
   </ItemGroup>
 
 
-  <!--<ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\..\DrawnUi.Maui\src\Maui\Addons\DrawnUi.Maui.Camera\DrawnUi.Maui.Camera.csproj" />
-    <ProjectReference Include="..\..\..\DrawnUi.Maui\src\Maui\DrawnUi\DrawnUi.Maui.csproj" />
-  </ItemGroup>-->
+  </ItemGroup>
+
 
   <ItemGroup>
-    <PackageReference Include="DrawnUi.Maui.Camera" Version="1.7.7.4" />
+    <!--<PackageReference Include="DrawnUi.Maui.Camera" Version="1.7.7.4" />-->
     <PackageReference Include="AppoMobi.Maui.FastPopups" Version="1.2.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
     <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.70" />

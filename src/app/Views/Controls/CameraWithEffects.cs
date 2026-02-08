@@ -65,7 +65,7 @@ namespace ShadersCamera.Views.Controls
         }
 
         private SkiaShaderEffect _shader;
-
+        private SkiaShaderEffect _shaderGlobal;
         public void ChangeShaderCode(string code)
         {
             if (Display == null || _shader==null)
@@ -94,6 +94,18 @@ namespace ShadersCamera.Views.Controls
             {
                 return;
             }
+
+            //just having fun, add ripples to preview
+/*
+            if (_shaderGlobal == null)
+            {
+                _shaderGlobal = new MultiRippleWithTouchEffect() 
+                {
+                    SecondarySource="Images/logo.png"
+                };
+                VisualEffects.Add(_shaderGlobal);
+            }
+*/
 
             // Remove existing shader if any
             if (_shader != null && VisualEffects.Contains(_shader))
