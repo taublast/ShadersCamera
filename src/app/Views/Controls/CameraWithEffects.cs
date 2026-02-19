@@ -11,7 +11,7 @@ namespace ShadersCamera.Views.Controls
 
         public CameraWithEffects()
         {
-        
+
         }
 
         protected override void OnDisplayReady()
@@ -90,6 +90,8 @@ namespace ShadersCamera.Views.Controls
 
         protected virtual void SetCustomShader(ShaderItem shader)
         {
+            return;
+
             if (Display == null)
             {
                 return;

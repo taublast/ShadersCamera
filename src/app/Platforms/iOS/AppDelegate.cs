@@ -1,4 +1,5 @@
 ﻿using Foundation;
+using UIKit;
 
 namespace ShadersCamera
 {
@@ -6,5 +7,13 @@ namespace ShadersCamera
     public class AppDelegate : MauiUIApplicationDelegate
     {
         protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
+
+        /*
+        [Export("application:supportedInterfaceOrientationsForWindow:")]
+        public UIInterfaceOrientationMask GetSupportedInterfaceOrientations(UIApplication application, UIWindow forWindow)
+        {
+            return UIInterfaceOrientationMask.Portrait;
+        }
+        */
     }
 }

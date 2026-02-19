@@ -25,6 +25,8 @@ namespace ShadersCamera.Views
         SkiaDrawer ShaderDrawer;
         SkiaImage ImagePreview;
         SkiaScroll MainScroll;
+        SkiaLabel LabelRecording;
+        SkiaLabel LabelCaptureMode;
 
         //will be called by page constructor and hotreload
         public override void Build()
@@ -94,7 +96,8 @@ namespace ShadersCamera.Views
 
                     new SkiaDrawer()
                         {
-                            AutoCache = true,
+                            AutoCache = false,
+                            UseCache = SkiaCacheType.Operations,
                             Margin = new Thickness(0, 0, 0, 100),
                             HeaderSize = 40,
                             Direction = DrawerDirection.FromLeft,
@@ -123,7 +126,7 @@ namespace ShadersCamera.Views
                                         {
                                             new SkiaScroll()
                                             {
-                                                //AutoCache = true,
+                                                AutoCache = true,
                                                 BackgroundColor = Colors.WhiteSmoke,
                                                 Margin = new Thickness(0, 0, 20, 0),
                                                 Orientation = ScrollOrientation.Horizontal,
@@ -144,7 +147,6 @@ namespace ShadersCamera.Views
                                                 },
                                                 Content = new SkiaLayoutWithSelector()
                                                 {
-                                                    UseCache = SkiaCacheType.Operations,
                                                     Type = LayoutType.Row,
                                                     VerticalOptions = LayoutOptions.Center,
                                                     Spacing = 8,
@@ -204,11 +206,64 @@ namespace ShadersCamera.Views
                 Children =
                     {
                         CreateCameraControl(),
+                        CreateRecordingBadge(),
                         CreateControlsLayer(),
                         CreateZoomHotspot()
                     }
             }
                 .OnTapped(me => { TriggerUpdateSmallPreview = true; });
+        }
+
+        SkiaShape CreateRecordingBadge()
+        {
+            return new SkiaShape()
+            {
+                ZIndex = 80,
+                Type = ShapeType.Rectangle,
+                CornerRadius = 12,
+                BackgroundColor = Color.Parse("#66000000"),
+                Padding = new Thickness(10, 6),
+                Margin = new Thickness(0, 56, 0, 0),
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Start,
+                IsVisible = false,
+                Children =
+                {
+                    new SkiaRow()
+                    {
+                        Spacing = 8,
+                        VerticalOptions = LayoutOptions.Center,
+                        Children =
+                        {
+                            new SkiaShape()
+                            {
+                                Type = ShapeType.Circle,
+                                BackgroundColor = Colors.DarkRed,
+                                WidthRequest = 8,
+                                HeightRequest = 8,
+                                LockRatio = 1,
+                                VerticalOptions = LayoutOptions.Center
+                            },
+                            new SkiaLabel()
+                            {
+                                Text = "REC 00:00",
+                                TextColor = Colors.White,
+                                FontSize = 14,
+                                VerticalOptions = LayoutOptions.Center
+                            }.Assign(out LabelRecording)
+                        }
+                    }
+                }
+            }
+            .ObserveBindingContext<SkiaShape, CameraViewModel>((me, vm, prop) =>
+            {
+                bool attached = prop == nameof(BindingContext);
+                if (attached || prop == nameof(vm.IsRecording) || prop == nameof(vm.RecordingDurationText))
+                {
+                    me.IsVisible = vm.IsRecording;
+                    LabelRecording.Text = $"REC {vm.RecordingDurationText}";
+                }
+            });
         }
 
         CameraWithEffects CreateCameraControl()
@@ -226,7 +281,7 @@ namespace ShadersCamera.Views
                 ConstantUpdate = false,
                 Tag = "Camera"
             }
-                .Assign(out CameraControl)
+                //.Assign(out CameraControl)
                 .ObserveBindingContext<CameraWithEffects, CameraViewModel>((me, vm, prop) =>
                 {
                     bool attached = prop == nameof(BindingContext);
@@ -245,10 +300,55 @@ namespace ShadersCamera.Views
                 VerticalOptions = LayoutOptions.Fill,
                 Children =
                 {
+                    //CreateCaptureModeLabel(), //todo in next version for video
                     CreateControlsPanel(),
                     CreateResumeHotspot()
                 }
             };
+        }
+
+        SkiaShape CreateCaptureModeLabel()
+        {
+            return new SkiaShape()
+            {
+                ZIndex = 70,
+                Type = ShapeType.Rectangle,
+                CornerRadius = 12,
+                BackgroundColor = Color.Parse("#66000000"),
+                Padding = new Thickness(10, 6),
+                Margin = new Thickness(0, 0, 0, 92),
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.End,
+                IsVisible = true,
+                Children =
+                {
+                    new SkiaLabel()
+                    {
+                        Text = "PHOTO",
+                        TextColor = Colors.White,
+                        FontSize = 12,
+                        UseCache = SkiaCacheType.Operations,
+                        VerticalOptions = LayoutOptions.Center,
+                        HorizontalOptions = LayoutOptions.Center,
+                    }.Assign(out LabelCaptureMode)
+                }
+            }
+            .ObserveBindingContext<SkiaShape, CameraViewModel>((me, vm, prop) =>
+            {
+                bool attached = prop == nameof(BindingContext);
+                if (attached)
+                {
+                    if (vm.CommandToggleCaptureMode != null)
+                        me.OnTapped(shape => vm.CommandToggleCaptureMode.Execute(null));
+                }
+
+                if (attached || prop == nameof(vm.Mode) || prop == nameof(vm.IsRecording))
+                {
+                    // Hide while recording to avoid mid-record mode changes.
+                    me.IsVisible = !vm.IsRecording;
+                    LabelCaptureMode.Text = vm.Mode == CameraViewModel.CaptureUIMode.Video ? "VIDEO" : "PHOTO";
+                }
+            });
         }
 
         SkiaShape CreateControlsPanel()
@@ -563,14 +663,39 @@ namespace ShadersCamera.Views
                                 VerticalOptions = LayoutOptions.Fill
                             }
                             .Assign(out ButtonCapture)
+                            .ObserveBindingContext<SkiaShape, CameraViewModel>((inner, vm, prop) =>
+                            {
+                                bool attached = prop == nameof(BindingContext);
+                                if (attached || prop == nameof(vm.Mode) || prop == nameof(vm.IsRecording))
+                                {
+                                    if (vm.IsRecording)
+                                    {
+                                        inner.Type = ShapeType.Rectangle;
+                                        inner.CornerRadius = 6;
+                                        inner.BackgroundColor = Colors.DarkRed;
+                                    }
+                                    else if (vm.Mode == CameraViewModel.CaptureUIMode.Video)
+                                    {
+                                        inner.Type = ShapeType.Rectangle;
+                                        inner.CornerRadius = 6;
+                                        inner.BackgroundColor = Color.Parse("#CECECE");
+                                    }
+                                    else
+                                    {
+                                        inner.Type = ShapeType.Circle;
+                                        inner.BackgroundColor = Color.Parse("#CECECE");
+                                    }
+                                }
+                            })
                     }
             }
                 .ObserveBindingContext<SkiaShape, CameraViewModel>((me, vm, prop) =>
                 {
                     bool attached = prop == nameof(BindingContext);
-                    if (attached && vm.CommandCaptureStillPhoto != null)
+                    if (attached)
                     {
-                        me.OnTapped(shape => vm.CommandCaptureStillPhoto.Execute(null));
+                        if (vm.CommandShutterTapped != null)
+                            me.OnTapped(shape => vm.CommandShutterTapped.Execute(null));
                     }
                 });
         }
@@ -801,6 +926,8 @@ namespace ShadersCamera.Views
 
         public void OpenHelp()
         {
+            return;
+
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 var popup = new HelpPopup();

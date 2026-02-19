@@ -2,11 +2,11 @@
 
   <PropertyGroup>
 
-    <!--<TargetFrameworks>net9.0-ios;</TargetFrameworks>-->
+    <TargetFrameworks>net9.0-ios;</TargetFrameworks>
     <!--<TargetFrameworks>net9.0-android;</TargetFrameworks>-->
     
-    <TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
-    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
+    <!--<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>-->
 
     <OutputType>Exe</OutputType>
     <RootNamespace>ShadersCamera</RootNamespace>
@@ -96,7 +96,7 @@
   </ItemGroup>-->
 
   <ItemGroup>
-    <PackageReference Include="DrawnUi.Maui.Camera" Version="1.9.1.1" />
+    <!--<PackageReference Include="DrawnUi.Maui.Camera" Version="1.9.1.1" />-->
     <PackageReference Include="AppoMobi.Maui.FastPopups" Version="1.2.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
     <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.70" />
@@ -148,6 +148,11 @@
 
   <ItemGroup>
     <None Include="..\..\README.md" Link="README.md" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\DrawnUi.Maui\src\Maui\Addons\DrawnUi.Maui.Camera\DrawnUi.Maui.Camera.csproj" />
   </ItemGroup>
 
 

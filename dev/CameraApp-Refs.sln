@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastRepro", "..\..\DrawnUi.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "..\..\DrawnUi.Maui\src\Maui\Samples\Sandbox\Sandbox.csproj", "{9E8CD945-AB2A-2FEF-D962-CBDC4A7248EF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CameraTests", "..\..\DrawnUi.Maui\src\Maui\Samples\Camera\CameraTests.csproj", "{2C274321-F41E-090D-C929-79400D88D71E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,6 +64,10 @@ Global
 		{9E8CD945-AB2A-2FEF-D962-CBDC4A7248EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E8CD945-AB2A-2FEF-D962-CBDC4A7248EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E8CD945-AB2A-2FEF-D962-CBDC4A7248EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C274321-F41E-090D-C929-79400D88D71E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C274321-F41E-090D-C929-79400D88D71E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C274321-F41E-090D-C929-79400D88D71E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C274321-F41E-090D-C929-79400D88D71E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -73,6 +79,7 @@ Global
 		{A53734E6-1896-F775-5EEA-1A175FDA2B28} = {5B1CDC4F-5ED6-4662-8EC6-3DE3FF0B05BE}
 		{AF62CF62-A472-E87B-7225-8BD178AC3DF2} = {5B1CDC4F-5ED6-4662-8EC6-3DE3FF0B05BE}
 		{9E8CD945-AB2A-2FEF-D962-CBDC4A7248EF} = {5B1CDC4F-5ED6-4662-8EC6-3DE3FF0B05BE}
+		{2C274321-F41E-090D-C929-79400D88D71E} = {5B1CDC4F-5ED6-4662-8EC6-3DE3FF0B05BE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {329E3D0C-A3F7-4A3E-B61C-6B2D1BD7F708}

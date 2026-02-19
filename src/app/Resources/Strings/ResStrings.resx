@@ -163,6 +163,9 @@
     <value>- Tap anywhere on the screen to set frame as preview
 - Choose your filter from bottom drawer menu!
 - Can zoom camera with fingers
+- Tap shutter to take a photo
+- Tap PHOTO/VIDEO label to switch mode
+- In VIDEO mode, tap shutter to start/stop recording
 - Open settings for more!</value>
   </data>
   <data name="Settings" xml:space="preserve">
