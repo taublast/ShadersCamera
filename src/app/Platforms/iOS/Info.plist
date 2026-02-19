@@ -13,6 +13,10 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/icon.appiconset</string>
+  
+    <string>Allow microphone access for the camera</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+
 	<key>NSCameraUsageDescription</key>
 	<string>We need camera access to capture and process photos.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
