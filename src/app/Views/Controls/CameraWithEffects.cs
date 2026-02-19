@@ -11,7 +11,7 @@ namespace ShadersCamera.Views.Controls
 
         public CameraWithEffects()
         {
-            NeedPermissionsSet = NeedPermissions.Camera | NeedPermissions.Gallery | NeedPermissions.Microphone;
+            //NeedPermissionsSet = NeedPermissions.Camera | NeedPermissions.Gallery;
         }
 
         protected override void OnDisplayReady()

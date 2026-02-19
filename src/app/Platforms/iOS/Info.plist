@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleVersion</key>
-	<string>151002</string>
+	<string>151004</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIDeviceFamily</key>
@@ -13,10 +13,6 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/icon.appiconset</string>
-
-  <key>NSMicrophoneUsageDescription</key>
-  <string>Allow microphone access for the camera</string>
-
 	<key>NSCameraUsageDescription</key>
 	<string>We need camera access to capture and process photos.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
