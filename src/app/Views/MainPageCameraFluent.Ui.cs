@@ -281,7 +281,7 @@ namespace ShadersCamera.Views
                 ConstantUpdate = false,
                 Tag = "Camera"
             }
-                //.Assign(out CameraControl)
+                .Assign(out CameraControl)
                 .ObserveBindingContext<CameraWithEffects, CameraViewModel>((me, vm, prop) =>
                 {
                     bool attached = prop == nameof(BindingContext);

@@ -2,8 +2,8 @@
 
   <PropertyGroup>
 
-    <TargetFrameworks>net9.0-ios;</TargetFrameworks>
-    <!--<TargetFrameworks>net9.0-android;</TargetFrameworks>-->
+    <!--<TargetFrameworks>net9.0-ios;</TargetFrameworks>-->
+    <TargetFrameworks>net9.0-android;</TargetFrameworks>
     
     <!--<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>-->
@@ -63,6 +63,11 @@
     <AndroidResource Include="Platforms\Android\Resources\*\*.webp" />
   </ItemGroup>
 
+  <PropertyGroup Condition="$(TargetFramework.Contains('ios'))">
+    <ProvisioningType>manual</ProvisioningType>
+    <CodesignKey>Apple Distribution: NIKOLAY KOVALSKIY (F5H2D34D9G)</CodesignKey>
+    <CodesignProvision>ShadersCam AppStore</CodesignProvision>
+  </PropertyGroup>
 
   <ItemGroup>
 
