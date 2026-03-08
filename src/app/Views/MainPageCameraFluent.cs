@@ -329,8 +329,12 @@ namespace ShadersCamera.Views
         {
             if (e.PropertyName == nameof(SkiaCamera.IsBusy))
             {
-                var color = CameraControl.IsBusy ? Colors.DarkRed : Color.Parse("#CECECE");
-                ButtonCapture.BackgroundColor = color;
+                if (_vm.IsRecording)
+                    return;
+
+                ButtonCapture.BackgroundColor = CameraControl.IsBusy
+                    ? Colors.DarkRed
+                    : Color.Parse("#CECECE");
             }
         }
 
@@ -423,7 +427,7 @@ namespace ShadersCamera.Views
                 CameraControl.Aspect = TransformAspect.AspectFitFill;
             }
 
-            CameraControl.IsMirrored = IsMirrored;
+            CameraControl.MirrorPreviewX = IsMirrored;
 
             UserSettings.Current.Mirror = IsMirrored;
             UserSettings.Current.Fill = CameraControl.Aspect == TransformAspect.AspectCover;

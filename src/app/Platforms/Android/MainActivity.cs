@@ -4,7 +4,7 @@ using Android.Content.PM;
 namespace ShadersCamera
 {
     [Activity(Theme = "@style/MainTheme", MainLauncher = true,
-        LaunchMode = LaunchMode.SingleTask,
+        LaunchMode = LaunchMode.SingleInstance,
         ConfigurationChanges = ConfigChanges.ScreenSize
                                | ConfigChanges.Orientation
                                | ConfigChanges.UiMode
