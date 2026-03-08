@@ -95,9 +95,9 @@ namespace ShadersCamera.Views
         /// </summary>
         private bool StartupSuccessChecked;
 
-        private void OnCameraStateChanged(object sender, CameraState state)
+        private void OnCameraStateChanged(object sender, HardwareState state)
         {
-            if (state == CameraState.On)
+            if (state == HardwareState.On)
             {
                 Debug.WriteLine($"[CameraApp] State in ON!");
 
@@ -238,7 +238,7 @@ namespace ShadersCamera.Views
 
         private void TappedTurnCamera()
         {
-            if (CameraControl.State == CameraState.On)
+            if (CameraControl.State == HardwareState.On)
             {
                 CameraControl.IsOn = false;
             }
@@ -251,7 +251,7 @@ namespace ShadersCamera.Views
 
         private async void TappedTakePicture(object sender, SkiaGesturesParameters skiaGesturesParameters)
         {
-            if (CameraControl.State == CameraState.On && !CameraControl.IsBusy)
+            if (CameraControl.State == HardwareState.On && !CameraControl.IsBusy)
             {
                 CameraControl.FlashScreen(Color.Parse("#EEFFFFFF"));
                 await CameraControl.TakePicture().ConfigureAwait(false);
