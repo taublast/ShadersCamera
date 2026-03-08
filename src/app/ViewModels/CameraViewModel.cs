@@ -248,7 +248,7 @@ public class CameraViewModel : ProjectViewModel, IQueryAttributable
         if (TouchEffect.CheckLockAndSet())
             return;
 
-        if (Camera?.State == CameraState.On && !Camera.IsBusy)
+        if (Camera?.State == HardwareState.On && !Camera.IsBusy)
         {
             _ = Camera.TakePicture().ConfigureAwait(false);
         }
@@ -267,7 +267,7 @@ public class CameraViewModel : ProjectViewModel, IQueryAttributable
         if (TouchEffect.CheckLockAndSet())
             return;
 
-        if (Camera?.State != CameraState.On || Camera.IsBusy)
+        if (Camera?.State != HardwareState.On || Camera.IsBusy)
             return;
 
         if (Mode == CaptureUIMode.Photo)
@@ -355,9 +355,9 @@ public class CameraViewModel : ProjectViewModel, IQueryAttributable
         // was used in detection mode
     }
 
-    private void OnCameraStateChanged(object sender, CameraState state)
+    private void OnCameraStateChanged(object sender, HardwareState state)
     {
-        if (state == CameraState.On)
+        if (state == HardwareState.On)
         {
             if (Camera?.Display != null)
             {
