@@ -240,15 +240,6 @@ jobs:
           echo "IOS_PROFILE_UUID=$PROFILE_UUID" >> "$GITHUB_ENV"
           echo "IOS_PROFILE_NAME=$PROFILE_NAME" >> "$GITHUB_ENV"
 
-      - name: Set version variables
-        shell: bash
-        run: |
-          DISPLAY_BASE="$(python3 -c 'import os, xml.etree.ElementTree as ET; root = ET.parse(os.environ["PROJECT_PATH"]).getroot(); print(next((node.text.strip() for group in root.findall("PropertyGroup") for node in [group.find("ApplicationDisplayVersion")] if node is not None and node.text), "1.0"))')"
-
-          BUILD_NUMBER="${{ github.run_number }}"
-          echo "VERSION_DISPLAY=$DISPLAY_BASE.$BUILD_NUMBER" >> "$GITHUB_ENV"
-          echo "VERSION_BUILD=$BUILD_NUMBER" >> "$GITHUB_ENV"
-
       - name: Restore NuGet packages
         shell: bash
         run: |
@@ -266,9 +257,7 @@ jobs:
             -p:BuildIpa=true \
             -p:ProvisioningType=manual \
             -p:CodesignKey="$IOS_CODESIGN_KEY_RESOLVED" \
-            -p:CodesignProvision="$IOS_PROFILE_NAME" \
-            -p:ApplicationDisplayVersion="$VERSION_DISPLAY" \
-            -p:ApplicationVersion="$VERSION_BUILD"
+            -p:CodesignProvision="$IOS_PROFILE_NAME"
 
       - name: Collect IPA artifact
         shell: bash
@@ -316,6 +305,8 @@ jobs:
       - name: Upload build to App Store Connect
         shell: bash
         run: |
+          set -e  # Exit immediately if any command fails
+
           IPA_PATH="$(find downloaded-ipa -type f -name "*.ipa" | head -n 1)"
 
           if [[ -z "$IPA_PATH" ]]; then
@@ -332,4 +323,9 @@ jobs:
             --verbose
           )
 
-          xcrun altool "${ALTOOL_ARGS[@]}"
+          if ! xcrun altool "${ALTOOL_ARGS[@]}"; then
+            echo "App Store Connect upload failed. Check the detailed error messages above."
+            exit 1
+          fi
+
+          echo "Build successfully uploaded to App Store Connect."
