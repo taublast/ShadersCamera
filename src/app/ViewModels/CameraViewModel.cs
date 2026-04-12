@@ -62,10 +62,13 @@ public class CameraViewModel : ProjectViewModel, IQueryAttributable
 
             new ShaderItem { Title = "Sketch", Filename = "Shaders/Camera/sketch.sksl" },
             new ShaderItem { Title = "Paint", Filename = "Shaders/Camera/sketchcolors.sksl" },
+            new ShaderItem { Title = "Print", Filename = "Shaders/Camera/print.sksl" },
+            new ShaderItem { Title = "Geisha", Filename = "Shaders/Camera/geisha.sksl" },
 
-#if !ANDROID
+    #region  Low FPS on Android
             new ShaderItem { Title = "Poster", Filename = "Shaders/Camera/sketchcomics4.sksl" },
-#endif
+            new ShaderItem { Title = "Cartoon", Filename = "Shaders/Camera/cartoon.sksl" },
+    #endregion
 
             new ShaderItem { Title = "Mars", Filename = "Shaders/Camera/hell.sksl" },
             new ShaderItem { Title = "Invert", Filename = "Shaders/Camera/invert.sksl" },
@@ -316,7 +319,7 @@ public class CameraViewModel : ProjectViewModel, IQueryAttributable
             Camera.CaptureSuccess += OnCaptureSuccess;
             Camera.StateChanged += OnCameraStateChanged;
             Camera.NewPreviewSet += OnNewPreviewSet;
-            Camera.IsRecordingVideoChanged += OnIsRecordingVideoChanged;
+            Camera.IsRecordingChanged += OnIsRecordingVideoChanged;
             Camera.RecordingProgress += OnVideoRecordingProgress;
         }
     }
@@ -328,7 +331,7 @@ public class CameraViewModel : ProjectViewModel, IQueryAttributable
             Camera.CaptureSuccess -= OnCaptureSuccess;
             Camera.StateChanged -= OnCameraStateChanged;
             Camera.NewPreviewSet -= OnNewPreviewSet;
-            Camera.IsRecordingVideoChanged -= OnIsRecordingVideoChanged;
+            Camera.IsRecordingChanged -= OnIsRecordingVideoChanged;
             Camera.RecordingProgress -= OnVideoRecordingProgress;
             Camera = null;
         }
@@ -378,8 +381,6 @@ public class CameraViewModel : ProjectViewModel, IQueryAttributable
 
     private async void OnCaptureSuccess(object sender, CapturedImage captured)
     {
-        captured.SolveExifOrientation();
-
         var imageWithOverlay = await Camera.RenderCapturedPhotoAsync(captured, null, image =>
         {
             if (SelectedShader != null)
@@ -387,7 +388,6 @@ public class CameraViewModel : ProjectViewModel, IQueryAttributable
                 var shaderEffect = new SkiaShaderEffect()
                 {
                     ShaderSource = SelectedShader.Filename,
-                    TileMode = SKShaderTileMode.Mirror
                 };
                 image.VisualEffects.Add(shaderEffect);
             }

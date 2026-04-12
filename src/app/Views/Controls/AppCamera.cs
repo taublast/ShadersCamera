@@ -1,17 +1,34 @@
+using AppoMobi.Specials;
 using DrawnUi.Camera;
 using DrawnUi.Infrastructure;
 using ShadersCamera.Models;
 using System.Windows.Input;
-using AppoMobi.Specials;
+using static Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific.VisualElement;
 
 namespace ShadersCamera.Views.Controls
 {
-    public class CameraWithEffects : SkiaCamera
+    public class AppCamera : SkiaCamera
     {
 
-        public CameraWithEffects()
+        public AppCamera()
         {
             //NeedPermissionsSet = NeedPermissions.Camera | NeedPermissions.Gallery;
+            UseRealtimeVideoProcessing = true;
+#if DEBUG
+            VideoDiagnosticsOn = true;
+#endif
+        }
+
+        protected override void RenderPreviewForProcessing(SKCanvas canvas, SKImage frame)
+        {
+            var shader = GetEffectShader();
+            if (shader == null)
+            {
+                base.RenderPreviewForProcessing(canvas, frame);
+                return;
+            }
+
+            shader.DrawImage(canvas, frame, 0, 0);
         }
 
         protected override void OnDisplayReady()
@@ -23,13 +40,7 @@ namespace ShadersCamera.Views.Controls
                 //do not block startup by this
                 InitializeEffects();
             });
-        }
 
-        protected override void Paint(DrawingContext ctx)
-        {
-            base.Paint(ctx);
-
-            FrameAquired = false;
         }
 
         /// <summary>
@@ -60,20 +71,19 @@ namespace ShadersCamera.Views.Controls
             if (_shaders == null)
             {
                 _shaders = Files.ListAssets(path);
-
             }
         }
 
-        private SkiaShaderEffect _shader;
+        //private SkiaShaderEffect _shader;
         private SkiaShaderEffect _shaderGlobal;
         public void ChangeShaderCode(string code)
         {
-            if (Display == null || _shader==null)
+            if (_effectShader == null)
             {
                 return;
             }
 
-            _shader.ShaderCode = code;
+            _effectShader.CompileFromCode(code, null, false, RaiseShaderError);
         }
 
         public void SetEffect(SkiaImageEffect effect)
@@ -87,57 +97,78 @@ namespace ShadersCamera.Views.Controls
             SetCustomShader(ShaderSource);
         }
 
+        private SkiaShader GetEffectShader()
+        {
+            var effect = VideoEffect;
+            if (effect == null)
+            {
+                ReleaseEffectShader();
+                return null;
+            }
+
+            if (_effectShader != null && _loadedEffect == effect)
+            {
+                return _effectShader;
+            }
+
+            ReleaseEffectShader();
+
+            var filename = effect.Filename;// ShaderEffectHelper.GetFilename(effect);
+            if (string.IsNullOrWhiteSpace(filename))
+            {
+                return null;
+            }
+
+            _effectShader = SkiaShader.FromResource(filename, true, RaiseShaderError);
+            _loadedEffect = effect;
+
+            return _effectShader;
+        }
+
+        private void ReleaseEffectShader()
+        {
+            _effectShader?.Dispose();
+            _effectShader = null;
+            _loadedEffect = null;
+        }
+
+        private SkiaShader _effectShader;
+        private ShaderItem _loadedEffect;
+
+        public static readonly BindableProperty VideoEffectProperty = BindableProperty.Create(
+            nameof(VideoEffect),
+            typeof(ShaderItem),
+            typeof(AppCamera),
+            null);
+
+        public ShaderItem VideoEffect
+        {
+            get => (ShaderItem)GetValue(VideoEffectProperty);
+            set => SetValue(VideoEffectProperty, value);
+        }
+
+        public override void OnWillDisposeWithChildren()
+        {
+            ReleaseEffectShader();
+
+            base.OnWillDisposeWithChildren();
+        }
 
         protected virtual void SetCustomShader(ShaderItem shader)
         {
-            if (Display == null)
-            {
-                return;
-            }
-
-            //just having fun, add ripples to preview
-/*
-            if (_shaderGlobal == null)
-            {
-                _shaderGlobal = new MultiRippleWithTouchEffect() 
-                {
-                    SecondarySource="Images/logo.png"
-                };
-                VisualEffects.Add(_shaderGlobal);
-            }
-*/
-
-            // Remove existing shader if any
-            if (_shader != null && VisualEffects.Contains(_shader))
-            {
-                _shader.OnCompilationError -= OnShaderError;
-                VisualEffects.Remove(_shader);
-            }
-
-            if (Effect == SkiaImageEffect.Custom && shader != null)
-            {
-
-                // Create new shader with the specified filename
-                _shader = new ClippedShaderEffect(Display)
-                {
-                    ShaderSource = shader.Filename,
-                    //FilterMode = SKFilterMode.Linear <== it's default
-                };
-
-                // Add the new shader
-                if (_shader != null && !VisualEffects.Contains(_shader))
-                {
-                    _shader.OnCompilationError += OnShaderError;
-                    VisualEffects.Add(_shader);
-                }
-            }
+            VideoEffect = shader;
         }
 
         private ShaderEditorPage _editor;
 
-        private void OnShaderError(object sender, string error)
+        private void RaiseShaderError(string error)
         {
             _editor?.ReportCompilationError(error);
+        }
+
+        private void OnShaderError(object sender, string error)
+        {
+            RaiseShaderError(error);
         }
 
         public ICommand CommandEditShader
@@ -147,9 +178,9 @@ namespace ShadersCamera.Views.Controls
                 return new Command(async (context) =>
                 {
                     //just change currently running shader code, no matter what exactly we longpressed
-                    if (_shader != null)
+                    if (_effectShader != null)
                     {
-                        var code = _shader.LoadedCode;
+                        var code = _effectShader.Code;
                         MainThread.BeginInvokeOnMainThread(() =>
                         {
                             _editor = new ShaderEditorPage(code, CallBackSetSelectedShaderCode);
@@ -192,7 +223,7 @@ namespace ShadersCamera.Views.Controls
 
         private static void NeedChangeShader(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is CameraWithEffects control)
+            if (bindable is AppCamera control)
             {
                 control.SetCustomShader(control.ShaderSource);
             }
@@ -200,7 +231,7 @@ namespace ShadersCamera.Views.Controls
 
         public static readonly BindableProperty ShaderSourceProperty = BindableProperty.Create(nameof(ShaderSource),
             typeof(ShaderItem),
-            typeof(CameraWithEffects),
+            typeof(AppCamera),
             null, propertyChanged: NeedChangeShader);
 
         public ShaderItem ShaderSource

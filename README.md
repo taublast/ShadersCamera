@@ -82,6 +82,8 @@ style="margin-top: 16px;" />
 
 Contributing to repository is very welcome. Many other nifty shaders could be added, the current UI is also not something fixed.
 
+CI/CD documentation is in `docs/github-actions-cicd.md`.
+
 ### Credits
 
 * **App Screenshots** - created with [Hotpot](https://hotpot.ai/)
