@@ -37,12 +37,8 @@ APPSTORE_PROVIDER_PUBLIC_ID=
 
 Secret meaning and how to create values:
 
-* `IOS_CODESIGN_KEY`
-  * What it is: the exact certificate identity name used for code signing.
-  * Example value: `Apple Distribution: Your Company Name (TEAMID1234)`
-  * How to find it on macOS:
-    * Run: `security find-identity -v -p codesigning`
-    * Copy the full identity string exactly.
+* iOS signing identity is auto-detected from the imported `.p12` certificate.
+  * `IOS_CODESIGN_KEY` is not required in this workflow.
 
 * `IOS_P12_BASE64`
   * What it is: base64 of the exported signing certificate `.p12` file.
@@ -118,3 +114,4 @@ Notes:
 * SDK is pinned via `global.json`.
 * Android version/build numbers are derived from manifest/project values plus GitHub run number.
 * iOS profile name is parsed from the provisioning profile during the workflow.
+* iOS code-signing identity is resolved automatically from the imported certificate.

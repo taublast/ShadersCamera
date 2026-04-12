@@ -71,11 +71,13 @@ jobs:
             exit 1
           fi
 
-          if ! echo "$IDENTITIES_OUTPUT" | grep -F "${{ secrets.IOS_CODESIGN_KEY }}" >/dev/null; then
-            echo "Configured IOS_CODESIGN_KEY was not found among imported identities."
-            echo "IOS_CODESIGN_KEY must exactly match one identity line shown above."
+          RESOLVED_CODESIGN_KEY="$(echo "$IDENTITIES_OUTPUT" | sed -n 's/.*"\(.*\)".*/\1/p' | head -n 1)"
+          if [[ -z "$RESOLVED_CODESIGN_KEY" ]]; then
+            echo "Could not extract code-signing identity from imported certificate output."
             exit 1
           fi
+
+          echo "Resolved code-signing identity: $RESOLVED_CODESIGN_KEY"
 
           security cms -D -i "$PROFILE_PATH" > "$PROFILE_PLIST_PATH"
 
@@ -208,6 +210,23 @@ jobs:
           security default-keychain -d user -s "$KEYCHAIN_PATH"
           security list-keychain -d user -s "$KEYCHAIN_PATH" login.keychain-db
 
+          IDENTITIES_OUTPUT="$(security find-identity -v -p codesigning "$KEYCHAIN_PATH" || true)"
+          echo "$IDENTITIES_OUTPUT"
+
+          if echo "$IDENTITIES_OUTPUT" | grep -q "0 valid identities found"; then
+            echo "No valid code-signing identity found in imported p12."
+            exit 1
+          fi
+
+          RESOLVED_CODESIGN_KEY="$(echo "$IDENTITIES_OUTPUT" | sed -n 's/.*"\(.*\)".*/\1/p' | head -n 1)"
+          if [[ -z "$RESOLVED_CODESIGN_KEY" ]]; then
+            echo "Could not extract code-signing identity from imported certificate output."
+            exit 1
+          fi
+
+          echo "IOS_CODESIGN_KEY_RESOLVED=$RESOLVED_CODESIGN_KEY" >> "$GITHUB_ENV"
+          echo "Resolved code-signing identity: $RESOLVED_CODESIGN_KEY"
+
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
 
           security cms -D -i "$PROFILE_PATH" > "$PROFILE_PLIST_PATH"
@@ -245,7 +264,7 @@ jobs:
             -p:ArchiveOnBuild=true \
             -p:BuildIpa=true \
             -p:ProvisioningType=manual \
-            -p:CodesignKey="${{ secrets.IOS_CODESIGN_KEY }}" \
+            -p:CodesignKey="$IOS_CODESIGN_KEY_RESOLVED" \
             -p:CodesignProvision="$IOS_PROFILE_NAME" \
             -p:ApplicationDisplayVersion="$VERSION_DISPLAY" \
             -p:ApplicationVersion="$VERSION_BUILD"
