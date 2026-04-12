@@ -1,0 +1,206 @@
+﻿uniform float4 iMouse;           
+uniform float  iTime;            
+uniform float2 iResolution;      
+uniform float2 iImageResolution; 
+uniform shader iImage1;          
+uniform float2 iOffset;          
+
+const int DEBUG_MODE = 2;
+
+const float SKETCH_THRESHOLD = 0.93;
+const int BLEND_MODE = 3;
+
+const float iLineWidth = 5.0;
+const float eraseNoise = 1.05;
+const float contrast = 8.0;
+
+// Fast Kawaii Parameters
+const float COLOR_LEVELS = 22.0;
+const float iColorAlpha = 0.68;
+const float iHueShift = 0.01;
+const float iSaturation = 1.90;
+const float iLightness = 1.24;
+const float iShadows = -0.05;
+const float iHighlights = 0.36;
+
+const float SMOOTH_RADIUS = 1.8;
+
+// ========================
+// Fast helpers
+float greyScale(half3 col) {
+    return dot(col, half3(0.299, 0.587, 0.114));
+}
+
+half3 colorDodge(half3 src, half3 dst) {
+    return step(0.0, dst) * mix(min(half3(1.0), dst / (1.0 - src)), half3(1.0), step(1.0, src)); 
+}
+
+// Cheap 3x3 smoothing (big performance win)
+half3 fastSmooth(float2 coord, float2 texel) {
+    half3 sum = iImage1.eval(coord).rgb * 4.0;
+    sum += iImage1.eval(coord + float2(-texel.x, 0.0)).rgb;
+    sum += iImage1.eval(coord + float2( texel.x, 0.0)).rgb;
+    sum += iImage1.eval(coord + float2(0.0, -texel.y)).rgb;
+    sum += iImage1.eval(coord + float2(0.0,  texel.y)).rgb;
+    return sum / 8.0;
+}
+
+// Fast posterize
+half3 fastPosterize(float2 inputCoord, float2 texel) {
+    half3 smoothed = fastSmooth(inputCoord, texel * SMOOTH_RADIUS);
+    return floor(smoothed * COLOR_LEVELS + 0.5) / COLOR_LEVELS;
+}
+
+// RGB to HSL
+half3 rgbToHsl(half3 rgb) {
+    float maxVal = max(max(rgb.r, rgb.g), rgb.b);
+    float minVal = min(min(rgb.r, rgb.g), rgb.b);
+    float delta = maxVal - minVal;
+    
+    float l = (maxVal + minVal) * 0.5;
+    
+    if (delta == 0.0) {
+        return half3(0.0, 0.0, l);
+    }
+    
+    float s = l > 0.5 ? delta / (2.0 - maxVal - minVal) : delta / (maxVal + minVal);
+    
+    float h;
+    if (maxVal == rgb.r) {
+        h = (rgb.g - rgb.b) / delta + (rgb.g < rgb.b ? 6.0 : 0.0);
+    } else if (maxVal == rgb.g) {
+        h = (rgb.b - rgb.r) / delta + 2.0;
+    } else {
+        h = (rgb.r - rgb.g) / delta + 4.0;
+    }
+    h /= 6.0;
+    
+    return half3(h, s, l);
+}
+
+// HSL to RGB
+half3 hslToRgb(half3 hsl) {
+    float h = hsl.x;
+    float s = hsl.y;
+    float l = hsl.z;
+    
+    if (s == 0.0) {
+        return half3(l, l, l);
+    }
+    
+    float q = l < 0.5 ? l * (1.0 + s) : l + s - l * s;
+    float p = 2.0 * l - q;
+    
+    float tr = h + 1.0/3.0;
+    float tg = h;
+    float tb = h - 1.0/3.0;
+    
+    if (tr < 0.0) tr += 1.0; if (tr > 1.0) tr -= 1.0;
+    if (tb < 0.0) tb += 1.0; if (tb > 1.0) tb -= 1.0;
+    
+    float r, g, b;
+    
+    if (tr < 1.0/6.0) r = p + (q - p) * 6.0 * tr;
+    else if (tr < 1.0/2.0) r = q;
+    else if (tr < 2.0/3.0) r = p + (q - p) * (2.0/3.0 - tr) * 6.0;
+    else r = p;
+    
+    if (tg < 1.0/6.0) g = p + (q - p) * 6.0 * tg;
+    else if (tg < 1.0/2.0) g = q;
+    else if (tg < 2.0/3.0) g = p + (q - p) * (2.0/3.0 - tg) * 6.0;
+    else g = p;
+    
+    if (tb < 1.0/6.0) b = p + (q - p) * 6.0 * tb;
+    else if (tb < 1.0/2.0) b = q;
+    else if (tb < 2.0/3.0) b = p + (q - p) * (2.0/3.0 - tb) * 6.0;
+    else b = p;
+    
+    return half3(r, g, b);
+}
+
+// HSL Adjustment
+half3 adjustHSL(half3 rgb, float hueShift, float satMult, float lightMult) {
+    half3 hsl = rgbToHsl(rgb);
+    hsl.x = fract(hsl.x + hueShift);
+    hsl.y = clamp(hsl.y * satMult, 0.0, 1.0);
+    hsl.z = clamp(hsl.z * lightMult, 0.0, 1.0);
+    return hslToRgb(hsl);
+}
+
+// Shadows & Highlights
+half3 adjustShadowsHighlights(half3 rgb, float shadowsAdj, float highlightsAdj) {
+    float lum = greyScale(rgb);
+    float shadowMask = 1.0 - smoothstep(0.0, 0.65, lum);
+    float highlightMask = smoothstep(0.35, 1.0, lum);
+    return clamp(rgb + half3(shadowsAdj * shadowMask + highlightsAdj * highlightMask), 0.0, 1.0);
+}
+
+// Blend
+half3 blendColorBurn(half3 base, half3 blend) {
+    return half3(1.0) - (half3(1.0) - base) / blend;
+}
+
+// Fast sketch lines
+float fastSketchLines(float2 inputCoord, float scaleFactor) {
+    half3 col = iImage1.eval(inputCoord).rgb;
+    
+    // Cheap blur
+    half3 blurred = col * 0.6;
+    float2 offset = 1.4 * scaleFactor * iLineWidth / iImageResolution.xy;
+    blurred += iImage1.eval(inputCoord + float2(-offset.x, 0.0)).rgb * 0.1;
+    blurred += iImage1.eval(inputCoord + float2( offset.x, 0.0)).rgb * 0.1;
+    blurred += iImage1.eval(inputCoord + float2(0.0, -offset.y)).rgb * 0.1;
+    blurred += iImage1.eval(inputCoord + float2(0.0,  offset.y)).rgb * 0.1;
+    
+    // Simple fast edge
+    float2 texel = 1.8 * scaleFactor * iLineWidth / iImageResolution.xy;
+    float edge = abs(greyScale(iImage1.eval(inputCoord + float2(texel.x, 0.0)).rgb) - 
+                     greyScale(iImage1.eval(inputCoord - float2(texel.x, 0.0)).rgb)) +
+                 abs(greyScale(iImage1.eval(inputCoord + float2(0.0, texel.y)).rgb) - 
+                     greyScale(iImage1.eval(inputCoord - float2(0.0, texel.y)).rgb));
+    
+    half3 inv = half3(1.0) - blurred;
+    float sketch = pow(greyScale(colorDodge(col, inv) * eraseNoise), contrast);
+    
+    return clamp(sketch * (1.0 + edge * 1.2), 0.0, 1.0);
+}
+
+// Fast color processing
+half3 processKawaiiColors(float2 inputCoord, float2 texel) {
+    half3 col = iImage1.eval(inputCoord).rgb;
+    
+    half3 quantized = fastPosterize(inputCoord, texel);
+    
+    half3 cartoon = adjustHSL(quantized, iHueShift, iSaturation, iLightness);
+    cartoon = adjustShadowsHighlights(cartoon, iShadows, iHighlights);
+    
+    half3 originalAdj = adjustHSL(col, iHueShift, iSaturation, iLightness);
+    originalAdj = adjustShadowsHighlights(originalAdj, iShadows, iHighlights);
+    
+    return mix(originalAdj, cartoon, iColorAlpha);
+}
+
+// Line blending
+half3 applyLineBlending(half3 colors, float sketchIntensity) {
+    if (sketchIntensity >= SKETCH_THRESHOLD) return colors;
+    
+    float alpha = clamp(1.0 - (sketchIntensity / SKETCH_THRESHOLD), 0.0, 1.0) * 1.6;
+    return blendColorBurn(colors, max(half3(sketchIntensity / SKETCH_THRESHOLD), half3(0.001)));
+}
+
+half4 main(float2 fragCoord) {
+    float2 renderingScale = iImageResolution.xy / iResolution.xy;
+    float2 inputCoord = (fragCoord - iOffset) * renderingScale;
+    
+    float2 texel = 1.0 / iImageResolution.xy;
+    float scaleFactor = min(iImageResolution.x, iImageResolution.y) / 1000.0;
+
+    half3 colors = processKawaiiColors(inputCoord, texel);
+    float lines = fastSketchLines(inputCoord, scaleFactor);
+
+    if (DEBUG_MODE == 0) return half4(half3(lines), 1.0);
+    if (DEBUG_MODE == 1) return half4(colors, 1.0);
+
+    half3 final = applyLineBlending(colors, lines);
+    return half4(clamp(final, 0.0, 1.0), 1.0);
+}

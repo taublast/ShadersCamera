@@ -23,9 +23,11 @@ Read [the blog article](https://taublast.github.io/posts/FiltersCamera/) 👈
 
 ### Latest Changes
 
-* Fixed camera album creation/permission on iOS 26+
-* Use latest camera nuget with better performance and bug fixes
-* Smooth filters menu
+* New draw-style shaders: Print, Geisha
+* Enabled shaders for Android due to performance gain: Poster, Cartoon
+* Save geolocation to EXIF if permissions granted
+* Save filter name to EXIF Software
+* Now uses .NET 10 and updated nugets
 
 ### Install
 
@@ -58,7 +60,6 @@ style="margin-top: 16px;" />
 
 * Rotate saved photo on iOS if taken while rotated even if rotation turned off for app
 * Rotate previews in menu when phone is rotated to landscape
-* Save filter name to EXIF (what field, Software (0x0131)?)
 * Add selection indicator for previews, scroll to selected at startup
 * Pass rendering scale as uniform for all shaders for full consistency between preview and large capture
 * Localization and change language in settings
@@ -68,7 +69,6 @@ style="margin-top: 16px;" />
 * Create presets (BW, For Kids etc..)
 * Crop manual/presets
 * Combine with lens shaders
-* Save geolocation to EXIF
 * Shaders editor for mobile version
 * ML Z-axis detection and apply smart bokeh
 
@@ -81,6 +81,8 @@ style="margin-top: 16px;" />
 ### Contributing
 
 Contributing to repository is very welcome. Many other nifty shaders could be added, the current UI is also not something fixed.
+
+CI/CD documentation is in `docs/github-actions-cicd.md`.
 
 ### Credits
 

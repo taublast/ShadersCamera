@@ -14,7 +14,7 @@ namespace ShadersCamera.Views
     public partial class MainCameraPageFluent : BasePageReloadable, IPageWIthCamera
     {
         Canvas Canvas;
-        CameraWithEffects CameraControl;
+        AppCamera CameraControl;
 
         //static for Hot Preview
         public static SkiaViewSwitcher? ViewsContainer;
@@ -58,48 +58,43 @@ namespace ShadersCamera.Views
                                 CreateMainLayout()
                             }
                         }.Assign(out ViewsContainer),
-#if xDEBUG
-                        new SkiaLabelFps()
-                        {
-                            Margin = new(0, 0, 4, 24),
-                            VerticalOptions = LayoutOptions.End,
-                            HorizontalOptions = LayoutOptions.End,
-                            Rotation = -45,
-                            FontSize = 11,
-                            BackgroundColor = Colors.DarkRed,
-                            TextColor = Colors.White,
-                            ZIndex = 110,
-                        }
+#if DEBUG
+                        CreateDebugFps()
 #endif
                     }
                 }.Fill()
             };
 
             this.Content =
-                new Grid()
+                new Grid() //for safe insets due to MAUI specifics
                 {
                     Children = { Canvas }
                 };
-
+ 
             Subscribe(true);
         }
 
         SkiaLayout CreateMainLayout()
         {
+            var headerSize = 38;
+
             return new SkiaLayout()
             {
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Fill,
                 Children =
                 {
-                    CreateCameraLayer(),
+                    CreateCameraControl(),
+
+                    CreateControlsPanel(),
+
+                    CreateGestureCatcher(),
 
                     new SkiaDrawer()
                         {
-                            AutoCache = false,
-                            UseCache = SkiaCacheType.Operations,
+                            UseCache = SkiaCacheType.GPU,
                             Margin = new Thickness(0, 0, 0, 100),
-                            HeaderSize = 40,
+                            HeaderSize = headerSize,
                             Direction = DrawerDirection.FromLeft,
                             VerticalOptions = LayoutOptions.End,
                             HorizontalOptions = LayoutOptions.Fill,
@@ -143,11 +138,12 @@ namespace ShadersCamera.Views
                                                 Footer = new SkiaLayout()
                                                 {
                                                     VerticalOptions = LayoutOptions.Fill,
-                                                    WidthRequest = 8 + 41 //drawer header
+                                                    WidthRequest = 9 + headerSize //drawer header
                                                 },
                                                 Content = new SkiaLayoutWithSelector()
                                                 {
                                                     Type = LayoutType.Row,
+                                                    UseCache = SkiaCacheType.Operations,
                                                     VerticalOptions = LayoutOptions.Center,
                                                     Spacing = 8,
                                                     RecyclingTemplate = RecyclingTemplate.Disabled,
@@ -190,28 +186,18 @@ namespace ShadersCamera.Views
                             }
                         }
                         .Assign(out ShaderDrawer),
-#if DEBUG
-                    CreateDebugFps()
-#endif
                 }
-            };
-        }
-
-        SkiaLayer CreateCameraLayer()
-        {
-            return new SkiaLayer()
+            }.OnTapped(me =>
             {
-                HorizontalOptions = LayoutOptions.Fill,
-                VerticalOptions = LayoutOptions.Fill,
-                Children =
-                    {
-                        CreateCameraControl(),
-                        CreateRecordingBadge(),
-                        CreateControlsLayer(),
-                        CreateZoomHotspot()
-                    }
-            }
-                .OnTapped(me => { TriggerUpdateSmallPreview = true; });
+                if (!CameraControl.IsOn)
+                {
+                    CameraControl.IsOn = true;
+                }
+                else
+                {
+                    TriggerUpdateSmallPreview = true;
+                }
+            }); ;
         }
 
         SkiaShape CreateRecordingBadge()
@@ -266,9 +252,9 @@ namespace ShadersCamera.Views
             });
         }
 
-        CameraWithEffects CreateCameraControl()
+        AppCamera CreateCameraControl()
         {
-            return new CameraWithEffects()
+            return new AppCamera()
             {
                 BackgroundColor = Colors.Black,
                 PhotoQuality = CaptureQuality.Medium,
@@ -282,7 +268,7 @@ namespace ShadersCamera.Views
                 Tag = "Camera"
             }
                 .Assign(out CameraControl)
-                .ObserveBindingContext<CameraWithEffects, CameraViewModel>((me, vm, prop) =>
+                .ObserveBindingContext<AppCamera, CameraViewModel>((me, vm, prop) =>
                 {
                     bool attached = prop == nameof(BindingContext);
                     if (attached || prop == nameof(vm.SelectedShader))
@@ -292,21 +278,7 @@ namespace ShadersCamera.Views
                 });
         }
 
-        SkiaLayer CreateControlsLayer()
-        {
-            return new SkiaLayer()
-            {
-                UseCache = SkiaCacheType.Operations,
-                VerticalOptions = LayoutOptions.Fill,
-                Children =
-                {
-                    //CreateCaptureModeLabel(), //todo in next version for video
-                    CreateControlsPanel(),
-                    CreateResumeHotspot()
-                }
-            };
-        }
-
+ 
         SkiaShape CreateCaptureModeLabel()
         {
             return new SkiaShape()
@@ -355,6 +327,7 @@ namespace ShadersCamera.Views
         {
             return new SkiaShape()
             {
+                UseCache = SkiaCacheType.GPU,
                 HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.End,
                 Margin = new Thickness(0, 0, 0, 24),
@@ -700,35 +673,17 @@ namespace ShadersCamera.Views
                 });
         }
 
-        SkiaHotspot CreateResumeHotspot()
-        {
-            return new SkiaHotspot()
-            {
-                HorizontalOptions = LayoutOptions.Center,
-                LockRatio = 1,
-                VerticalOptions = LayoutOptions.Center,
-                WidthRequest = 290,
-                ZIndex = 110
-            }
-                .OnTapped(me => TappedResume())
-                .ObserveBindingContext<SkiaHotspot, CameraViewModel>((me, vm, prop) =>
-                {
-                    bool attached = prop == nameof(BindingContext);
-                    if (attached || prop == nameof(vm.ShowResume))
-                    {
-                        me.IsVisible = vm.ShowResume;
-                    }
-                });
-        }
-
-        SkiaHotspotZoom CreateZoomHotspot()
+        SkiaHotspotZoom CreateGestureCatcher()
         {
             return new SkiaHotspotZoom()
             {
                 ZoomMax = 3,
                 ZoomMin = 1
             }
-                .Initialize(hotspot => { hotspot.Zoomed += OnZoomed; });
+            .Initialize(hotspot =>
+            {
+                hotspot.Zoomed += OnZoomed;
+            });
         }
 
         DataTemplate CreateShaderItemTemplate()
@@ -873,6 +828,7 @@ namespace ShadersCamera.Views
             return new SkiaLabelFps()
             {
                 Margin = new Thickness(0, 0, 4, 24),
+                UseCache = SkiaCacheType.GPU,
                 BackgroundColor = Colors.Black,
                 ForceRefresh = false,
                 HorizontalOptions = LayoutOptions.End,
@@ -926,8 +882,6 @@ namespace ShadersCamera.Views
 
         public void OpenHelp()
         {
-            return;
-
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 var popup = new HelpPopup();

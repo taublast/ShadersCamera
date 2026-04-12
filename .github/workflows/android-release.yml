@@ -1,0 +1,143 @@
+name: Android Release Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_format:
+        description: Android package output to build
+        required: true
+        type: choice
+        default: both
+        options:
+          - both
+          - aab
+          - apk
+
+jobs:
+  build-android:
+    runs-on: windows-latest
+
+    env:
+      PROJECT_PATH: src/app/ShadersCamera.csproj
+      TARGET_FRAMEWORK: net10.0-android
+      OUTPUT_DIR: artifacts/android
+      MANIFEST_PATH: src/app/Platforms/Android/AndroidManifest.xml
+      KEYSTORE_FILE_NAME: release.keystore
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET from global.json
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install MAUI workload
+        shell: pwsh
+        run: dotnet workload install maui
+
+      - name: Decode Android keystore
+        shell: pwsh
+        run: |
+          $keystorePath = Join-Path $pwd $env:KEYSTORE_FILE_NAME
+          [IO.File]::WriteAllBytes(
+            $keystorePath,
+            [Convert]::FromBase64String("${{ secrets.ANDROID_KEYSTORE }}")
+          )
+          "KEYSTORE_PATH=$keystorePath" >> $env:GITHUB_ENV
+
+      - name: Set version variables
+        shell: pwsh
+        run: |
+          [xml]$project = Get-Content $env:PROJECT_PATH
+          [xml]$manifest = Get-Content $env:MANIFEST_PATH
+          $androidNs = "http://schemas.android.com/apk/res/android"
+
+          $projectNode = $project.Project.PropertyGroup | Where-Object { $_.ApplicationDisplayVersion } | Select-Object -First 1
+          $displayBase = if ($projectNode -and $projectNode.ApplicationDisplayVersion) { "$($projectNode.ApplicationDisplayVersion)" } else { "1.0" }
+
+          $manifestVersionCode = [int]$manifest.manifest.GetAttribute("versionCode", $androidNs)
+          $runNumber = [int]"${{ github.run_number }}"
+          $versionCode = $manifestVersionCode + $runNumber
+          $versionDisplay = "$displayBase.$runNumber"
+
+          "VERSION_DISPLAY=$versionDisplay" >> $env:GITHUB_ENV
+          "VERSION_CODE=$versionCode" >> $env:GITHUB_ENV
+
+      - name: Resolve package formats
+        shell: pwsh
+        run: |
+          $packageFormat = "${{ inputs.package_format }}"
+          "PACKAGE_FORMAT=$packageFormat" >> $env:GITHUB_ENV
+
+      - name: Restore NuGet packages
+        shell: pwsh
+        run: dotnet restore "$env:PROJECT_PATH"
+
+      - name: Publish signed Android packages
+        shell: pwsh
+        run: |
+          function Publish-AndroidPackage([string]$packageFormat) {
+            $publishArgs = @(
+              'publish'
+              $env:PROJECT_PATH
+              '-f'
+              $env:TARGET_FRAMEWORK
+              '-c'
+              'Release'
+              '-p:AndroidKeyStore=true'
+              "-p:AndroidPackageFormats=$packageFormat"
+              "-p:AndroidVersionCode=$env:VERSION_CODE"
+              "-p:ApplicationVersion=$env:VERSION_CODE"
+              "-p:ApplicationDisplayVersion=$env:VERSION_DISPLAY"
+              "-p:AndroidSigningKeyAlias=${{ secrets.ANDROID_KEY_ALIAS }}"
+              "-p:AndroidSigningKeyPass=${{ secrets.ANDROID_KEY_PASSWORD }}"
+              "-p:AndroidSigningStorePass=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
+              "-p:AndroidSigningKeyStore=$env:KEYSTORE_PATH"
+            )
+
+            & dotnet @publishArgs
+            if ($LASTEXITCODE -ne 0) {
+              throw "dotnet publish failed for package format '$packageFormat'."
+            }
+          }
+
+          if ($env:PACKAGE_FORMAT -eq 'both') {
+            Publish-AndroidPackage 'aab'
+            Publish-AndroidPackage 'apk'
+          }
+          else {
+            Publish-AndroidPackage $env:PACKAGE_FORMAT
+          }
+
+      - name: Collect Android artifacts
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "$env:OUTPUT_DIR" | Out-Null
+          $files = Get-ChildItem -Path (Split-Path $env:PROJECT_PATH -Parent) -Recurse -File |
+            Where-Object {
+              $_.Extension -in '.aab', '.apk' -and
+              $_.BaseName -like '*-Signed'
+            }
+
+          if (-not $files) {
+            throw "No signed Android artifacts were produced."
+          }
+
+          foreach ($file in $files) {
+            Copy-Item $file.FullName -Destination "$env:OUTPUT_DIR" -Force
+          }
+
+      - name: Upload Android artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-${{ inputs.package_format }}-release
+          path: artifacts/android
+          if-no-files-found: error

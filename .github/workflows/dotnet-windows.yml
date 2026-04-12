@@ -5,23 +5,27 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
-
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 9.0.x
-        
-    - name: Install MAUI workload
-      run: dotnet workload install maui
-      
-    - name: Build
-      run: dotnet build src/app/ShadersCamera.csproj -c Release -f:net9.0-windows10.0.19041.0
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET from global.json
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui
+
+      - name: Restore
+        run: dotnet restore src/app/ShadersCamera.csproj
+
+      - name: Build
+        run: dotnet build src/app/ShadersCamera.csproj -c Release -f:net10.0-windows10.0.19041.0 --no-restore
 
   

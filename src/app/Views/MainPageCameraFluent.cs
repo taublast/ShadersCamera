@@ -33,6 +33,17 @@ namespace ShadersCamera.Views
             }
         }
 
+        void RefreshGpsLocationIfNeeded()
+        {
+            if (CameraControl.InjectGpsLocation)
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    _ = CameraControl.RefreshGpsLocation();
+                });
+            }
+        }
+
         void Subscribe(bool subscribe)
         {
             if (subscribe)
@@ -42,7 +53,6 @@ namespace ShadersCamera.Views
                 if (CameraControl != null)
                 {
                     CameraControl.CaptureFlashMode = (CaptureFlashMode)UserSettings.Current.Flash;
-                    CameraControl.PropertyChanged += OnContextPropertyChanged;
                 }
             }
             else
@@ -51,11 +61,6 @@ namespace ShadersCamera.Views
                 {
                     Canvas.ViewDisposing -= CanvasWillDispose;
                     Canvas.WillFirstTimeDraw -= WillFirstTimeDraw;
-                }
-
-                if (CameraControl != null)
-                {
-                    CameraControl.PropertyChanged -= OnContextPropertyChanged;
                 }
             }
         }
@@ -109,6 +114,20 @@ namespace ShadersCamera.Views
                 else
                 {
                     CameraControl.PhotoQuality = CaptureQuality.Medium;
+                }
+
+                if (CameraControl.Display != null)
+                {
+                    CameraControl.Display.Blur = 0;
+                }
+
+                RefreshGpsLocationIfNeeded();
+            }
+            else
+            {
+                if (CameraControl.Display != null)
+                {
+                    CameraControl.Display.Blur = 10;
                 }
             }
         }
@@ -248,33 +267,8 @@ namespace ShadersCamera.Views
             }
         }
 
-
-        private async void TappedTakePicture(object sender, SkiaGesturesParameters skiaGesturesParameters)
-        {
-            if (CameraControl.State == HardwareState.On && !CameraControl.IsBusy)
-            {
-                CameraControl.FlashScreen(Color.Parse("#EEFFFFFF"));
-                await CameraControl.TakePicture().ConfigureAwait(false);
-            }
-        }
-
-        private void TappedResume()
-        {
-            CameraControl.IsOn = true;
-        }
-
         float step = 0.2f;
         private bool _flashOn;
-
-        private void Tapped_ZoomOut(object sender, SkiaGesturesParameters skiaGesturesParameters)
-        {
-            CameraControl.Zoom -= step;
-        }
-
-        private void Tapped_ZoomIn(object sender, SkiaGesturesParameters skiaGesturesParameters)
-        {
-            CameraControl.Zoom += step;
-        }
 
         private void OnZoomed(object sender, ZoomEventArgs e)
         {
@@ -297,11 +291,6 @@ namespace ShadersCamera.Views
             SyncUi();
         }
 
-        private void TappedBackground(object sender, ControlTappedEventArgs e)
-        {
-            TriggerUpdateSmallPreview = true;
-        }
-
 
         private void WillFirstTimeDraw(object sender, SkiaDrawingContext e)
         {
@@ -319,24 +308,6 @@ namespace ShadersCamera.Views
             ShaderDrawer.IsOpen = !ShaderDrawer.IsOpen;
         }
 
-
-        /// <summary>
-        /// Observing SkiaCamera props
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnContextPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(SkiaCamera.IsBusy))
-            {
-                if (_vm.IsRecording)
-                    return;
-
-                ButtonCapture.BackgroundColor = CameraControl.IsBusy
-                    ? Colors.DarkRed
-                    : Color.Parse("#CECECE");
-            }
-        }
 
 
         #region SELECT FORMAT
