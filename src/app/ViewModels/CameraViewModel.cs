@@ -398,6 +398,10 @@ public class CameraViewModel : ProjectViewModel, IQueryAttributable
 
         captured.Meta.Vendor = MauiProgram.ExifCameraVendor;
         captured.Meta.Model = MauiProgram.ExifCameraModel;
+        if (SelectedShader != null)
+        {
+            captured.Meta.Software = SelectedShader.Title;
+        }
 
         await Camera.SaveToGalleryAsync(captured);
 

@@ -23,9 +23,10 @@ Read [the blog article](https://taublast.github.io/posts/FiltersCamera/) 👈
 
 ### Latest Changes
 
-* Save geolocation to EXIF if permissions granted
-* New draw-style shaders Print, Geisha
+* New draw-style shaders: Print, Geisha
 * Enabled shaders for Android due to performance gain: Poster, Cartoon
+* Save geolocation to EXIF if permissions granted
+* Save filter name to EXIF Software
 * Now uses .NET 10 and updated nugets
 
 ### Install
@@ -59,7 +60,6 @@ style="margin-top: 16px;" />
 
 * Rotate saved photo on iOS if taken while rotated even if rotation turned off for app
 * Rotate previews in menu when phone is rotated to landscape
-* Save filter name to EXIF (what field, Software (0x0131)?)
 * Add selection indicator for previews, scroll to selected at startup
 * Pass rendering scale as uniform for all shaders for full consistency between preview and large capture
 * Localization and change language in settings
