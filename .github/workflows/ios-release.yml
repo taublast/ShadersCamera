@@ -1,10 +1,10 @@
-name: iOS IPA Build
+name: iOS IPA Build and Publish
 
 on:
   workflow_dispatch:
 
 jobs:
-  validate-signing:
+  validate-credentials:
     runs-on: macos-15
 
     env:
@@ -17,6 +17,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Select Xcode 16.4
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.4'
 
       - name: Decode signing assets
         shell: bash
@@ -63,6 +68,30 @@ jobs:
 
           echo "Validated signing identity and provisioning profile: $PROFILE_NAME"
 
+      - name: Validate App Store Connect credentials
+        shell: bash
+        run: |
+          if [[ -z "${{ secrets.APPSTORE_USERNAME }}" ]]; then
+            echo "Repository secret APPSTORE_USERNAME is not set."
+            exit 1
+          fi
+
+          if [[ -z "${{ secrets.APPSTORE_APP_PASSWORD }}" ]]; then
+            echo "Repository secret APPSTORE_APP_PASSWORD is not set."
+            exit 1
+          fi
+
+          ALTOOL_ARGS=(
+            --list-providers
+            --username "${{ secrets.APPSTORE_USERNAME }}"
+            --app-password "@env:APPSTORE_APP_PASSWORD"
+            --output-format json
+          )
+
+          APPSTORE_APP_PASSWORD="${{ secrets.APPSTORE_APP_PASSWORD }}" xcrun altool "${ALTOOL_ARGS[@]}" >/dev/null
+
+          echo "Validated App Store Connect username and app-specific password."
+
       - name: Cleanup validation assets
         if: always()
         shell: bash
@@ -71,13 +100,13 @@ jobs:
           rm -f "$CERTIFICATE_PATH" "$PROFILE_PATH" "$PROFILE_PLIST_PATH"
 
   build-ios:
-    needs: validate-signing
+    needs: validate-credentials
     runs-on: macos-15
 
     env:
       PROJECT_PATH: src/app/ShadersCamera.csproj
       TARGET_FRAMEWORK: net10.0-ios
-      OUTPUT_DIR: artifacts/ios
+      OUTPUT_DIR: artifacts/ios-appstore
       CERTIFICATE_PATH: ${{ github.workspace }}/ios-signing.p12
       PROFILE_PATH: ${{ github.workspace }}/ios-signing.mobileprovision
       PROFILE_PLIST_PATH: ${{ github.workspace }}/ios-signing-profile.plist
@@ -179,13 +208,16 @@ jobs:
             exit 1
           fi
 
-          cp "$IPA_PATH" "$OUTPUT_DIR/"
+          FINAL_IPA_PATH="$OUTPUT_DIR/$(basename "$IPA_PATH")"
+          cp "$IPA_PATH" "$FINAL_IPA_PATH"
+
+          echo "IPA_PATH=$FINAL_IPA_PATH" >> "$GITHUB_ENV"
 
       - name: Upload iOS IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ios-ipa-release
-          path: artifacts/ios
+          name: ios-ipa-appstore-upload
+          path: artifacts/ios-appstore
           if-no-files-found: error
 
       - name: Cleanup signing assets
@@ -195,3 +227,35 @@ jobs:
           security delete-keychain "$KEYCHAIN_PATH" || true
           rm -f "$CERTIFICATE_PATH" "$PROFILE_PATH" "$PROFILE_PLIST_PATH"
           rm -f "$HOME/Library/MobileDevice/Provisioning Profiles/$IOS_PROFILE_UUID.mobileprovision" || true
+
+  upload-appstore:
+    needs: build-ios
+    runs-on: macos-15
+
+    steps:
+      - name: Download iOS IPA artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-ipa-appstore-upload
+          path: downloaded-ipa
+
+      - name: Upload build to App Store Connect
+        shell: bash
+        run: |
+          IPA_PATH="$(find downloaded-ipa -type f -name "*.ipa" | head -n 1)"
+
+          if [[ -z "$IPA_PATH" ]]; then
+            echo "No .ipa file was found in the downloaded artifact."
+            exit 1
+          fi
+
+          ALTOOL_ARGS=(
+            --upload-package "$IPA_PATH"
+            --platform ios
+            --username "${{ secrets.APPSTORE_USERNAME }}"
+            --app-password "@env:APPSTORE_APP_PASSWORD"
+            --output-format json
+            --wait
+          )
+
+          APPSTORE_APP_PASSWORD="${{ secrets.APPSTORE_APP_PASSWORD }}" xcrun altool "${ALTOOL_ARGS[@]}"
