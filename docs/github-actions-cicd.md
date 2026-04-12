@@ -20,14 +20,13 @@ This repository includes GitHub Actions workflows for MAUI build/release automat
 All repository secrets (single list):
 
 ```dos
-ANDROID_KEYSTORE=
-ANDROID_KEY_ALIAS=
-ANDROID_KEY_PASSWORD=
-ANDROID_KEYSTORE_PASSWORD=
+ANDROID_KEYSTORE
+ANDROID_KEY_ALIAS
+ANDROID_KEY_PASSWORD
+ANDROID_KEYSTORE_PASSWORD
 
-IOS_CODESIGN_KEY=
-IOS_P12_BASE64=
-IOS_P12_PASSWORD=
+IOS_P12_BASE64
+IOS_P12_PASSWORD
 IOS_MOBILEPROVISION_BASE64=
 
 APPSTORE_USERNAME=
@@ -36,9 +35,6 @@ APPSTORE_PROVIDER_PUBLIC_ID=
 ```
 
 Secret meaning and how to create values:
-
-* iOS signing identity is auto-detected from the imported `.p12` certificate.
-  * `IOS_CODESIGN_KEY` is not required in this workflow.
 
 * `IOS_P12_BASE64`
   * What it is: base64 of the exported signing certificate `.p12` file.
