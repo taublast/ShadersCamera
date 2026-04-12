@@ -94,14 +94,9 @@
     <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
-  <!--production-->
-  <ItemGroup Condition="'$(UseSource)' == 'false'">
-
-  </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="AppoMobi.Maui.FastPopups" Version="1.10.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
+    <PackageReference Include="AppoMobi.Maui.FastPopups" Version="1.10.2.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.5" />
     <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.11" />
     <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.11" />
   </ItemGroup>

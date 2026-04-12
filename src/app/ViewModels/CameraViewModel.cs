@@ -381,7 +381,7 @@ public class CameraViewModel : ProjectViewModel, IQueryAttributable
 
     private async void OnCaptureSuccess(object sender, CapturedImage captured)
     {
-        var imageWithOverlay = await Camera.RenderCapturedPhotoAsync(captured, null, image =>
+        var imageWithEffect = await Camera.RenderCapturedPhotoAsync(captured, null, image =>
         {
             if (SelectedShader != null)
             {
@@ -394,7 +394,7 @@ public class CameraViewModel : ProjectViewModel, IQueryAttributable
         }, true);
 
         captured.Image.Dispose();
-        captured.Image = imageWithOverlay;
+        captured.Image = imageWithEffect;
 
         captured.Meta.Vendor = MauiProgram.ExifCameraVendor;
         captured.Meta.Model = MauiProgram.ExifCameraModel;

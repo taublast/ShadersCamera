@@ -12,8 +12,13 @@ namespace ShadersCamera.Views.Controls
 
         public AppCamera()
         {
-            //NeedPermissionsSet = NeedPermissions.Camera | NeedPermissions.Gallery;
+            NeedPermissionsSet = NeedPermissions.Camera | NeedPermissions.Gallery; //we don't add location because it will be requested by OS when we 
+
             UseRealtimeVideoProcessing = true;
+
+            //GPS metadata
+            this.InjectGpsLocation = true;
+
 #if DEBUG
             VideoDiagnosticsOn = true;
 #endif

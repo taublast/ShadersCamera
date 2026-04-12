@@ -33,16 +33,26 @@ namespace ShadersCamera.Views
             }
         }
 
+        void RefreshGpsLocationIfNeeded()
+        {
+            if (CameraControl.InjectGpsLocation)
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    _ = CameraControl.RefreshGpsLocation();
+                });
+            }
+        }
+
         void Subscribe(bool subscribe)
         {
             if (subscribe)
             {
                 Canvas.ViewDisposing += CanvasWillDispose;
                 Canvas.WillFirstTimeDraw += WillFirstTimeDraw;
-                if (_appCameraControl != null)
+                if (CameraControl != null)
                 {
-                    _appCameraControl.CaptureFlashMode = (CaptureFlashMode)UserSettings.Current.Flash;
-                    _appCameraControl.PropertyChanged += OnContextPropertyChanged;
+                    CameraControl.CaptureFlashMode = (CaptureFlashMode)UserSettings.Current.Flash;
                 }
             }
             else
@@ -52,28 +62,23 @@ namespace ShadersCamera.Views
                     Canvas.ViewDisposing -= CanvasWillDispose;
                     Canvas.WillFirstTimeDraw -= WillFirstTimeDraw;
                 }
-
-                if (_appCameraControl != null)
-                {
-                    _appCameraControl.PropertyChanged -= OnContextPropertyChanged;
-                }
             }
         }
 
         void AttachCamera()
         {
-            if (BindingContext is CameraViewModel vm && _appCameraControl != null)
+            if (BindingContext is CameraViewModel vm && CameraControl != null)
             {
-                vm.AttachCamera(_appCameraControl);
+                vm.AttachCamera(CameraControl);
 
-                _appCameraControl.NewPreviewSet += OnPreviewSet;
-                _appCameraControl.StateChanged += OnAppCameraStateChanged;
+                CameraControl.NewPreviewSet += OnPreviewSet;
+                CameraControl.StateChanged += OnCameraStateChanged;
 
                 SyncUi();
 
                 try
                 {
-                    _appCameraControl.IsOn = true;
+                    CameraControl.IsOn = true;
                 }
                 catch (Exception e)
                 {
@@ -95,20 +100,34 @@ namespace ShadersCamera.Views
         /// </summary>
         private bool StartupSuccessChecked;
 
-        private void OnAppCameraStateChanged(object sender, HardwareState state)
+        private void OnCameraStateChanged(object sender, HardwareState state)
         {
             if (state == HardwareState.On)
             {
                 Debug.WriteLine($"[CameraApp] State in ON!");
 
-                if (UserSettings.Current.Formats.TryGetValue(_appCameraControl.CameraDevice.Id, out var format))
+                if (UserSettings.Current.Formats.TryGetValue(CameraControl.CameraDevice.Id, out var format))
                 {
-                    _appCameraControl.PhotoFormatIndex = format;
-                    _appCameraControl.PhotoQuality = CaptureQuality.Manual;
+                    CameraControl.PhotoFormatIndex = format;
+                    CameraControl.PhotoQuality = CaptureQuality.Manual;
                 }
                 else
                 {
-                    _appCameraControl.PhotoQuality = CaptureQuality.Medium;
+                    CameraControl.PhotoQuality = CaptureQuality.Medium;
+                }
+
+                if (CameraControl.Display != null)
+                {
+                    CameraControl.Display.Blur = 0;
+                }
+
+                RefreshGpsLocationIfNeeded();
+            }
+            else
+            {
+                if (CameraControl.Display != null)
+                {
+                    CameraControl.Display.Blur = 10;
                 }
             }
         }
@@ -194,7 +213,7 @@ namespace ShadersCamera.Views
                     };
                     if (dispose != null)
                     {
-                        _appCameraControl.DisposeObject(dispose);
+                        CameraControl.DisposeObject(dispose);
                     }
 
                     //for AI/ML use this:
@@ -228,9 +247,9 @@ namespace ShadersCamera.Views
 
         private void TappedSwitchCamera()
         {
-            if (_appCameraControl.IsOn)
+            if (CameraControl.IsOn)
             {
-                _appCameraControl.Facing = _appCameraControl.Facing == CameraPosition.Selfie
+                CameraControl.Facing = CameraControl.Facing == CameraPosition.Selfie
                     ? CameraPosition.Default
                     : CameraPosition.Selfie;
             }
@@ -238,47 +257,22 @@ namespace ShadersCamera.Views
 
         private void TappedTurnCamera()
         {
-            if (_appCameraControl.State == HardwareState.On)
+            if (CameraControl.State == HardwareState.On)
             {
-                _appCameraControl.IsOn = false;
+                CameraControl.IsOn = false;
             }
             else
             {
-                _appCameraControl.IsOn = true;
+                CameraControl.IsOn = true;
             }
-        }
-
-
-        private async void TappedTakePicture(object sender, SkiaGesturesParameters skiaGesturesParameters)
-        {
-            if (_appCameraControl.State == HardwareState.On && !_appCameraControl.IsBusy)
-            {
-                _appCameraControl.FlashScreen(Color.Parse("#EEFFFFFF"));
-                await _appCameraControl.TakePicture().ConfigureAwait(false);
-            }
-        }
-
-        private void TappedResume()
-        {
-            _appCameraControl.IsOn = true;
         }
 
         float step = 0.2f;
         private bool _flashOn;
 
-        private void Tapped_ZoomOut(object sender, SkiaGesturesParameters skiaGesturesParameters)
-        {
-            _appCameraControl.Zoom -= step;
-        }
-
-        private void Tapped_ZoomIn(object sender, SkiaGesturesParameters skiaGesturesParameters)
-        {
-            _appCameraControl.Zoom += step;
-        }
-
         private void OnZoomed(object sender, ZoomEventArgs e)
         {
-            _appCameraControl.Zoom = e.Value;
+            CameraControl.Zoom = e.Value;
         }
 
         private void TappedFlash()
@@ -287,19 +281,14 @@ namespace ShadersCamera.Views
 
             if (_flashOn)
             {
-                _appCameraControl.FlashMode = FlashMode.On;
+                CameraControl.FlashMode = FlashMode.On;
             }
             else
             {
-                _appCameraControl.FlashMode = FlashMode.Off;
+                CameraControl.FlashMode = FlashMode.Off;
             }
 
             SyncUi();
-        }
-
-        private void TappedBackground(object sender, ControlTappedEventArgs e)
-        {
-            TriggerUpdateSmallPreview = true;
         }
 
 
@@ -310,8 +299,8 @@ namespace ShadersCamera.Views
 
         private void CanvasWillDispose(object sender, EventArgs e)
         {
-            _appCameraControl.NewPreviewSet -= OnPreviewSet;
-            _appCameraControl.StateChanged -= OnAppCameraStateChanged;
+            CameraControl.NewPreviewSet -= OnPreviewSet;
+            CameraControl.StateChanged -= OnCameraStateChanged;
         }
 
         private void TappedDrawerHeader()
@@ -320,41 +309,23 @@ namespace ShadersCamera.Views
         }
 
 
-        /// <summary>
-        /// Observing SkiaCamera props
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnContextPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(SkiaCamera.IsBusy))
-            {
-                if (_vm.IsRecording)
-                    return;
-
-                ButtonCapture.BackgroundColor = _appCameraControl.IsBusy
-                    ? Colors.DarkRed
-                    : Color.Parse("#CECECE");
-            }
-        }
-
 
         #region SELECT FORMAT
 
         public CaptureFormat SelectedFormat
         {
-            get { return _appCameraControl.CurrentStillCaptureFormat; }
+            get { return CameraControl.CurrentStillCaptureFormat; }
         }
 
         public void SelectFormat(Action<string> changed)
         {
-            if (_appCameraControl.IsOn)
+            if (CameraControl.IsOn)
             {
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
                     try
                     {
-                        var formats = await _appCameraControl.GetAvailableCaptureFormatsAsync();
+                        var formats = await CameraControl.GetAvailableCaptureFormatsAsync();
 
                         if (!formats.Any())
                         {
@@ -379,15 +350,15 @@ namespace ShadersCamera.Views
                             if (selectedIndex >= 0)
                             {
                                 // Set manual capture mode with selected format
-                                _appCameraControl.PhotoFormatIndex = selectedIndex;
-                                _appCameraControl.PhotoQuality = CaptureQuality.Manual;
+                                CameraControl.PhotoFormatIndex = selectedIndex;
+                                CameraControl.PhotoQuality = CaptureQuality.Manual;
                                 OnPropertyChanged(nameof(SelectedFormat));
                                 changed?.Invoke(result);
 
                                 Debug.WriteLine(
-                                    $"[CameraApp] Format selection: {selectedIndex} for {_appCameraControl.CameraDevice.Id}");
+                                    $"[CameraApp] Format selection: {selectedIndex} for {CameraControl.CameraDevice.Id}");
 
-                                UserSettings.Current.Formats[_appCameraControl.CameraDevice.Id] = selectedIndex;
+                                UserSettings.Current.Formats[CameraControl.CameraDevice.Id] = selectedIndex;
                             }
                         }
                     }
@@ -413,24 +384,24 @@ namespace ShadersCamera.Views
 
         void ApplyAspect()
         {
-            if (_appCameraControl == null)
+            if (CameraControl == null)
             {
                 return;
             }
 
             if (IsFullScreen)
             {
-                _appCameraControl.Aspect = TransformAspect.AspectCover;
+                CameraControl.Aspect = TransformAspect.AspectCover;
             }
             else
             {
-                _appCameraControl.Aspect = TransformAspect.AspectFitFill;
+                CameraControl.Aspect = TransformAspect.AspectFitFill;
             }
 
-            _appCameraControl.MirrorPreviewX = IsMirrored;
+            CameraControl.MirrorPreviewX = IsMirrored;
 
             UserSettings.Current.Mirror = IsMirrored;
-            UserSettings.Current.Fill = _appCameraControl.Aspect == TransformAspect.AspectCover;
+            UserSettings.Current.Fill = CameraControl.Aspect == TransformAspect.AspectCover;
         }
 
         public bool IsFullScreen { get; set; }
@@ -449,7 +420,7 @@ namespace ShadersCamera.Views
         {
             try
             {
-                var currentMode = _appCameraControl.CaptureFlashMode;
+                var currentMode = CameraControl.CaptureFlashMode;
                 var nextMode = currentMode switch
                 {
                     CaptureFlashMode.Off => CaptureFlashMode.Auto,
@@ -458,7 +429,7 @@ namespace ShadersCamera.Views
                     _ => CaptureFlashMode.Auto
                 };
 
-                _appCameraControl.CaptureFlashMode = nextMode;
+                CameraControl.CaptureFlashMode = nextMode;
 
                 SyncUi();
 

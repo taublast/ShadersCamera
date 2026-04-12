@@ -23,9 +23,10 @@ Read [the blog article](https://taublast.github.io/posts/FiltersCamera/) 👈
 
 ### Latest Changes
 
-* Fixed camera album creation/permission on iOS 26+
-* Use latest camera nuget with better performance and bug fixes
-* Smooth filters menu
+* Save geolocation to EXIF if permissions granted
+* New draw-style shaders Print, Geisha
+* Enabled shaders for Android due to performance gain: Poster, Cartoon
+* Now uses .NET 10 and updated nugets
 
 ### Install
 
@@ -68,7 +69,6 @@ style="margin-top: 16px;" />
 * Create presets (BW, For Kids etc..)
 * Crop manual/presets
 * Combine with lens shaders
-* Save geolocation to EXIF
 * Shaders editor for mobile version
 * ML Z-axis detection and apply smart bokeh
 

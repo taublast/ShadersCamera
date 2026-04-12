@@ -14,7 +14,7 @@ namespace ShadersCamera.Views
     public partial class MainCameraPageFluent : BasePageReloadable, IPageWIthCamera
     {
         Canvas Canvas;
-        AppCamera _appCameraControl;
+        AppCamera CameraControl;
 
         //static for Hot Preview
         public static SkiaViewSwitcher? ViewsContainer;
@@ -66,19 +66,18 @@ namespace ShadersCamera.Views
             };
 
             this.Content =
-#if IOS
-                new Grid() //use grid for safe insets on iOS due to MAUI specifics
+                new Grid() //for safe insets due to MAUI specifics
                 {
                     Children = { Canvas }
                 };
-#else
-            Canvas;
-#endif
+ 
             Subscribe(true);
         }
 
         SkiaLayout CreateMainLayout()
         {
+            var headerSize = 38;
+
             return new SkiaLayout()
             {
                 HorizontalOptions = LayoutOptions.Fill,
@@ -86,13 +85,16 @@ namespace ShadersCamera.Views
                 Children =
                 {
                     CreateCameraControl(),
-                    CreateCameraLayer(),
+
+                    CreateControlsPanel(),
+
+                    CreateGestureCatcher(),
 
                     new SkiaDrawer()
                         {
                             UseCache = SkiaCacheType.GPU,
                             Margin = new Thickness(0, 0, 0, 100),
-                            HeaderSize = 40,
+                            HeaderSize = headerSize,
                             Direction = DrawerDirection.FromLeft,
                             VerticalOptions = LayoutOptions.End,
                             HorizontalOptions = LayoutOptions.Fill,
@@ -136,7 +138,7 @@ namespace ShadersCamera.Views
                                                 Footer = new SkiaLayout()
                                                 {
                                                     VerticalOptions = LayoutOptions.Fill,
-                                                    WidthRequest = 8 + 41 //drawer header
+                                                    WidthRequest = 9 + headerSize //drawer header
                                                 },
                                                 Content = new SkiaLayoutWithSelector()
                                                 {
@@ -185,23 +187,17 @@ namespace ShadersCamera.Views
                         }
                         .Assign(out ShaderDrawer),
                 }
-            };
-        }
-
-        SkiaLayer CreateCameraLayer()
-        {
-            return new SkiaLayer()
+            }.OnTapped(me =>
             {
-                HorizontalOptions = LayoutOptions.Fill,
-                VerticalOptions = LayoutOptions.Fill,
-                Children =
-                    {
-                        //CreateRecordingBadge(),
-                        CreateControlsLayer(),
-                        CreateZoomHotspot()
-                    }
-            }
-                .OnTapped(me => { TriggerUpdateSmallPreview = true; });
+                if (!CameraControl.IsOn)
+                {
+                    CameraControl.IsOn = true;
+                }
+                else
+                {
+                    TriggerUpdateSmallPreview = true;
+                }
+            }); ;
         }
 
         SkiaShape CreateRecordingBadge()
@@ -271,7 +267,7 @@ namespace ShadersCamera.Views
                 ConstantUpdate = false,
                 Tag = "Camera"
             }
-                .Assign(out _appCameraControl)
+                .Assign(out CameraControl)
                 .ObserveBindingContext<AppCamera, CameraViewModel>((me, vm, prop) =>
                 {
                     bool attached = prop == nameof(BindingContext);
@@ -282,21 +278,7 @@ namespace ShadersCamera.Views
                 });
         }
 
-        SkiaLayer CreateControlsLayer()
-        {
-            return new SkiaLayer()
-            {
-                //UseCache = SkiaCacheType.Operations,
-                VerticalOptions = LayoutOptions.Fill,
-                Children =
-                {
-                    //CreateCaptureModeLabel(), //todo in next version for video
-                    CreateControlsPanel(),
-                    CreateResumeHotspot()
-                }
-            };
-        }
-
+ 
         SkiaShape CreateCaptureModeLabel()
         {
             return new SkiaShape()
@@ -456,12 +438,12 @@ namespace ShadersCamera.Views
             }
                 .OnTapped(me =>
                 {
-                    if (SelectedFormat == null || _appCameraControl.PermissionsError)
+                    if (SelectedFormat == null || CameraControl.PermissionsError)
                     {
                         //camera error
                         try
                         {
-                            _appCameraControl.IsOn = true;
+                            CameraControl.IsOn = true;
                         }
                         catch (Exception e)
                         {
@@ -470,7 +452,7 @@ namespace ShadersCamera.Views
 
                         Tasks.StartDelayed(TimeSpan.FromMilliseconds(500), () =>
                         {
-                            if (_appCameraControl.PermissionsError)
+                            if (CameraControl.PermissionsError)
                             {
                                 MainThread.BeginInvokeOnMainThread(async () =>
                                 {
@@ -538,13 +520,13 @@ namespace ShadersCamera.Views
             }
                 .OnTapped(me =>
                 {
-                    var current = _appCameraControl.Effect;
-                    var currentIndex = _appCameraControl.AvailableEffects.IndexOf(current);
+                    var current = CameraControl.Effect;
+                    var currentIndex = CameraControl.AvailableEffects.IndexOf(current);
 
                     // Move to next effect, wrap around to beginning if at end
-                    var nextIndex = (currentIndex + 1) % _appCameraControl.AvailableEffects.Count;
+                    var nextIndex = (currentIndex + 1) % CameraControl.AvailableEffects.Count;
 
-                    _appCameraControl.SetEffect(_appCameraControl.AvailableEffects[nextIndex]);
+                    CameraControl.SetEffect(CameraControl.AvailableEffects[nextIndex]);
                 });
         }
 
@@ -691,35 +673,17 @@ namespace ShadersCamera.Views
                 });
         }
 
-        SkiaHotspot CreateResumeHotspot()
-        {
-            return new SkiaHotspot()
-            {
-                HorizontalOptions = LayoutOptions.Center,
-                LockRatio = 1,
-                VerticalOptions = LayoutOptions.Center,
-                WidthRequest = 290,
-                ZIndex = 110
-            }
-                .OnTapped(me => TappedResume())
-                .ObserveBindingContext<SkiaHotspot, CameraViewModel>((me, vm, prop) =>
-                {
-                    bool attached = prop == nameof(BindingContext);
-                    if (attached || prop == nameof(vm.ShowResume))
-                    {
-                        me.IsVisible = vm.ShowResume;
-                    }
-                });
-        }
-
-        SkiaHotspotZoom CreateZoomHotspot()
+        SkiaHotspotZoom CreateGestureCatcher()
         {
             return new SkiaHotspotZoom()
             {
                 ZoomMax = 3,
                 ZoomMin = 1
             }
-                .Initialize(hotspot => { hotspot.Zoomed += OnZoomed; });
+            .Initialize(hotspot =>
+            {
+                hotspot.Zoomed += OnZoomed;
+            });
         }
 
         DataTemplate CreateShaderItemTemplate()
@@ -815,9 +779,9 @@ namespace ShadersCamera.Views
                     })
                     .OnLongPressing(me =>
                     {
-                        if (me.BindingContext is ShaderItem item && _appCameraControl?.CommandEditShader != null)
+                        if (me.BindingContext is ShaderItem item && CameraControl?.CommandEditShader != null)
                         {
-                            _appCameraControl.CommandEditShader.Execute(item);
+                            CameraControl.CommandEditShader.Execute(item);
                         }
                     });
             });
@@ -888,7 +852,7 @@ namespace ShadersCamera.Views
             ApplyAspect();
 
             // CaptureFlashMode
-            var currentMode = _appCameraControl.CaptureFlashMode;
+            var currentMode = CameraControl.CaptureFlashMode;
             switch (currentMode)
             {
             case CaptureFlashMode.Off:
@@ -903,7 +867,7 @@ namespace ShadersCamera.Views
             }
 
             //FlashMode
-            var torch = _appCameraControl.FlashMode;
+            var torch = CameraControl.FlashMode;
             switch (torch)
             {
             case FlashMode.On:
@@ -918,8 +882,6 @@ namespace ShadersCamera.Views
 
         public void OpenHelp()
         {
-            return;
-
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 var popup = new HelpPopup();
