@@ -62,8 +62,18 @@ jobs:
           security import "$CERTIFICATE_PATH" -P "${{ secrets.IOS_P12_PASSWORD }}" -f pkcs12 -k "$KEYCHAIN_PATH" -T /usr/bin/codesign -T /usr/bin/security
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
-          if ! security find-identity -v -p codesigning "$KEYCHAIN_PATH" | grep -F "${{ secrets.IOS_CODESIGN_KEY }}" >/dev/null; then
-            echo "Configured IOS_CODESIGN_KEY was not found in the imported certificate."
+          IDENTITIES_OUTPUT="$(security find-identity -v -p codesigning "$KEYCHAIN_PATH" || true)"
+          echo "$IDENTITIES_OUTPUT"
+
+          if echo "$IDENTITIES_OUTPUT" | grep -q "0 valid identities found"; then
+            echo "No valid code-signing identity found in imported p12."
+            echo "Your IOS_P12_BASE64 likely does not include an Apple Distribution certificate + private key pair."
+            exit 1
+          fi
+
+          if ! echo "$IDENTITIES_OUTPUT" | grep -F "${{ secrets.IOS_CODESIGN_KEY }}" >/dev/null; then
+            echo "Configured IOS_CODESIGN_KEY was not found among imported identities."
+            echo "IOS_CODESIGN_KEY must exactly match one identity line shown above."
             exit 1
           fi
 
