@@ -71,9 +71,10 @@ jobs:
             exit 1
           fi
 
-          RESOLVED_CODESIGN_KEY="$(echo "$IDENTITIES_OUTPUT" | sed -n 's/.*"\(.*\)".*/\1/p' | head -n 1)"
+          RESOLVED_CODESIGN_KEY="$(echo "$IDENTITIES_OUTPUT" | sed -n 's/.*"\(Apple Distribution:.*\)".*/\1/p' | head -n 1)"
           if [[ -z "$RESOLVED_CODESIGN_KEY" ]]; then
-            echo "Could not extract code-signing identity from imported certificate output."
+            echo "No Apple Distribution identity found in imported certificate."
+            echo "Current p12 likely contains Apple Development cert only. Export Apple Distribution cert + private key to p12."
             exit 1
           fi
 
@@ -117,12 +118,11 @@ jobs:
 
           ALTOOL_ARGS=(
             --list-providers
-            --username "${{ secrets.APPSTORE_USERNAME }}"
-            --app-password "@env:APPSTORE_APP_PASSWORD"
-            --output-format json
+            -u "${{ secrets.APPSTORE_USERNAME }}"
+            -p "${{ secrets.APPSTORE_APP_PASSWORD }}"
           )
 
-          APPSTORE_APP_PASSWORD="${{ secrets.APPSTORE_APP_PASSWORD }}" xcrun altool "${ALTOOL_ARGS[@]}" >/dev/null
+          xcrun altool "${ALTOOL_ARGS[@]}" >/dev/null
 
           echo "Validated App Store Connect username and app-specific password."
 
@@ -218,9 +218,10 @@ jobs:
             exit 1
           fi
 
-          RESOLVED_CODESIGN_KEY="$(echo "$IDENTITIES_OUTPUT" | sed -n 's/.*"\(.*\)".*/\1/p' | head -n 1)"
+          RESOLVED_CODESIGN_KEY="$(echo "$IDENTITIES_OUTPUT" | sed -n 's/.*"\(Apple Distribution:.*\)".*/\1/p' | head -n 1)"
           if [[ -z "$RESOLVED_CODESIGN_KEY" ]]; then
-            echo "Could not extract code-signing identity from imported certificate output."
+            echo "No Apple Distribution identity found in imported certificate."
+            echo "Current p12 likely contains Apple Development cert only. Export Apple Distribution cert + private key to p12."
             exit 1
           fi
 
@@ -323,12 +324,12 @@ jobs:
           fi
 
           ALTOOL_ARGS=(
-            --upload-package "$IPA_PATH"
-            --platform ios
-            --username "${{ secrets.APPSTORE_USERNAME }}"
-            --app-password "@env:APPSTORE_APP_PASSWORD"
-            --output-format json
-            --wait
+            --upload-app
+            -f "$IPA_PATH"
+            -t ios
+            -u "${{ secrets.APPSTORE_USERNAME }}"
+            -p "${{ secrets.APPSTORE_APP_PASSWORD }}"
+            --verbose
           )
 
-          APPSTORE_APP_PASSWORD="${{ secrets.APPSTORE_APP_PASSWORD }}" xcrun altool "${ALTOOL_ARGS[@]}"
+          xcrun altool "${ALTOOL_ARGS[@]}"
