@@ -43,6 +43,10 @@ namespace ShadersCamera
             builder.Logging.AddDebug();
 #endif
 
+#if IOS
+            Super.MaxFps = 30;
+#endif
+
             return builder.Build();
         }
 
