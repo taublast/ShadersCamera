@@ -5,7 +5,7 @@ on:
 
 jobs:
   validate-credentials:
-    runs-on: macos-15
+    runs-on: macos-26
 
     env:
       PROJECT_PATH: src/app/ShadersCamera.csproj
@@ -18,10 +18,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Select Xcode 16.4
+      - name: Select Xcode 26.2
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.4'
+          xcode-version: '26.2'
 
       - name: Decode signing assets
         shell: bash
@@ -135,7 +135,7 @@ jobs:
 
   build-ios:
     needs: validate-credentials
-    runs-on: macos-15
+    runs-on: macos-26
 
     env:
       PROJECT_PATH: src/app/ShadersCamera.csproj
@@ -155,10 +155,10 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Select Xcode 16.4
+      - name: Select Xcode 26.2
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.4'
+          xcode-version: '26.2'
 
       - name: Show Xcode version
         shell: bash
@@ -304,7 +304,7 @@ jobs:
 
   upload-appstore:
     needs: build-ios
-    runs-on: macos-15
+    runs-on: macos-26
 
     steps:
       - name: Download iOS IPA artifact
