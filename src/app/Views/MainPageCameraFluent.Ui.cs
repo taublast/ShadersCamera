@@ -92,7 +92,7 @@ namespace ShadersCamera.Views
 
                     new SkiaDrawer()
                         {
-                            UseCache = SkiaCacheType.GPU,
+                            UseCache = SkiaCacheType.Operations,
                             Margin = new Thickness(0, 0, 0, 100),
                             HeaderSize = headerSize,
                             Direction = DrawerDirection.FromLeft,
@@ -143,7 +143,6 @@ namespace ShadersCamera.Views
                                                 Content = new SkiaLayoutWithSelector()
                                                 {
                                                     Type = LayoutType.Row,
-                                                    UseCache = SkiaCacheType.Operations,
                                                     VerticalOptions = LayoutOptions.Center,
                                                     Spacing = 8,
                                                     RecyclingTemplate = RecyclingTemplate.Disabled,

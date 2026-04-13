@@ -65,6 +65,12 @@
     <CreatePackage>false</CreatePackage>
     <CodesignKey>iPhone Developer</CodesignKey>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-ios|AnyCPU'">
+    <EnableSGenConc>True</EnableSGenConc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-ios|AnyCPU'">
+    <EnableSGenConc>True</EnableSGenConc>
+  </PropertyGroup>
 
 
   <!-- Custom Android icons: include webp resources-->
