@@ -1,0 +1,104 @@
+GitHub Actions Secrets Required for Release Workflows
+
+This file documents which repository secrets are required and why for:
+1) .github/workflows/ios-release.yml
+2) .github/workflows/android-release.yml
+
+Where to set them:
+GitHub repository -> Settings -> Secrets and variables -> Actions -> New repository secret
+
+==================================================
+1) iOS workflow: .github/workflows/ios-release.yml
+==================================================
+
+Required secrets:
+
+- IOS_P12_BASE64
+  What it is:
+  Base64 of the iOS signing certificate file (.p12) that contains an Apple Distribution certificate and private key.
+  Why needed:
+  The workflow decodes and imports this certificate into a temporary keychain so codesign can sign the app.
+  If missing/wrong:
+  Validation fails with no valid code-signing identity, and IPA signing/publish cannot proceed.
+
+- IOS_P12_PASSWORD
+  What it is:
+  Password used when exporting the .p12 certificate.
+  Why needed:
+  Required by security import to unlock and import the p12.
+  If missing/wrong:
+  Certificate import fails and signing identity is unavailable.
+
+- IOS_MOBILEPROVISION_BASE64
+  What it is:
+  Base64 of the provisioning profile (.mobileprovision) for the app bundle id.
+  Why needed:
+  The workflow decodes it, validates bundle id match, installs profile, and uses its name for CodesignProvision.
+  If missing/wrong:
+  Validation fails due to profile read/mismatch issues, and IPA publish fails.
+
+- APPSTORE_USERNAME
+  What it is:
+  Apple ID username allowed to upload builds to App Store Connect.
+  Why needed:
+  Used by xcrun altool for credential validation and final IPA upload.
+  If missing/wrong:
+  App Store credential validation fails or upload step fails.
+
+- APPSTORE_APP_PASSWORD
+  What it is:
+  App-specific password generated for that Apple ID.
+  Why needed:
+  Used by xcrun altool together with APPSTORE_USERNAME for non-interactive authentication.
+  If missing/wrong:
+  App Store credential validation fails or upload step fails.
+
+Notes:
+- ios-release.yml auto-resolves the code-sign identity from the imported certificate, so no IOS_CODESIGN_KEY secret is required.
+- The workflow validates credentials first, then builds IPA, then uploads.
+
+======================================================
+2) Android workflow: .github/workflows/android-release.yml
+======================================================
+
+Required secrets:
+
+- ANDROID_KEYSTORE
+  What it is:
+  Base64 of the Android release keystore file.
+  Why needed:
+  The workflow decodes it to release.keystore and passes its path to dotnet publish signing parameters.
+  If missing/wrong:
+  Keystore decode/signing fails; release artifacts cannot be signed.
+
+- ANDROID_KEY_ALIAS
+  What it is:
+  Key alias inside the keystore used for signing.
+  Why needed:
+  Passed as AndroidSigningKeyAlias during dotnet publish.
+  If missing/wrong:
+  Signing fails because the key entry cannot be found.
+
+- ANDROID_KEY_PASSWORD
+  What it is:
+  Password for the key entry (alias) in the keystore.
+  Why needed:
+  Passed as AndroidSigningKeyPass during dotnet publish.
+  If missing/wrong:
+  Signing fails while unlocking the key.
+
+- ANDROID_KEYSTORE_PASSWORD
+  What it is:
+  Password for the keystore container itself.
+  Why needed:
+  Passed as AndroidSigningStorePass during dotnet publish.
+  If missing/wrong:
+  Signing fails while opening the keystore.
+
+Notes:
+- The workflow can build aab, apk, or both, but all release outputs require the same signing secrets.
+- Artifact collection only keeps signed files (*-Signed.aab, *-Signed.apk).
+
+Quick check before running workflows:
+- iOS: p12 includes Apple Distribution cert+private key, profile matches bundle id, App Store credentials are valid.
+- Android: keystore base64 is complete, alias exists in keystore, key/store passwords are correct.
