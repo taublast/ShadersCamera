@@ -1,9 +1,7 @@
-﻿using AppoMobi.Maui.Gestures;
-using DrawnUi.Camera;
+﻿using DrawnUi.Camera;
 using ShadersCamera.Helpers;
 using ShadersCamera.Models;
 using System.Collections.ObjectModel;
-using System.Threading;
 using System.Windows.Input;
 
 namespace ShadersCamera.ViewModels;
@@ -381,7 +379,7 @@ public class CameraViewModel : ProjectViewModel, IQueryAttributable
 
     private async void OnCaptureSuccess(object sender, CapturedImage captured)
     {
-        var imageWithEffect = await Camera.RenderCapturedPhotoAsync(captured, null, image =>
+        var imageWithEffect = await Camera.RenderCapturedPhotoAsync(captured, (SkiaLayout)null, image =>
         {
             if (SelectedShader != null)
             {

@@ -1,5 +1,6 @@
 ﻿global using DrawnUi.Draw;
 global using SkiaSharp;
+global using AppoMobi.Gestures;
 using FastPopups;
 using Microsoft.Extensions.Logging;
 

@@ -1,6 +1,3 @@
-using AppoMobi.Maui.Gestures;
-using System.Collections.Concurrent;
-
 namespace ShadersCamera.Views.Controls;
 
 /// <summary>

@@ -1,4 +1,3 @@
-using AppoMobi.Maui.Gestures;
 using System.Collections.Concurrent;
 
 namespace ShadersCamera.Views.Controls;
@@ -113,7 +112,7 @@ public class MultiRippleWithTouchEffect : ShaderDoubleTexturesEffect,
         SkiaGesturesParameters args,
         GestureEventProcessingInfo apply)
     {
-        _mouse = args.Event.Location;
+        _mouse = new PointF(args.Event.Location.X, args.Event.Location.Y); // SkiaSharp/DrawnUi API: Event.Location is System.Drawing.PointF now
 
         if (args.Type == TouchActionResult.Down && Initialized)
         {

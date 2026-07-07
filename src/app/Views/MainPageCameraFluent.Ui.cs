@@ -92,7 +92,7 @@ namespace ShadersCamera.Views
 
                     new SkiaDrawer()
                         {
-                            UseCache = SkiaCacheType.Operations,
+                            AutoCache = true,
                             Margin = new Thickness(0, 0, 0, 100),
                             HeaderSize = headerSize,
                             Direction = DrawerDirection.FromLeft,
@@ -384,7 +384,7 @@ namespace ShadersCamera.Views
                     {
                         new SkiaImage()
                             {
-                                RescalingQuality = SKFilterQuality.None,
+                                RescalingQuality = FilterQuality.None,
                                 Aspect = TransformAspect.AspectCover,
                                 HorizontalOptions = LayoutOptions.Fill,
                                 VerticalOptions = LayoutOptions.Fill,
@@ -708,7 +708,7 @@ namespace ShadersCamera.Views
                                     // IMAGE WITH SHADER EFFECT
                                     new SkiaImage()
                                         {
-                                            RescalingQuality = SKFilterQuality.None,
+                                            RescalingQuality = FilterQuality.None,
                                             Aspect = TransformAspect.AspectCover,
                                             HorizontalOptions = LayoutOptions.Fill,
                                             VerticalOptions = LayoutOptions.Fill,
