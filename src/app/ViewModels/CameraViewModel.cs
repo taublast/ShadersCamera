@@ -415,6 +415,14 @@ public class CameraViewModel : ProjectViewModel, IQueryAttributable
 
         _lastSavedPath = captured.Path;
 
+        // location for the next photos' metadata: asked once, after the first saved photo, never at camera start
+        if (Camera.InjectGpsLocation && !_locationAsked)
+        {
+            _locationAsked = true;
+            if (await SkiaCamera.RequestPermissionsAsync(SkiaCamera.NeedPermissions.Location))
+                await MainThread.InvokeOnMainThreadAsync(() => Camera.RefreshGpsLocation());
+        }
+
         Callback?.Execute(captured);
 
         var dispose = DisplayPreview;
@@ -441,4 +449,7 @@ public class CameraViewModel : ProjectViewModel, IQueryAttributable
 
     /// <summary>The Photos-refused note is shown once per session.</summary>
     private bool _photosDeniedShown;
+
+    /// <summary>Location was asked this session (after the first saved photo).</summary>
+    private bool _locationAsked;
 }

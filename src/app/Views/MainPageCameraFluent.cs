@@ -33,15 +33,26 @@ namespace ShadersCamera.Views
             }
         }
 
+        /// <summary>
+        /// Fetches the location for photo metadata, never asking for it: a location prompt at camera start froze the
+        /// preview on its first frame while the prompt was up. The permission is asked after the first saved photo
+        /// (CameraViewModel); until then the refresh is skipped.
+        /// </summary>
         void RefreshGpsLocationIfNeeded()
         {
-            if (CameraControl.InjectGpsLocation)
+            if (!CameraControl.InjectGpsLocation)
+                return;
+
+            _ = Task.Run(async () =>
             {
+                if (!await SkiaCamera.RequestPermissionsGrantedAsync(SkiaCamera.NeedPermissions.Location))
+                    return;
+
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     _ = CameraControl.RefreshGpsLocation();
                 });
-            }
+            });
         }
 
         void Subscribe(bool subscribe)
