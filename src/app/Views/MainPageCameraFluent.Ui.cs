@@ -156,10 +156,12 @@ namespace ShadersCamera.Views
                                                     VerticalOptions = LayoutOptions.Fill,
                                                     WidthRequest = 8
                                                 },
+                                                // only what the drawer tab covers (41 wide, the scroll stops 20 short of it): the last
+                                                // cell ends one spacing before the tab, no empty band after it
                                                 Footer = new SkiaLayout()
                                                 {
                                                     VerticalOptions = LayoutOptions.Fill,
-                                                    WidthRequest = 9 + headerSize //drawer header
+                                                    WidthRequest = 41 - 20
                                                 },
                                                 Content = new SkiaLayoutWithSelector()
                                                 {
