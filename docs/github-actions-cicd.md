@@ -62,7 +62,7 @@ Write-Output $b64
 * `IOS_MOBILEPROVISION_BASE64`
   * What it is: base64 of the provisioning profile `.mobileprovision` used for this app id.
   * How to get profile:
-    * Apple Developer Portal -> Profiles -> create/download App Store profile for `com.appomobi.drawnui.shaderscam`.
+    * Apple Developer Portal -> Profiles -> create/download App Store profile for `com.appomobi.drawnui.shaderscam.oss`.
   * How to produce base64 (macOS):
 ```xml
 base64 -i ShadersCam.mobileprovision | pbcopy

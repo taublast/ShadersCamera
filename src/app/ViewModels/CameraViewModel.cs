@@ -401,7 +401,17 @@ public class CameraViewModel : ProjectViewModel, IQueryAttributable
             captured.Meta.Software = SelectedShader.Title;
         }
 
-        await Camera.SaveToGalleryAsync(captured);
+        // Photos access is asked here, when it is needed, not before the viewfinder can start
+        if (await SkiaCamera.RequestPermissionsAsync(SkiaCamera.NeedPermissions.Gallery))
+        {
+            await Camera.SaveToGalleryAsync(captured);
+        }
+        else if (!_photosDeniedShown)
+        {
+            _photosDeniedShown = true;
+            await MainThread.InvokeOnMainThreadAsync(() => App.Current.MainPage.DisplayAlert("Photos",
+                "Photos access is off, so this photo was not saved. Allow Photos for Filters Camera in Settings to save your shots.", "OK"));
+        }
 
         _lastSavedPath = captured.Path;
 
@@ -428,4 +438,7 @@ public class CameraViewModel : ProjectViewModel, IQueryAttributable
 
     private readonly SemaphoreSlim semaphoreProcessingFrame = new(1, 1);
     protected SkiaCamera Camera { get; set; }
+
+    /// <summary>The Photos-refused note is shown once per session.</summary>
+    private bool _photosDeniedShown;
 }

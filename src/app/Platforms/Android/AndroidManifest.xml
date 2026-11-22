@@ -10,7 +10,7 @@
     <!-- MAUI Essentials' WebAuthenticator screen is unused here; started without its request (automated test robots start
          every activity) its onResume crashes the app, so it is removed and nothing can start it -->
     <activity android:name="crc6468b6408a11370c2f.WebAuthenticatorIntermediateActivity" tools:node="remove" />
-    <provider android:name="androidx.core.content.FileProvider" android:authorities="com.appomobi.drawnui.shaderscam.provider" android:exported="false" android:grantUriPermissions="true">
+    <provider android:name="androidx.core.content.FileProvider" android:authorities="com.appomobi.drawnui.shaderscam.oss.provider" android:exported="false" android:grantUriPermissions="true">
       <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths"></meta-data>
     </provider>
   </application>

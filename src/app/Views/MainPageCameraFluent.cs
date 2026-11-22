@@ -245,14 +245,23 @@ namespace ShadersCamera.Views
         private readonly CameraViewModel _vm;
 
 
-        private void TappedSwitchCamera()
+        private async void TappedSwitchCamera()
         {
-            if (CameraControl.IsOn)
+            if (!CameraControl.IsOn)
+                return;
+
+            if (CameraControl.Facing == CameraPosition.Selfie)
             {
-                CameraControl.Facing = CameraControl.Facing == CameraPosition.Selfie
-                    ? CameraPosition.Default
-                    : CameraPosition.Selfie;
+                CameraControl.Facing = CameraPosition.Default;
+                return;
             }
+
+            // no front camera on this device: switching would show black
+            if (!await CameraControl.HasSelfieCameraAsync())
+                return;
+
+            if (CameraControl.IsOn)
+                CameraControl.Facing = CameraPosition.Selfie;
         }
 
         private void TappedTurnCamera()

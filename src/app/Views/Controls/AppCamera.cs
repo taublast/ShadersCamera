@@ -1,4 +1,4 @@
-using AppoMobi.Specials;
+﻿using AppoMobi.Specials;
 using DrawnUi.Camera;
 using DrawnUi.Infrastructure;
 using ShadersCamera.Models;
@@ -10,9 +10,37 @@ namespace ShadersCamera.Views.Controls
     public class AppCamera : SkiaCamera
     {
 
+        /// <summary>The device has a front camera; null until <see cref="HasSelfieCameraAsync"/> listed the cameras.</summary>
+        public bool? HasSelfieCamera { get; private set; }
+
+        /// <summary>
+        /// Lists the cameras once: a device without a front camera (an emulator, a Mac) would show black after a switch
+        /// to the selfie side. An empty list says nothing (no access yet): the switch is allowed then.
+        /// </summary>
+        public async Task<bool> HasSelfieCameraAsync()
+        {
+            if (HasSelfieCamera is { } known)
+                return known;
+            try
+            {
+                var cameras = await GetAvailableCamerasAsync();
+                if (cameras == null || cameras.Count == 0)
+                    return true;
+                HasSelfieCamera = cameras.Any(x => x.Position == CameraPosition.Selfie);
+                return HasSelfieCamera.Value;
+            }
+            catch (Exception e)
+            {
+                Super.Log(e);
+                return true;
+            }
+        }
+
         public AppCamera()
         {
-            NeedPermissionsSet = NeedPermissions.Camera | NeedPermissions.Gallery; //we don't add location because it will be requested by OS when we 
+            // only the camera gates the viewfinder: waiting for Photos too left it black when Photos access was refused;
+            // Photos is asked when a shot is saved (CameraViewModel). Location is asked by the OS when used.
+            NeedPermissionsSet = NeedPermissions.Camera; //
 
             UseRealtimeVideoProcessing = true;
 
