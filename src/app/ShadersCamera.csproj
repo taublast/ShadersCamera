@@ -16,7 +16,7 @@
     <WarningsAsErrors>$(WarningsAsErrors);XLS0501</WarningsAsErrors>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-    <ApplicationTitle>Filters Camera</ApplicationTitle>
+    <ApplicationTitle>Filters Camera OSS</ApplicationTitle>
     <ApplicationId>com.appomobi.drawnui.shaderscam.oss</ApplicationId>
     <ApplicationIdGuid>340e07b0-ebc2-4fde-9ac9-074d5c3269b4</ApplicationIdGuid>
 

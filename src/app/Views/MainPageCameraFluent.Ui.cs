@@ -188,6 +188,7 @@ namespace ShadersCamera.Views
                                                     if (attached || prop == nameof(vm.ShaderItems))
                                                     {
                                                         me.ItemsSource = vm.ShaderItems;
+                                                        Thumbnails.SetItems(vm.ShaderItems?.ToList(), ThumbSizePx);
                                                     }
                                                 })
                                             }
@@ -717,7 +718,9 @@ namespace ShadersCamera.Views
                     HeightRequest = 80,
                     CornerRadius = new CornerRadius(8),
                     BackgroundColor = Colors.White,
-                    UseCache = SkiaCacheType.ImageDoubleBuffered,
+                    // the whole cell is one Image cache: nothing inside repaints on its own, the picture is a finished
+                    // bitmap, so over the live camera each visible thumb is a single blit
+                    UseCache = SkiaCacheType.Image,
                     Children =
                         {
                             new SkiaLayout()
@@ -726,36 +729,37 @@ namespace ShadersCamera.Views
                                 VerticalOptions = LayoutOptions.Fill,
                                 Children =
                                 {
-                                    // IMAGE WITH SHADER EFFECT
+                                    // SAMPLE (bundled preview), shown until the item has a baked picture
                                     new SkiaImage()
                                         {
                                             RescalingQuality = FilterQuality.None,
                                             Aspect = TransformAspect.AspectCover,
                                             HorizontalOptions = LayoutOptions.Fill,
                                             VerticalOptions = LayoutOptions.Fill,
-                                            UseCache = SkiaCacheType.Image,
-                                            VisualEffects =
-                                            {
-                                                new SkiaShaderEffect(),
-                                            }
                                         }
                                         .ObserveBindingContext<SkiaImage, ShaderItem>((me, item, prop) =>
                                         {
-                                            bool attached = prop == nameof(BindingContext);
-                                            if (attached)
-                                            {
+                                            if (prop == nameof(BindingContext))
                                                 me.Source = item?.ImageSource;
+                                        }),
 
-                                                // Update shader effect
-                                                if (me.VisualEffects.Count > 0 &&
-                                                    me.VisualEffects[0] is SkiaShaderEffect shader)
-                                                {
-                                                    shader.ShaderSource = item?.Filename;
-                                                }
+                                    // BAKED PICTURE (camera frame x this shader), drawn from the baker at paint time and
+                                    // never held: see FilterThumbView for why not a SkiaImage
+                                    new FilterThumbView()
+                                        {
+                                            Thumbnails = Thumbnails,
+                                            HorizontalOptions = LayoutOptions.Fill,
+                                            VerticalOptions = LayoutOptions.Fill,
+                                        }
+                                        .ObserveBindingContext<FilterThumbView, ShaderItem>((me, item, prop) =>
+                                        {
+                                            if (prop == nameof(BindingContext))
+                                            {
+                                                me.ItemId = FilterThumbnails.KeyOf(item);
+                                                me.Update();
                                             }
                                         })
-                                        .ObserveProperty(this, nameof(SmallPreview),
-                                            (me) => { me.ImageBitmap = SmallPreview; }),
+                                        .ObserveProperty(this, nameof(ThumbsVersion), (me) => me.Update()),
 
                                     // SHADOW BACKGROUND FOR TEXT
                                     new SkiaShape()

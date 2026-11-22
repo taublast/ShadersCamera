@@ -2,6 +2,7 @@
 using DrawnUi.Views;
 using ShadersCamera.Helpers;
 using ShadersCamera.ViewModels;
+using ShadersCamera.Views.Controls;
 using System.ComponentModel;
 using System.Diagnostics;
 using ShadersCamera.Resources.Strings;
@@ -17,6 +18,8 @@ namespace ShadersCamera.Views
             try
             {
                 _vm = new CameraViewModel();
+                Thumbnails.Updated += (s, e) => ThumbsVersion++;
+                SeedThumbnailsWithSample();
 
                 BindingContext = _vm;
 
@@ -61,6 +64,9 @@ namespace ShadersCamera.Views
             {
                 Canvas.ViewDisposing += CanvasWillDispose;
                 Canvas.WillFirstTimeDraw += WillFirstTimeDraw;
+                Canvas.WasDrawn += OnCanvasDrawn;
+                Thumbnails.RequestFrame = RequestThumbsFrame;
+                Thumbnails.DisposeManager = Canvas; // kept on unsubscribe: a disposed canvas frees at once
                 if (CameraControl != null)
                 {
                     CameraControl.CaptureFlashMode = (CaptureFlashMode)UserSettings.Current.Flash;
@@ -72,8 +78,45 @@ namespace ShadersCamera.Views
                 {
                     Canvas.ViewDisposing -= CanvasWillDispose;
                     Canvas.WillFirstTimeDraw -= WillFirstTimeDraw;
+                    Canvas.WasDrawn -= OnCanvasDrawn;
                 }
+
+                Thumbnails.RequestFrame = null;
             }
+        }
+
+        /// <summary>
+        /// Until a camera frame is tapped in, the strip shows every shader over the bundled sample photo, as before: the
+        /// sample is decoded once at thumb size and handed to the baker (no-op once a frame arrived).
+        /// </summary>
+        void SeedThumbnailsWithSample()
+        {
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    using var stream = await FileSystem.OpenAppPackageFileAsync("Images/8.jpg");
+                    using var bitmap = SKBitmap.Decode(stream);
+                    if (bitmap == null || Thumbnails.HasSource)
+                        return;
+
+                    var side = Math.Min(bitmap.Width, bitmap.Height);
+                    var src = SKRect.Create((bitmap.Width - side) / 2f, (bitmap.Height - side) / 2f, side, side);
+                    using var surface = SKSurface.Create(new SKImageInfo(256, 256, SKColorType.Rgba8888, SKAlphaType.Premul));
+                    using var image = SKImage.FromBitmap(bitmap);
+                    surface.Canvas.DrawImage(image, src, SKRect.Create(0, 0, 256, 256),
+                        new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.None));
+                    var sample = surface.Snapshot();
+                    if (Thumbnails.HasSource)
+                        sample.Dispose();
+                    else
+                        Thumbnails.SetSource(sample);
+                }
+                catch (Exception e)
+                {
+                    Super.Log(e);
+                }
+            });
         }
 
         void AttachCamera()
@@ -216,16 +259,8 @@ namespace ShadersCamera.Views
                         new SKRect(0, 0, targetSize, targetSize));
                     var mlImage = surface.Snapshot();
 
-                    //use in UI - our preview for shaders menu
-                    var dispose = SmallPreview;
-                    SmallPreview = new LoadedImageSource(mlImage)
-                    {
-                        ProtectFromDispose = true
-                    };
-                    if (dispose != null)
-                    {
-                        CameraControl.DisposeObject(dispose);
-                    }
+                    //the shaders menu: every shader baked once over this frame into plain pictures the strip blits
+                    Thumbnails.SetSource(mlImage);
 
                     //for AI/ML use this:
                     //Task.Run(async () =>
@@ -234,6 +269,36 @@ namespace ShadersCamera.Views
 
                     //}).ConfigureAwait(false);
                 }
+            }
+        }
+
+        /// <summary>Baked strip thumbnails (see <see cref="FilterThumbnails"/>). Lives as long as the page.</summary>
+        public FilterThumbnails Thumbnails { get; } = new();
+
+        /// <summary>Pixel size of one strip thumbnail (80 points).</summary>
+        static int ThumbSizePx => (int)Math.Ceiling(80 * Math.Max(1, Super.Screen.Density));
+
+        /// <summary>Render thread, after every frame: bakes pending thumbs on the canvas GPU context (a flag check otherwise).</summary>
+        void OnCanvasDrawn(object sender, SkiaDrawingContext e)
+        {
+            Thumbnails.BakeOnRenderThread(Canvas?.GetGRContext());
+        }
+
+        void RequestThumbsFrame()
+        {
+            MainThread.BeginInvokeOnMainThread(() => Canvas?.Update());
+        }
+
+        private int _thumbsVersion;
+
+        /// <summary>Bumped on the main thread whenever a new batch of thumbnails is ready; cells observe it.</summary>
+        public int ThumbsVersion
+        {
+            get { return _thumbsVersion; }
+            private set
+            {
+                _thumbsVersion = value;
+                OnPropertyChanged();
             }
         }
 
