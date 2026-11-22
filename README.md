@@ -2,20 +2,16 @@
 
 <img width="707px" height="auto" alt="banner" src="https://github.com/user-attachments/assets/818f4fd4-5b33-48f7-9999-98a817e4c54d" />
 
-Support: [ask your question here](https://github.com/taublast/ShadersCamera/discussions)
-
 Open-source app for iOS, Mac Catalyst, Android and Windows applying hardware-accelerated shaders in real-time to camera preview and saved photos. 
 Comes with built-in desktop [SKSL](https://skia.org/docs/user/sksl) editor.
 
 ### Open-source version
 
-Filters Camera in the App Store and on Google Play has grown into the full app: many more looks, video recording, light, vignette and distort effects, photo editing, and Premium in-app purchases. The code of that app is closed source.
+This repository contains an open source version of Filters Camera. It builds and runs on iOS, Mac Catalyst, Android and Windows with .NET 10: real-time SKSL shaders on the camera preview, photos saved with the look, and the built-in desktop shader editor. Learn from it, fork it, build your own camera on it.
 
-This repository stays open source as the free version of Filters Camera. It still builds and runs on iOS, Mac Catalyst, Android and Windows with .NET 10: real-time SKSL shaders on the camera preview, photos saved with the look, and the built-in desktop shader editor. Learn from it, fork it, build your own camera on it.
+There is another commercial version of Filters Camera in the App Store and on Google Play which has grown from this code: many more looks, video recording, light, vignette and distort effects, photo editing, and Premium in-app purchases. 
 
 SKSL shaders demonstrate: film grain, cubic splines, various image adjustments, lens distortion effects, edge detection and much more.
-
-Please star ⭐ if you like it!
 
 * Applying shaders to camera preview in real-time
 * Switch mirror preview
