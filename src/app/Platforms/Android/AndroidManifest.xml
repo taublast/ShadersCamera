@@ -1,6 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="1.6" android:versionCode="106102">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" android:versionName="1.6" android:versionCode="106102">
+	<!-- the activity is portrait-only (MainActivity SensorPortrait), which makes Google Play require a portrait screen and
+	     hide the app from tablets, desktops and XR; optional, the app still runs in portrait where it can -->
+	<uses-feature android:name="android.hardware.screen.portrait" android:required="false" />
 	<application android:allowBackup="true" android:largeHeap="true" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" android:supportsRtl="true">
+    <!-- portrait on every screen: Android 16 ignores the portrait lock on large screens for apps targeting API 36 unless
+         the app opts out here; the opt-out ends with API 37 -->
+    <property android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY" android:value="true" />
+    <!-- MAUI Essentials' WebAuthenticator screen is unused here; started without its request (automated test robots start
+         every activity) its onResume crashes the app, so it is removed and nothing can start it -->
+    <activity android:name="crc6468b6408a11370c2f.WebAuthenticatorIntermediateActivity" tools:node="remove" />
     <provider android:name="androidx.core.content.FileProvider" android:authorities="com.appomobi.drawnui.shaderscam.provider" android:exported="false" android:grantUriPermissions="true">
       <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths"></meta-data>
     </provider>
