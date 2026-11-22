@@ -70,9 +70,30 @@ namespace ShadersCamera.Views
                 {
                     Children = { Canvas }
                 };
+
+#if ANDROID
+            // the app is fullscreen, and Android's navigation bar sits over the bottom of the canvas (the bottom buttons were cut):
+            // the canvas ends above it, re-applied when Android reports its insets (they can arrive after Build)
+            _insetCanvas = new WeakReference<Canvas>(Canvas);
+            Canvas.Margin = new Thickness(0, 0, 0, Super.Screen.BottomInset);
+            if (!_insetsSubscribed)
+            {
+                _insetsSubscribed = true;
+                Super.InsetsChanged += (s, e) => MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    if (_insetCanvas != null && _insetCanvas.TryGetTarget(out var canvas))
+                        canvas.Margin = new Thickness(0, 0, 0, Super.Screen.BottomInset);
+                });
+            }
+#endif
  
             Subscribe(true);
         }
+
+#if ANDROID
+        static bool _insetsSubscribed;
+        static WeakReference<Canvas> _insetCanvas;
+#endif
 
         SkiaLayout CreateMainLayout()
         {
