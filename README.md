@@ -33,8 +33,6 @@ Read [the blog article](https://taublast.github.io/posts/FiltersCamera/) 👈
 * The camera starts with camera access alone, photo library access is asked when a photo is saved
 * Switching to the selfie camera only on devices that have one
 * Own app id `com.appomobi.drawnui.shaderscam.oss`, so your build installs next to the store app
-* Draw-style shaders: Print, Geisha; Poster and Cartoon on Android
-* Geolocation and the filter name saved to EXIF
 
 ### Install
 
